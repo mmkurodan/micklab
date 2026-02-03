@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Llama Tester — Mick Lab</title>
+  <style>
+    :root{--bg:#08080a;--card:#0f1114;--muted:#9aa3b2;--accent:#7c5cff}
+    body{margin:0;background:var(--bg);color:#e6eef8;font-family:Inter,system-ui,Segoe UI,Roboto,Arial}
+    header{padding:18px 24px;border-bottom:1px solid rgba(255,255,255,0.03)}
+    a{color:var(--accent);text-decoration:none}
+    main{max-width:960px;margin:28px auto;padding:20px}
+    .card{background:var(--card);padding:18px;border-radius:10px;border:1px solid rgba(255,255,255,0.03)}
+    h1{margin:0 0 12px}
+    ul{color:var(--muted)}
+    .tool{margin-top:16px;padding:14px;background:rgba(255,255,255,0.02);border-radius:8px}
+    .back{font-size:14px;margin-bottom:12px;display:inline-block}
+    .form{display:flex;gap:10px;margin-top:10px}
+    .form input,.form button{padding:10px;border-radius:8px;border:1px solid rgba(255,255,255,0.03);background:transparent;color:inherit}
+    .hint{color:var(--muted);font-size:13px;margin-top:8px}
+  </style>
+</head>
+<body>
+  <header><a class="back" href="/">← ホームへ戻る</a></header>
+  <main>
+    <div class="card">
+      <h1>Llama Tester</h1>
+      <p>このツールはLLaMA系モデルの動作確認とプロンプト検証のためのシンプルなインターフェースです。下記機能を想定しています。</p>
+      <p style="margin-top:8px;color:var(--muted);font-size:14px">文書: <a href="/manual.html">操作マニュアル</a> | <a href="/privacy.html">プライバシーポリシー</a></p>
+      <ul>
+        <li>モデルの選択（ローカル/リモート）</li>
+        <li>プロンプト入力と送信</li>
+        <li>温度・最大トークンなどの生成パラメータ調整</li>
+        <li>生成結果の表示と履歴保存</li>
+        <li>実験ノートの記録</li>
+      </ul>
+
+      <div class="tool">
+        <strong>簡易プロンプト送信（デモ）</strong>
+        <div class="form" style="margin-top:8px">
+          <input id="prompt" placeholder="ここにプロンプトを入力" style="flex:1" />
+          <button id="send">送信</button>
+        </div>
+        <div id="response" class="hint"></div>
+        <div class="hint">※ 実際のモデル接続は未実装。バックエンドと接続することで動作します。</div>
+      </div>
+    </div>
+  </main>
+  <script>
+  document.getElementById('send').addEventListener('click',()=>{
+    const p=document.getElementById('prompt').value.trim();
+    const r=document.getElementById('response');
+    if(!p){r.textContent='プロンプトを入力してください。';return;}
+    r.textContent='（デモ）送信されたプロンプト: '+p;
+  });
+  </script>
+</body>
+</html>

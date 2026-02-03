@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>操作マニュアル — Llama Tester — Mick Lab</title>
+  <style>
+    :root{--bg:#08080a;--card:#0f1114;--muted:#9aa3b2;--accent:#7c5cff}
+    *{box-sizing:border-box}
+    body{margin:0;background:var(--bg);color:#e6eef8;font-family:Inter,system-ui,Segoe UI,Roboto,Arial}
+    header{padding:18px 24px;border-bottom:1px solid rgba(255,255,255,0.03)}
+    a{color:var(--accent);text-decoration:none}
+    main{max-width:960px;margin:28px auto;padding:20px}
+    .card{background:var(--card);padding:18px;border-radius:10px;border:1px solid rgba(255,255,255,0.03)}
+    h1{margin:0 0 12px}
+    h2{margin:16px 0 8px}
+    ul,ol{color:var(--muted)}
+    .back{font-size:14px;margin-bottom:12px;display:inline-block}
+  </style>
+</head>
+<body>
+  <header>
+    <a class="back" href="/">← ホームへ戻る</a>
+    <a class="back" href="/llama-tester.html" style="margin-left:12px">← Llama Tester</a>
+  </header>
+  <main>
+    <div class="card">
+      <h1>操作マニュアル</h1>
+
+      <h2>1. アプリ概要</h2>
+      <p>本アプリは端末上でLLMを実行し、プロンプトに対する回答を生成します。必要に応じてOllama互換APIサーバーを起動できます。</p>
+
+      <h2>2. 初期設定（推奨手順）</h2>
+      <ol>
+        <li>メイン画面で「Settings」を開きます。</li>
+        <li>モデルURLを入力し「Load Model」を押してモデルを読み込みます。</li>
+        <li>パラメータを調整する場合は各項目を編集し「Save Config」で保存します。</li>
+      </ol>
+
+      <h2>3. メイン画面</h2>
+      <ul>
+        <li><strong>Enter Prompt</strong>: プロンプトを入力します。</li>
+        <li><strong>Send</strong>: 生成を開始します（モデル未読み込み時はエラー表示）。</li>
+        <li><strong>Re-init Model</strong>: 現在のモデルを解放して再初期化します。</li>
+        <li><strong>View Log</strong>: ログファイル内容を出力欄に表示します。</li>
+        <li><strong>Clear Log</strong>: ログファイルを空にします。</li>
+        <li><strong>Start/Stop API Server</strong>: APIサーバーを起動/停止します。</li>
+        <li><strong>Copy</strong>: 出力/ログをクリップボードへコピーします。</li>
+      </ul>
+
+      <h2>4. 設定画面の操作</h2>
+      <ul>
+        <li><strong>Configuration Management</strong>: 設定の保存/削除/読み込みを行います。</li>
+        <li><strong>Model Selection</strong>: モデルURLを指定し読み込みます。</li>
+        <li><strong>Model Parameters</strong>: 生成パラメータを設定します。</li>
+        <li><strong>Prompt Template</strong>: {USER_INPUT} で入力を差し込みます。</li>
+        <li><strong>Llama API Server</strong>: サーバーポートを指定します。</li>
+        <li><strong>Log Settings</strong>: ログレベルを選択します。</li>
+        <li><strong>Show License</strong>: ライセンス文面を表示します。</li>
+        <li><strong>Documents</strong>: 権利、操作マニュアル、プライバシーポリシーを確認できます。</li>
+      </ul>
+
+      <h2>5. APIサーバー（任意）</h2>
+      <ul>
+        <li>起動すると端末内で <code>/api/chat</code>, <code>/api/generate</code>, <code>/api/tags</code> を提供します。</li>
+        <li>同時生成は1件のみです（ビジー時は503を返します）。</li>
+        <li>Android 13以上では通知権限が必要な場合があります。</li>
+      </ul>
+
+    </div>
+  </main>
+  <footer style="max-width:960px;margin:40px auto 60px;padding:0 20px;color:var(--muted);font-size:13px;text-align:center">© Mick Lab — 生成AIアプリケーション研究</footer>
+</body>
+</html>
