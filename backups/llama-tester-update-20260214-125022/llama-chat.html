@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Llama Chat — Mick Lab</title>
+  <style>
+    :root{--bg:#08080a;--card:#0f1114;--muted:#9aa3b2;--accent:#7c5cff}
+    body{margin:0;background:var(--bg);color:#e6eef8;font-family:Inter,system-ui,Segoe UI,Roboto,Arial}
+    header{padding:18px 24px;border-bottom:1px solid rgba(255,255,255,0.03)}
+    a{color:var(--accent);text-decoration:none}
+    main{max-width:960px;margin:28px auto;padding:20px}
+    .card{background:var(--card);padding:18px;border-radius:10px;border:1px solid rgba(255,255,255,0.03)}
+    h1{margin:0 0 12px}
+    ul{color:var(--muted)}
+    .tool{margin-top:16px;padding:14px;background:rgba(255,255,255,0.02);border-radius:8px}
+    .back{font-size:14px;margin-bottom:12px;display:inline-block}
+    .note{color:var(--muted);font-size:14px;margin-top:8px}
+  </style>
+</head>
+<body>
+  <header><a class="back" href="/">← ホームへ戻る</a></header>
+  <main>
+    <div class="card">
+      <h1>Llama Chat</h1>
+      <p>Llama ChatはOllama互換APIサーバーと連携し、Android端末上でLLMとチャットできるアプリです。<a href="/llama-tester.html">Llama Tester</a>を前提とし、生成されたモデルやAPIサーバー機能を活用します。</p>
+      <p class="note">文書: <a href="/llama-chat/manual.html">操作マニュアル</a> | <a href="/llama-chat/privacy.html">プライバシーポリシー</a></p>
+      <ul>
+        <li>Ollama互換 /api/chat エンドポイントへの接続</li>
+        <li>ストリーミング/非ストリーミング切替</li>
+        <li>TTS（テキスト読み上げ）対応</li>
+        <li>音声入力（音声認識）対応</li>
+        <li>複数キャラクター・アバター設定</li>
+        <li>会話履歴の保存・管理</li>
+        <li>Web検索統合（オプション）</li>
+      </ul>
+
+      <div class="tool">
+        <strong>必要な環境</strong>
+        <p class="note">Llama ChatはOllama互換APIサーバーが必要です。<a href="/llama-tester.html">Llama Tester</a>を起動し、APIサーバーを有効にした状態でご利用ください。</p>
+      </div>
+    </div>
+  </main>
+</body>
+</html>
