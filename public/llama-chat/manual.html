@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>操作マニュアル — Llama Chat — Mick Lab</title>
+  <style>
+    :root{--bg:#08080a;--card:#0f1114;--muted:#9aa3b2;--accent:#7c5cff}
+    *{box-sizing:border-box}
+    body{margin:0;background:var(--bg);color:#e6eef8;font-family:Inter,system-ui,Segoe UI,Roboto,Arial}
+    header{padding:18px 24px;border-bottom:1px solid rgba(255,255,255,0.03)}
+    a{color:var(--accent);text-decoration:none}
+    main{max-width:960px;margin:28px auto;padding:20px}
+    .card{background:var(--card);padding:18px;border-radius:10px;border:1px solid rgba(255,255,255,0.03)}
+    h1{margin:0 0 12px}
+    h2{margin:16px 0 8px}
+    ul,ol{color:var(--muted)}
+    .back{font-size:14px;margin-bottom:12px;display:inline-block}
+    code{background:rgba(255,255,255,0.05);padding:2px 6px;border-radius:4px}
+  </style>
+</head>
+<body>
+  <header>
+    <a class="back" href="/">← ホームへ戻る</a>
+    <a class="back" href="/llama-chat.html" style="margin-left:12px">← Llama Chat</a>
+  </header>
+  <main>
+    <div class="card">
+      <h1>操作マニュアル</h1>
+
+      <h2>1. アプリ概要</h2>
+      <p>Llama ChatはOllama互換APIサーバーと連携し、LLMとチャットできるAndroidアプリです。<a href="/llama-tester.html">Llama Tester</a>のAPIサーバー機能、または外部のOllamaサーバーと接続して使用します。</p>
+
+      <h2>2. 初期設定（推奨手順）</h2>
+      <ol>
+        <li><a href="/llama-tester.html">Llama Tester</a>を起動し、モデルを読み込んでAPIサーバーを開始します。</li>
+        <li>Llama Chatを起動し、設定画面を開きます。</li>
+        <li>サーバーURL（例: <code>http://localhost:11434</code>）を入力します。</li>
+        <li>「モデル一覧取得」を実行し、使用するモデルを選択します。</li>
+        <li>設定を保存してメイン画面に戻ります。</li>
+      </ol>
+
+      <h2>3. メイン画面</h2>
+      <ul>
+        <li><strong>メッセージ入力欄</strong>: テキストを入力して送信します。</li>
+        <li><strong>音声入力ボタン</strong>: 長押しで音声認識を開始します。</li>
+        <li><strong>送信ボタン</strong>: メッセージをサーバーに送信します。</li>
+        <li><strong>チャット履歴</strong>: 過去のメッセージと応答が表示されます。</li>
+      </ul>
+
+      <h2>4. 設定画面</h2>
+      <ul>
+        <li><strong>サーバー設定</strong>: APIサーバーのURLとポートを指定します。</li>
+        <li><strong>モデル選択</strong>: 使用するLLMモデルを選択します。</li>
+        <li><strong>ストリーミング</strong>: ON/OFFを切り替えます（ONで応答がリアルタイム表示）。</li>
+        <li><strong>TTS設定</strong>: テキスト読み上げの有効/無効を切り替えます。</li>
+        <li><strong>キャラクター設定</strong>: システムプロンプトやアバター画像を設定します。</li>
+        <li><strong>履歴管理</strong>: チャット履歴の保存・削除を行います。</li>
+      </ul>
+
+      <h2>5. キャラクター機能</h2>
+      <p>最大4つのキャラクターを登録できます。各キャラクターには以下を設定可能です：</p>
+      <ul>
+        <li>名前</li>
+        <li>システムプロンプト（LLMの振る舞いを定義）</li>
+        <li>アバター画像</li>
+      </ul>
+
+      <h2>6. Web検索機能（オプション）</h2>
+      <p>検索APIを設定することで、チャット中にWeb検索結果を参照できます。検索結果はLLMのコンテキストに追加され、より正確な回答が可能になります。</p>
+
+      <h2>7. トラブルシューティング</h2>
+      <ul>
+        <li><strong>接続エラー</strong>: Llama TesterのAPIサーバーが起動しているか確認してください。</li>
+        <li><strong>応答が遅い</strong>: モデルサイズや端末性能に依存します。小さいモデルを試してください。</li>
+        <li><strong>音声認識が動作しない</strong>: マイク権限を許可してください。</li>
+      </ul>
+
+    </div>
+  </main>
+  <footer style="max-width:960px;margin:40px auto 60px;padding:0 20px;color:var(--muted);font-size:13px;text-align:center">© Mick Lab — 生成AIアプリケーション研究</footer>
+</body>
+</html>
