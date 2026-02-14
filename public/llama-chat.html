@@ -23,21 +23,29 @@
   <main>
     <div class="card">
       <h1>Llama Chat</h1>
-      <p>Llama ChatはOllama互換APIサーバーと連携し、Android端末上でLLMとチャットできるアプリです。<a href="/llama-tester.html">Llama Tester</a>を前提とし、生成されたモデルやAPIサーバー機能を活用します。</p>
+      <p class="lead">AIを“使う”から、AIを“操る”へ。Llama Chatは、複数のAIモデルを自由に組み合わせ、研究者・開発者向けの実験機能を備えた高度なチャットプラットフォームです。</p>
       <p class="note">文書: <a href="/llama-chat/manual.html">操作マニュアル</a> | <a href="/llama-chat/privacy.html">プライバシーポリシー</a></p>
+
+      <h2 style="margin-top:12px">キャッチコピー例</h2>
       <ul>
-        <li>Ollama互換 /api/chat エンドポイントへの接続</li>
-        <li>ストリーミング/非ストリーミング切替</li>
-        <li>TTS（テキスト読み上げ）対応</li>
-        <li>音声入力（音声認識）対応</li>
-        <li>複数キャラクター・アバター設定</li>
-        <li>会話履歴の保存・管理</li>
-        <li>Web検索統合（オプション）</li>
+        <li>「AIが、あなたのために語り合う。」 — 複数のAIが自動で対話し、多角的な回答を導きます。</li>
+        <li>「AIを“使う”から、AIを“操る”へ。」 — モデル選択やプロンプト制御で挙動を詳細に調整できます。</li>
+        <li>「AI同士が語り合う。あなたは聞くだけ。」 — Chatterモードで2つのAIが自動で掛け合います。</li>
+      </ul>
+
+      <h2 style="margin-top:12px">主な特徴</h2>
+      <ul>
+        <li><strong>Chatter モード（2 AI）</strong>: 2つのAIが交互に会話を続け、議論・翻訳・物語生成などを自動生成します。</li>
+        <li><strong>高度なカスタマイズ</strong>: モデル、システムプロンプト、音声設定、アバター（最大2体）をモデルごとに設定可能。</li>
+        <li><strong>音声ループ・Auto Voice Input</strong>: 応答後に自動で音声入力が再開することでハンズフリー体験を提供します。</li>
+        <li><strong>Web Search 拡張</strong>: 任意の検索APIを接続して、生成コンテキストに検索結果を取り込めます。</li>
+        <li><strong>開発者向け機能</strong>: 詳細ログ、Debug Mode、APIリクエスト/レスポンスの可視化。</li>
+        <li><strong>ローカル保存で高いプライバシー性</strong>: 設定・会話履歴・アバター画像は端末内に保存されます。</li>
       </ul>
 
       <div class="tool">
-        <strong>必要な環境</strong>
-        <p class="note">Llama ChatはOllama互換APIサーバーが必要です。<a href="/llama-tester.html">Llama Tester</a>を起動し、APIサーバーを有効にした状態でご利用ください。</p>
+        <strong>利用上の注意</strong>
+        <p class="note">Llama Chat は Ollama 互換の API サーバー（ローカルまたは同一ネットワーク）が必要です。<a href="/llama-tester.html">Llama Tester</a> の API 機能と組み合わせて利用することを想定しています。</p>
       </div>
     </div>
   </main>
