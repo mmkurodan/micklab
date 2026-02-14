@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>プライバシーポリシー — Llama Chat — Mick Lab</title>
+  <style>
+    :root{--bg:#08080a;--card:#0f1114;--muted:#9aa3b2;--accent:#7c5cff}
+    *{box-sizing:border-box}
+    body{margin:0;background:var(--bg);color:#e6eef8;font-family:Inter,system-ui,Segoe UI,Roboto,Arial}
+    header{padding:18px 24px;border-bottom:1px solid rgba(255,255,255,0.03)}
+    a{color:var(--accent);text-decoration:none}
+    main{max-width:960px;margin:28px auto;padding:20px}
+    .card{background:var(--card);padding:18px;border-radius:10px;border:1px solid rgba(255,255,255,0.03)}
+    h1{margin:0 0 12px}
+    h2{margin:16px 0 8px}
+    ul{color:var(--muted)}
+    .back{font-size:14px;margin-bottom:12px;display:inline-block}
+  </style>
+</head>
+<body>
+  <header>
+    <a class="back" href="/">← ホームへ戻る</a>
+    <a class="back" href="/llama-chat.html" style="margin-left:12px">← Llama Chat</a>
+  </header>
+  <main>
+    <div class="card">
+      <h1>プライバシーポリシー</h1>
+
+      <h2>1. 収集する情報</h2>
+      <p>本アプリは、個人情報を外部サーバーへ送信しません。以下の情報を端末内に保存します。</p>
+      <ul>
+        <li>設定情報（サーバーURL、モデル名、各種パラメータ）</li>
+        <li>チャット履歴（conversations.json）</li>
+        <li>アバター画像ファイル</li>
+        <li>キャラクター設定</li>
+      </ul>
+
+      <h2>2. 通信</h2>
+      <p>本アプリはOllama互換APIサーバーへ接続します。通常はローカルネットワーク内（同端末上または同一LAN内）のサーバーへ通信します。</p>
+      <p>Web検索機能を有効にした場合、指定した検索APIへクエリを送信します。送信内容はユーザーが入力した検索キーワードのみです。</p>
+
+      <h2>3. 音声機能</h2>
+      <p>音声入力（音声認識）機能を使用する場合、端末の音声認識サービスを利用します。音声データの処理はAndroidシステムに依存し、本アプリが独自に収集・送信することはありません。</p>
+      <p>TTS（テキスト読み上げ）機能は端末内で処理されます。</p>
+
+      <h2>4. 利用目的</h2>
+      <p>上記データはアプリの動作、チャット機能、表示のために使用します。</p>
+
+      <h2>5. 保存期間</h2>
+      <p>設定・チャット履歴・アバター画像は、ユーザーが削除するかアプリのデータを消去するまで保持されます。チャット履歴は設定画面から削除できます。</p>
+
+      <h2>6. お問い合わせ</h2>
+      <p>ライセンス記載の連絡先へお問い合わせください。</p>
+
+    </div>
+  </main>
+  <footer style="max-width:960px;margin:40px auto 60px;padding:0 20px;color:var(--muted);font-size:13px;text-align:center">© Mick Lab — 生成AIアプリケーション研究</footer>
+</body>
+</html>

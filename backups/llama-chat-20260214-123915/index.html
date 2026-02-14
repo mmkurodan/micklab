@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Mick Lab — 生成AIアプリケーション研究</title>
+  <link rel="icon" href="/favicon.ico">
+  <style>
+    :root {
+      --bg: #0b0c0f;
+      --card: #0f1114;
+      --muted: #9aa3b2;
+      --accent: #7c5cff;
+      --glass: rgba(255,255,255,0.03);
+    }
+    *{box-sizing:border-box}
+    body{margin:0;background:linear-gradient(180deg,var(--bg),#070708);color:#e6eef8;font-family:Inter,system-ui,Segoe UI,Roboto,"Helvetica Neue",Arial}
+    header{display:flex;align-items:center;justify-content:space-between;padding:20px 32px;border-bottom:1px solid rgba(255,255,255,0.03);backdrop-filter: blur(6px)}
+    .brand{display:flex;align-items:center;gap:12px}
+    .logo{width:44px;height:44px;border-radius:8px;background:linear-gradient(135deg,var(--accent),#00d4ff);display:flex;align-items:center;justify-content:center;font-weight:700;color:#071020}
+    .title{font-size:18px;font-weight:600}
+    nav a{color:var(--muted);text-decoration:none;margin-left:18px;font-weight:500}
+    nav a:hover{color:#fff}
+    main{max-width:1100px;margin:48px auto;padding:0 20px}
+    .hero{display:flex;gap:32px;align-items:center}
+    .hero-left{flex:1}
+    h1{font-size:40px;margin:0 0 12px}
+    p.lead{color:var(--muted);margin:0 0 20px;line-height:1.6}
+    .cta{display:inline-block;background:var(--accent);color:#071020;padding:12px 18px;border-radius:8px;text-decoration:none;font-weight:600}
+    .apps{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:18px;margin-top:28px}
+    .card{background:var(--card);padding:18px;border-radius:12px;border:1px solid rgba(255,255,255,0.03)}
+    .card h3{margin:0 0 10px}
+    .card p{margin:0;color:var(--muted);font-size:14px}
+    footer{max-width:1100px;margin:60px auto 40px;padding:0 20px;color:var(--muted);font-size:13px;text-align:center}
+    @media (max-width:700px){h1{font-size:28px}.hero{flex-direction:column;align-items:flex-start}}
+  </style>
+</head>
+<body>
+  <header>
+    <div class="brand">
+      <div class="logo">ML</div>
+      <div>
+        <div class="title">Mick Lab</div>
+        <div style="font-size:12px;color:var(--muted)">生成AIを中心にしたアプリケーション研究</div>
+      </div>
+    </div>
+    <nav>
+      <a href="/">ホーム</a>
+      <a href="/llama-tester.html">Llama Tester</a>
+      <a href="/llama-chat.html">Llama Chat</a>
+      <a href="#apps">Apps</a>
+    </nav>
+  </header>
+  <main>
+    <section class="hero">
+      <div class="hero-left">
+        <h1>Mick Lab — 実験と実装の場所</h1>
+        <p class="lead">個人で進める生成AIアプリケーションの研究・開発を紹介するサイトです。ツールの動作検証やプロトタイプを公開します。</p>
+        <a class="cta" href="/llama-tester.html">Llama Tester を試す</a>
+      </div>
+      <div class="hero-right" style="width:320px">
+        <div class="card">
+          <h3>アプリケーションメニュー</h3>
+          <p>以下は現在利用可能なツールです。クリックして詳細や実験ページへ移動できます。</p>
+          <div id="apps" class="apps" style="margin-top:12px">
+            <a class="card" href="/llama-tester.html"><h3>Llama Tester</h3><p>ローカル/リモートモデルに対するプロンプト検証ツール</p></a>
+            <a class="card" href="/llama-chat.html"><h3>Llama Chat</h3><p>Ollama互換APIを使用したチャットアプリ</p></a>
+          </div>
+        </div>
+      </div>
+    </section>
+    <section style="margin-top:40px">
+      <div class="card">
+        <h3>最新の実験ノート</h3>
+        <p>ここに最近のプロジェクトやメモを掲載します（準備中）。</p>
+      </div>
+    </section>
+  </main>
+  <footer>© Mick Lab — 生成AIアプリケーション研究</footer>
+</body>
+</html>
