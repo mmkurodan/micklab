@@ -33,21 +33,23 @@
         <li><strong>端末:</strong> Android スマートフォン</li>
         <li><strong>開発環境:</strong> Userland（Linuxユーザー空間）</li>
         <li><strong>実装支援:</strong> Copilot CLI（ターミナルベース開発）</li>
-        <li><strong>運用スクリプト:</strong> <code>Android,_Base.sh</code> / <code>push.sh</code></li>
+        <li><strong>運用スクリプト:</strong> <code>android_base.sh</code> / <code>push.sh</code></li>
       </ul>
 
       <h2>スクリプトの役割</h2>
       <ul>
-        <li><code>Android,_Base.sh</code>: Userland 上での開発に必要なベース設定・作業導線の整備を行う独自スクリプト。</li>
-        <li><code>push.sh</code>: 変更をまとめてコミット・push し、GitHub 側の CI / デプロイフローを起動するための運用スクリプト。</li>
+        <li><code>android_base.sh</code>: 引数 <code>&lt;ProjectName&gt; &lt;GitHubRepo&gt; [public|private]</code> で Android プロジェクト雛形、Gradle 設定、Manifest、MainActivity、CI ワークフローを自動生成します。</li>
+        <li><code>.github/workflows/android.yml</code> を生成し、Gradle 8.2.1 の導入、<code>assembleDebug</code> 実行、APK のアーティファクト保存までを定義します。</li>
+        <li><code>push.sh</code>: 変更を <code>git add/commit/push</code> して、GitHub Actions をトリガーする運用スクリプト。</li>
+        <li>初期セットアップでは <code>gh repo create ... --push</code> まで実行し、リポジトリ作成と初回反映を自動化します。</li>
       </ul>
 
       <h2>CI フロー（概要）</h2>
       <ol>
-        <li>Android + Userland でコードを更新</li>
-        <li>Copilot CLI で修正・検証</li>
+        <li><code>android_base.sh</code> でプロジェクトと CI 定義を生成</li>
+        <li>Android + Userland 上で Copilot CLI を使って実装・修正</li>
         <li><code>push.sh</code> で GitHub に反映</li>
-        <li>GitHub Actions（CI / Hosting ワークフロー）が実行</li>
+        <li>GitHub Actions の Android CI / Hosting ワークフローが実行</li>
       </ol>
 
       <h2>この構成の狙い</h2>
