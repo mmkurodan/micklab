@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Android開発とGitHub CI — Mick Lab</title>
+  <style>
+    :root{--bg:#08080a;--card:#0f1114;--muted:#9aa3b2;--accent:#7c5cff}
+    *{box-sizing:border-box}
+    body{margin:0;background:var(--bg);color:#e6eef8;font-family:Inter,system-ui,Segoe UI,Roboto,Arial}
+    header{padding:18px 24px;border-bottom:1px solid rgba(255,255,255,0.03)}
+    a{color:var(--accent);text-decoration:none}
+    main{max-width:960px;margin:28px auto;padding:20px}
+    .card{background:var(--card);padding:18px;border-radius:10px;border:1px solid rgba(255,255,255,0.03)}
+    h1{margin:0 0 12px}
+    h2{margin:16px 0 8px}
+    ul,ol,p{color:var(--muted);line-height:1.7}
+    .back{font-size:14px;margin-bottom:12px;display:inline-block}
+    code{background:rgba(255,255,255,0.05);padding:2px 6px;border-radius:4px;color:#e6eef8}
+  </style>
+</head>
+<body>
+  <header>
+    <a class="back" href="/">← ホームへ戻る</a>
+  </header>
+  <main>
+    <div class="card">
+      <h1>Androidスマホだけで開発し、GitHub CI へ接続する構成</h1>
+      <p>Mick Lab では、アプリ開発を Android スマホのみで完結させています。Userland 上で Linux 環境を動かし、Copilot CLI で実装・修正を進め、スクリプト運用で GitHub CI まで接続しています。</p>
+
+      <h2>開発スタック</h2>
+      <ul>
+        <li><strong>端末:</strong> Android スマートフォン</li>
+        <li><strong>開発環境:</strong> Userland（Linuxユーザー空間）</li>
+        <li><strong>実装支援:</strong> Copilot CLI（ターミナルベース開発）</li>
+        <li><strong>運用スクリプト:</strong> <code>Android,_Base.sh</code> / <code>push.sh</code></li>
+      </ul>
+
+      <h2>スクリプトの役割</h2>
+      <ul>
+        <li><code>Android,_Base.sh</code>: Userland 上での開発に必要なベース設定・作業導線の整備を行う独自スクリプト。</li>
+        <li><code>push.sh</code>: 変更をまとめてコミット・push し、GitHub 側の CI / デプロイフローを起動するための運用スクリプト。</li>
+      </ul>
+
+      <h2>CI フロー（概要）</h2>
+      <ol>
+        <li>Android + Userland でコードを更新</li>
+        <li>Copilot CLI で修正・検証</li>
+        <li><code>push.sh</code> で GitHub に反映</li>
+        <li>GitHub Actions（CI / Hosting ワークフロー）が実行</li>
+      </ol>
+
+      <h2>この構成の狙い</h2>
+      <p>PC 前提を外し、モバイル端末単体で継続開発できる再現性の高いワークフローを作ることです。Mick Lab の各アプリは、この運用基盤の上で改善を継続しています。</p>
+    </div>
+  </main>
+  <footer style="max-width:960px;margin:40px auto 60px;padding:0 20px;color:var(--muted);font-size:13px;text-align:center">© Mick Lab — 生成AIアプリケーション研究</footer>
+</body>
+</html>

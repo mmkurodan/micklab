@@ -48,6 +48,7 @@
       <a href="/">ホーム</a>
       <a href="/llama-tester.html">Llama Tester</a>
       <a href="/llama-chat.html">Llama Chat</a>
+      <a href="/android-ci.html">開発/CI</a>
       <a href="#apps">Apps</a>
     </nav>
   </header>
@@ -55,7 +56,12 @@
     <section class="hero">
       <div class="hero-left">
         <h1>Mick Lab — 実験と実装の場所</h1>
-        <p class="lead">個人で進める生成AIアプリケーションの研究・開発を紹介するサイトです。ツールの動作検証やプロトタイプを公開します。</p>
+        <p class="lead">Mick Lab のアプリは、Androidスマホのみで設計・実装・検証・公開まで完結しています。モバイル単体で生成AIアプリを継続開発する実践を公開しています。</p>
+        <div class="card" style="margin-top:14px">
+          <h3>Androidスマホ単体での開発体制</h3>
+          <p>PCに依存せず、Llama Tester / Llama Chat を含む全アプリを Android 端末上で開発しています。</p>
+          <p style="margin-top:10px"><a href="/android-ci.html">Userland + Copilot CLI + 独自スクリプトによる GitHub CI 運用の詳細を見る</a></p>
+        </div>
 
       </div>
       <div class="hero-right" style="width:320px">
@@ -65,6 +71,7 @@
           <div id="apps" class="apps" style="margin-top:12px">
             <a class="card" href="/llama-tester.html"><h3>Llama Tester</h3><p>ローカル/リモートモデルに対するプロンプト検証ツール</p></a>
             <a class="card" href="/llama-chat.html"><h3>Llama Chat</h3><p>Ollama互換APIを使用したチャットアプリ</p></a>
+            <a class="card" href="/android-ci.html"><h3>開発/CI 解説</h3><p>Userland と Copilot CLI による Android 開発と GitHub 連携の構成</p></a>
           </div>
         </div>
       </div>
