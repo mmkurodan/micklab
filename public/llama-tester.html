@@ -25,17 +25,30 @@
   <main>
     <div class="card">
       <h1>Llama Tester</h1>
-      <p>このツールはLLaMA系モデルの動作確認とプロンプト検証のためのシンプルなインターフェースです。下記機能を想定しています。</p>
+      <p class="lead">LLMの挙動を「測る・比較する・再現する」ための、ローカルLLM向け実験ツールです。スマホ上でモデル比較、パラメータ検証、テンプレート検証が行えます。</p>
       <p style="margin-top:8px;color:var(--muted);font-size:14px">文書: <a href="/llama-tester/manual.html">操作マニュアル</a> | <a href="/llama-tester/privacy.html">プライバシーポリシー</a></p>
+
+      <h2 style="margin-top:12px">キャッチコピー例</h2>
       <ul>
-        <li>モデルの選択（ローカル/リモート）</li>
-        <li>プロンプト入力と送信</li>
-        <li>温度・最大トークンなどの生成パラメータ調整</li>
-        <li>生成結果の表示と履歴保存</li>
-        <li>実験ノートの記録</li>
+        <li>「LLMの“挙動”を可視化する。」 — 応答品質・速度・安定性を精密に測定する実験環境。</li>
+        <li>「ローカルLLMを、もっと正確に理解する。」 — モデル選択から生成ログまで、すべてを一つの画面で管理できます。</li>
+        <li>「モデル比較・テンプレ検証・パラメータ実験。すべて一つで。」 — 研究者・開発者向けの高度な機能を提供します。</li>
       </ul>
 
+      <h2 style="margin-top:12px">主な特徴</h2>
+      <ul>
+        <li><strong>複数モデルの比較</strong>: 同一プロンプトで応答を並列比較し、モデルごとの違いを把握できます。</li>
+        <li><strong>詳細なログと再現性</strong>: 生成パラメータ、テンプレート、リクエスト/レスポンスを記録し、実験の再現性を確保します。</li>
+        <li><strong>テンプレート検証</strong>: ChatML / Qwen / LLaMA 等のテンプレート差異を簡単に比較検証できます。</li>
+        <li><strong>高度なサンプリング設定</strong>: Temperature、Top‑p、Mirostat、DRY などの影響を試験可能です。</li>
+        <li><strong>スマホ単体で完結</strong>: Android端末だけでモデルの挙動を分析できる軽量なテスト環境です。</li>
+        <li><strong>研究者向けの透明性</strong>: デバッグモードでAPIのやり取りを可視化し、挙動の原因分析を支援します。</li>
+      </ul>
 
+      <div class="tool">
+        <strong>利用上の注意</strong>
+        <p class="hint">Llama Tester はローカルまたは同一ネットワーク上の Ollama 互換 API サーバーへ接続してモデルを操作する想定です。生成の速度や安定性はモデルや端末性能に依存します。</p>
+      </div>
     </div>
   </main>
 
