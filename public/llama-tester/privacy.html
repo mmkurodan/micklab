@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>プライバシーポリシー — Mick Lab</title>
+  <title>プライバシーポリシー — LLM tester with llama.cpp — Mick Lab</title>
   <style>
     :root{--bg:#08080a;--card:#0f1114;--muted:#9aa3b2;--accent:#7c5cff}
     *{box-sizing:border-box}
@@ -33,22 +33,63 @@
         <li>ダウンロードしたモデルファイル</li>
         <li>ログファイル（ollama.log）</li>
       </ul>
+      <p>また、アプリの生成機能を利用する際、ユーザーが入力したテキスト（会話内容）は、端末内または同一ローカルネットワーク内で動作するローカルAPIに送信されます。このデータは外部サーバーへ送信されず、保存も行いません。</p>
 
       <h2>2. 通信</h2>
-      <p>モデルのダウンロード時に、入力されたURLへ通信します。<br>
-      APIサーバーを有効にした場合、端末のポートでリクエストを受け付けます。入力内容は端末内で処理され、アプリが外部サーバーへ送信することはありません。</p>
+      <ul>
+        <li>モデルのダウンロード時に、ユーザーが入力した URL へ通信します。</li>
+        <li>API サーバーを有効にした場合、端末内またはローカルネットワーク内のポート（0.0.0.0）でリクエストを受け付けます。</li>
+        <li>ユーザーの入力内容（会話全文）はローカル API に送信されますが、インターネットを経由して外部サーバーへ送信されることはありません。</li>
+        <li>ローカルネットワーク内からアクセス可能ですが、外部ネットワークからのアクセスは意図されておらず、アプリは外部公開を行いません。</li>
+        <li>ローカル通信は暗号化されていない場合がありますが、通信は端末内または同一ネットワーク内に限定されます。</li>
+      </ul>
 
       <h2>3. 利用目的</h2>
-      <p>上記データはアプリの動作、生成機能、表示のために使用します。</p>
+      <p>上記データは、アプリの動作、生成機能、表示のために使用します。ユーザーの入力内容は生成処理のためにのみ利用され、外部送信・第三者提供・保存は行いません。</p>
 
       <h2>4. ログ</h2>
-      <p>ログにはアプリの動作状況やAPIリクエスト情報が記録される場合があります。</p>
+      <p>ログにはアプリの動作状況や API リクエスト情報が記録される場合があります。ログは端末内にのみ保存され、外部へ送信されません。</p>
 
       <h2>5. 保存期間</h2>
       <p>設定・モデル・ログは、ユーザーが削除するかアプリのデータを消去するまで保持されます。ログはメイン画面の「Clear Log」で削除できます。</p>
 
       <h2>6. お問い合わせ</h2>
-      <p>ライセンス記載の連絡先へお問い合わせください。</p>
+      <p>ご不明点がある場合は、以下のメールアドレスまでお問い合わせください。<br>micklab2026@gmail.com</p>
+
+      <hr style="border:0;border-top:1px solid rgba(255,255,255,0.1);margin:28px 0">
+
+      <h2>Privacy Policy (English Version)</h2>
+
+      <h3>1. Information Collected</h3>
+      <p>This application does not transmit any personal information to external servers. The following data is stored locally on the device:</p>
+      <ul>
+        <li>Configuration data (model URL, parameters, API port, log level)</li>
+        <li>Configuration files (configs/*.json)</li>
+        <li>Downloaded model files</li>
+        <li>Log file (ollama.log)</li>
+      </ul>
+      <p>When using the generation features, the text entered by the user (conversation content) is sent to a local API running on the device or within the same local network. This data is not transmitted to external servers and is not stored.</p>
+
+      <h3>2. Communication</h3>
+      <ul>
+        <li>When downloading models, the application communicates with the URL entered by the user.</li>
+        <li>When the API server is enabled, it listens on a port (0.0.0.0) accessible within the device or the local network.</li>
+        <li>User input (full conversation text) is sent to the local API, but it is never transmitted over the internet or to any external server.</li>
+        <li>The API may be accessible from devices within the same local network, but it is not intended for external network access, and the application does not expose the API to the internet.</li>
+        <li>Local communication may be unencrypted, but all communication is restricted to the device or the same local network.</li>
+      </ul>
+
+      <h3>3. Purpose of Use</h3>
+      <p>The collected data is used solely for application functionality, generation processing, and display. User input is used only for generation and is not transmitted externally, shared with third parties, or stored.</p>
+
+      <h3>4. Logs</h3>
+      <p>Logs may contain operational information or API request details. Logs are stored only on the device and are not transmitted externally.</p>
+
+      <h3>5. Retention Period</h3>
+      <p>Settings, models, and logs are retained until the user deletes them or clears the application data. Logs can be deleted using the "Clear Log" option on the main screen.</p>
+
+      <h3>6. Contact</h3>
+      <p>If you have any questions, please contact: micklab2026@gmail.com</p>
 
     </div>
   </main>
