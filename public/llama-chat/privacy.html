@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>プライバシーポリシー — Llama Chat — Mick Lab</title>
+  <title>プライバシーポリシー — Dual AI Chat — Mick Lab</title>
   <style>
     :root{--bg:#08080a;--card:#0f1114;--muted:#9aa3b2;--accent:#7c5cff}
     *{box-sizing:border-box}
@@ -21,7 +21,7 @@
 <body>
   <header>
     <a class="back" href="/">← ホームへ戻る</a>
-    <a class="back" href="/llama-chat.html" style="margin-left:12px">← Llama Chat</a>
+    <a class="back" href="/llama-chat.html" style="margin-left:12px">← Dual AI Chat</a>
   </header>
   <main>
     <div class="card">
@@ -30,28 +30,66 @@
       <h2>1. 収集する情報</h2>
       <p>本アプリは、個人情報を外部サーバーへ送信しません。以下の情報を端末内に保存します。</p>
       <ul>
-        <li>設定情報（サーバーURL、モデル名、各種パラメータ）</li>
-        <li>チャット履歴（conversations.json）</li>
+        <li>設定情報（OllamaサーバーURL、モデル名、各種パラメータ）</li>
+        <li>テンプレート名・キャラクター設定</li>
+        <li>チャット履歴</li>
         <li>アバター画像ファイル</li>
-        <li>キャラクター設定</li>
       </ul>
+      <p>会話内容は、ユーザーが設定した Ollama 互換 API サーバーへ送信されます。開発者が会話データを収集することはありません。</p>
 
       <h2>2. 通信</h2>
-      <p>本アプリはOllama互換APIサーバーへ接続します。通常はローカルネットワーク内（同端末上または同一LAN内）のサーバーへ通信します。</p>
-      <p>Web検索機能を有効にした場合、指定した検索APIへクエリを送信します。送信内容はユーザーが入力した検索キーワードのみです。</p>
+      <ul>
+        <li>設定画面を開くと、モデル一覧更新のため設定済み Ollama サーバーの /api/tags へ GET リクエストを送信します（会話本文は含まれません）。</li>
+        <li>チャット時は、ユーザー入力（会話内容）を設定済み Ollama 互換 API サーバーへ送信します。</li>
+        <li>Web検索機能を有効にした場合、検索クエリは設定済み検索 API に送信されます。</li>
+      </ul>
 
-      <h2>3. 音声機能</h2>
-      <p>音声入力（音声認識）機能を使用する場合、端末の音声認識サービスを利用します。音声データの処理はAndroidシステムに依存し、本アプリが独自に収集・送信することはありません。</p>
+      <h2>3. 利用目的</h2>
+      <p>上記データは、アプリの動作、チャット機能、表示、音声機能のために使用します。ユーザー入力は応答生成のためにのみ利用されます。</p>
+
+      <h2>4. 音声機能</h2>
+      <p>音声入力（音声認識）機能を使用する場合、端末の音声認識サービスを利用します。音声データの処理は Android システムに依存し、本アプリが独自に収集することはありません。</p>
       <p>TTS（テキスト読み上げ）機能は端末内で処理されます。</p>
 
-      <h2>4. 利用目的</h2>
-      <p>上記データはアプリの動作、チャット機能、表示のために使用します。</p>
-
       <h2>5. 保存期間</h2>
-      <p>設定・チャット履歴・アバター画像は、ユーザーが削除するかアプリのデータを消去するまで保持されます。チャット履歴は設定画面から削除できます。</p>
+      <p>設定・テンプレート・チャット履歴・アバター画像は、ユーザーが削除するかアプリのデータを消去するまで保持されます。チャット履歴は設定画面から削除できます。</p>
 
       <h2>6. お問い合わせ</h2>
-      <p>ライセンス記載の連絡先へお問い合わせください。</p>
+      <p>ご不明点がある場合は、以下のメールアドレスまでお問い合わせください。<br>micklab2026@gmail.com</p>
+
+      <hr style="border:0;border-top:1px solid rgba(255,255,255,0.1);margin:28px 0">
+
+      <h2>Privacy Policy (English Version)</h2>
+
+      <h3>1. Information Collected</h3>
+      <p>This application does not transmit any personal information to external servers. The following data is stored locally on the device:</p>
+      <ul>
+        <li>Configuration data (Ollama server URL, model names, and parameters)</li>
+        <li>Template names and character settings</li>
+        <li>Chat history</li>
+        <li>Avatar image files</li>
+      </ul>
+      <p>Conversation content is sent only to the Ollama-compatible API server configured by the user. The developer does not collect conversation data.</p>
+
+      <h3>2. Communication</h3>
+      <ul>
+        <li>When opening settings, the app sends a GET request to /api/tags on your configured Ollama server to refresh model lists (no conversation content is included).</li>
+        <li>During chat, user input is sent to the configured Ollama-compatible API server.</li>
+        <li>When Web Search is enabled, search queries are sent to your configured search API.</li>
+      </ul>
+
+      <h3>3. Purpose of Use</h3>
+      <p>The collected data is used solely for application functionality, chat features, display, and voice features. User input is used only for response generation.</p>
+
+      <h3>4. Voice Features</h3>
+      <p>Voice input uses your device's speech recognition service. Audio processing depends on Android system features, and this app does not independently collect voice data.</p>
+      <p>Text-to-speech is processed locally on the device.</p>
+
+      <h3>5. Retention Period</h3>
+      <p>Settings, templates, chat history, and avatar images are retained until the user deletes them or clears the application data. Chat history can be deleted from the settings screen.</p>
+
+      <h3>6. Contact</h3>
+      <p>If you have any questions, please contact: micklab2026@gmail.com</p>
 
     </div>
   </main>

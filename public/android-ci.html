@@ -26,12 +26,12 @@
   <main>
     <div class="card">
       <h1>Androidスマホだけで開発し、GitHub CI へ接続する構成</h1>
-      <p>Mick Lab では、アプリ開発を Android スマホのみで完結させています。Userland 上で Linux 環境を動かし、Copilot CLI で実装・修正を進め、スクリプト運用で GitHub CI まで接続しています。</p>
+      <p>Mick Lab では、アプリ開発を Android スマホのみで完結させています。Userland / Termux 上で Linux 環境を動かし、Copilot CLI で実装・修正を進め、スクリプト運用で GitHub CI まで接続しています。</p>
 
       <h2>開発スタック</h2>
       <ul>
         <li><strong>端末:</strong> Android スマートフォン</li>
-        <li><strong>開発環境:</strong> Userland（Linuxユーザー空間）</li>
+        <li><strong>開発環境:</strong> Userland / Termux（Linuxユーザー空間）</li>
         <li><strong>実装支援:</strong> Copilot CLI（ターミナルベース開発）</li>
         <li><strong>運用スクリプト:</strong> <code>android_base.sh</code> / <code>push.sh</code></li>
       </ul>
@@ -47,7 +47,7 @@
       <h2>CI フロー（概要）</h2>
       <ol>
         <li><code>android_base.sh</code> でプロジェクトと CI 定義を生成</li>
-        <li>Android + Userland 上で Copilot CLI を使って実装・修正</li>
+        <li>Android + Userland / Termux 上で Copilot CLI を使って実装・修正</li>
         <li><code>push.sh</code> で GitHub に反映</li>
         <li>GitHub Actions の Android CI / Hosting ワークフローが実行</li>
       </ol>

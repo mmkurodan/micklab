@@ -65,6 +65,16 @@
       </ul>
 
       <div class="tool">
+        <strong>API仕様（端末内 Ollama 互換サーバー）</strong>
+        <ul>
+          <li><strong><code>GET /api/tags</code>（<code>POST /api/tags</code> も可）</strong>: 設定済みモデル一覧を返します。レスポンス例: <code>{"models":[{"name":"default","model":"default","modified_at":"2026-03-15T00:00:00Z","size":0,"details":{"format":"gguf","family":"llama","parameter_size":"unknown","quantization_level":"unknown"}}]}</code></li>
+          <li><strong><code>POST /api/generate</code></strong>: 本文JSONは <code>model</code>（省略時 default）, <code>prompt</code>, <code>system</code>（任意）, <code>stream</code>（省略時 true）。<code>stream=true</code> は NDJSON チャンク（<code>response</code> を逐次返却、最終チャンクで <code>done:true</code>）、<code>stream=false</code> は単一JSON（<code>response</code> 全文 + <code>done:true</code>）です。</li>
+          <li><strong><code>POST /api/chat</code></strong>: 本文JSONは <code>model</code>（省略時 default）, <code>messages</code>（必須: role/content配列）, <code>stream</code>（省略時 true）。<code>stream=true</code> は NDJSON チャンク（<code>message.content</code> を逐次返却、最終チャンクで <code>done:true</code>）、<code>stream=false</code> は単一JSON（assistant の全文応答 + <code>done:true</code>）です。</li>
+          <li><strong>共通仕様</strong>: 同時生成は1件のみ。ビジー時は待機キュー最大10件・最大60秒で待機し、超過時は <code>503</code> を返します。主なエラーは <code>400</code>（不正JSON/メッセージ不足）, <code>500</code>（設定読み込み失敗）, <code>404</code>（未定義エンドポイント）です。</li>
+        </ul>
+      </div>
+
+      <div class="tool">
         <strong>利用上の注意</strong>
         <p class="hint">生成の速度や安定性はモデルや端末性能に依存します。</p>
       </div>
