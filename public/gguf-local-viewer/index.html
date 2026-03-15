@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>ローカルLLM（GGUF）推論ビューア</title>
+  <style>
+    :root { --bg:#0b0c0f; --card:#12161c; --line:#2b313a; --fg:#e6eef8; --muted:#a7b2c5; --accent:#7c5cff; --error:#ff6b6b; }
+    * { box-sizing: border-box; }
+    body { margin: 0; padding: 16px; background: var(--bg); color: var(--fg); font-family: system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif; }
+    .app { width: 100%; max-width: 760px; margin: 0 auto; padding: 16px; background: var(--card); border: 1px solid var(--line); border-radius: 12px; }
+    h1 { margin-top: 0; font-size: 1.2rem; }
+    p { margin: 0 0 12px; color: var(--muted); line-height: 1.5; }
+    .field { display: block; margin: 12px 0 8px; color: var(--muted); }
+    input[type="file"], textarea, button {
+      width: 100%;
+      margin-top: 8px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #0f1318;
+      color: var(--fg);
+      font: inherit;
+      padding: 10px;
+    }
+    textarea { min-height: 110px; resize: vertical; }
+    button { cursor: pointer; background: #1b2230; }
+    button:disabled { cursor: not-allowed; opacity: 0.6; }
+    .status { margin: 8px 0; padding: 10px; border-radius: 8px; border: 1px solid var(--line); background: #0d1117; color: var(--muted); white-space: pre-wrap; }
+    .status.error { border-color: rgba(255,107,107,0.6); color: var(--error); }
+    #response { min-height: 120px; }
+  </style>
+</head>
+<body>
+  <main class="app">
+    <h1>ローカルLLM（GGUF）推論ビューア</h1>
+    <p>静的HTML/JS/WASMのみで動作します。モデルロードは必ずユーザー操作（ファイル選択）で実行されます。</p>
+
+    <div id="gpuStatus" class="status">WebGPU 対応を確認中...</div>
+
+    <label class="field">
+      1) GGUFモデルを選択
+      <input id="modelFile" type="file" accept=".gguf,application/octet-stream">
+    </label>
+    <button id="loadModelBtn" type="button" disabled>モデルを読み込む</button>
+    <div id="modelStatus" class="status">モデル未ロード</div>
+
+    <label class="field">
+      2) プロンプト入力
+      <textarea id="promptInput" placeholder="例: このモデルのテスト応答を返してください"></textarea>
+    </label>
+    <button id="runBtn" type="button" disabled>送信（ダミー推論）</button>
+    <pre id="response" class="status" aria-live="polite">ここにレスポンスが表示されます。</pre>
+  </main>
+
+  <script type="module" src="./main.js"></script>
+</body>
+</html>
