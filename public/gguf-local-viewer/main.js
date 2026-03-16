@@ -2,7 +2,9 @@ import { LoggerWithoutDebug, Wllama } from "https://cdn.jsdelivr.net/npm/@wllama
 
 const gpuStatusEl = document.getElementById("gpuStatus");
 const modelStatusEl = document.getElementById("modelStatus");
+const apiStatusEl = document.getElementById("apiStatus");
 const loadModelBtn = document.getElementById("loadModelBtn");
+const activateApiBtn = document.getElementById("activateApiBtn");
 const promptInputEl = document.getElementById("promptInput");
 const runBtn = document.getElementById("runBtn");
 const responseEl = document.getElementById("response");
@@ -12,6 +14,7 @@ const MODEL_URL =
 const MODEL_NAME = "qwen2.5-1.5b-instruct-q4_k_m.gguf";
 const DEFAULT_MODEL_ALIAS = "default";
 const OLLAMA_ENDPOINT_RE = /\/api\/(tags|generate|chat)$/;
+const API_CHECK_PATH = "/api/tags";
 const WLLAMA_ASSETS = {
   "single-thread/wllama.wasm":
     "https://cdn.jsdelivr.net/npm/@wllama/wllama@2.3.7/esm/single-thread/wllama.wasm",
@@ -29,6 +32,7 @@ const state = {
   model: null,
   inferenceInFlight: false,
   apiFetchInstalled: false,
+  nativeFetch: window.fetch.bind(window),
 };
 
 function setStatus(el, message, isError = false) {
@@ -41,6 +45,118 @@ function getErrorMessage(error) {
     return error.message;
   }
   return String(error);
+}
+
+function setApiStatus(message, isError = false) {
+  if (!apiStatusEl) {
+    return;
+  }
+  setStatus(apiStatusEl, message, isError);
+}
+
+function waitForController(timeoutMs = 2500) {
+  if (!("serviceWorker" in navigator) || navigator.serviceWorker.controller) {
+    return Promise.resolve(Boolean(navigator.serviceWorker?.controller));
+  }
+
+  return new Promise((resolve) => {
+    const onChange = () => {
+      clearTimeout(timer);
+      navigator.serviceWorker.removeEventListener("controllerchange", onChange);
+      resolve(Boolean(navigator.serviceWorker.controller));
+    };
+    const timer = window.setTimeout(() => {
+      navigator.serviceWorker.removeEventListener("controllerchange", onChange);
+      resolve(Boolean(navigator.serviceWorker.controller));
+    }, timeoutMs);
+    navigator.serviceWorker.addEventListener("controllerchange", onChange);
+  });
+}
+
+async function probeApiActivationStatus() {
+  const checkUrl = new URL(API_CHECK_PATH, window.location.origin).href;
+  const response = await state.nativeFetch(checkUrl, {
+    method: "GET",
+    cache: "no-store",
+  });
+
+  let payload = null;
+  try {
+    payload = await response.clone().json();
+  } catch (_error) {
+    payload = null;
+  }
+
+  const active = response.ok && payload && Array.isArray(payload.models);
+  if (active) {
+    return { active: true, checkUrl };
+  }
+
+  const reason = payload && typeof payload.error === "string" ? payload.error : `HTTP ${response.status}`;
+  return { active: false, checkUrl, reason };
+}
+
+async function refreshApiStatus() {
+  if (!("serviceWorker" in navigator)) {
+    setApiStatus("API未有効: Service Worker非対応ブラウザです。", true);
+    return;
+  }
+
+  setApiStatus("API状態を確認中...");
+  try {
+    const result = await probeApiActivationStatus();
+    if (result.active) {
+      setApiStatus(`API有効です。\n確認API: ${result.checkUrl}`);
+      return;
+    }
+    const controllerLabel = navigator.serviceWorker.controller ? "あり" : "なし";
+    setApiStatus(`API未有効（controller: ${controllerLabel}）。「APIを有効化する」を押してください。`, true);
+  } catch (error) {
+    setApiStatus(`API状態確認に失敗: ${getErrorMessage(error)}`, true);
+  }
+}
+
+async function activateApiRuntime(triggerLabel) {
+  if (!("serviceWorker" in navigator)) {
+    setApiStatus("API有効化不可: Service Worker非対応ブラウザです。", true);
+    return false;
+  }
+
+  if (activateApiBtn) {
+    activateApiBtn.disabled = true;
+  }
+  setApiStatus(`API有効化を実行中... (${triggerLabel})`);
+
+  try {
+    const registration = await navigator.serviceWorker.register("/browser-api-sw.js", {
+      scope: "/",
+    });
+    if (registration.waiting) {
+      registration.waiting.postMessage({ type: "SKIP_WAITING" });
+    }
+    if (registration.active) {
+      registration.active.postMessage({ type: "CLAIM_CLIENTS" });
+    }
+
+    await navigator.serviceWorker.ready;
+    await waitForController();
+    const result = await probeApiActivationStatus();
+    if (result.active) {
+      setApiStatus(`API有効です。\n確認API: ${result.checkUrl}`);
+      return true;
+    }
+
+    const controllerLabel = navigator.serviceWorker.controller ? "あり" : "なし";
+    setApiStatus(`API未有効（controller: ${controllerLabel}）。\n${result.reason}`, true);
+    return false;
+  } catch (error) {
+    setApiStatus(`API有効化に失敗: ${getErrorMessage(error)}`, true);
+    return false;
+  } finally {
+    if (activateApiBtn) {
+      activateApiBtn.disabled = false;
+    }
+  }
 }
 
 function jsonResponse(payload, status = 200, extraHeaders = {}) {
@@ -615,7 +731,7 @@ function installOllamaApiFetch() {
     return;
   }
 
-  const nativeFetch = window.fetch.bind(window);
+  const nativeFetch = state.nativeFetch;
   window.fetch = async (input, init) => {
     const rawUrl = input instanceof Request ? input.url : String(input);
     let url;
@@ -644,12 +760,29 @@ function bootstrap() {
   installOllamaApiFetch();
   setStatus(gpuStatusEl, "ブラウザ内推論モードで起動しました。Ollama互換API: /api/tags /api/generate /api/chat");
   setStatus(modelStatusEl, "モデル未ロード。ボタン押下でURLから取得し、IndexedDBキャッシュを再利用します。");
+  setApiStatus("API状態: 未確認");
   loadModelBtn.disabled = false;
+  if (activateApiBtn) {
+    activateApiBtn.disabled = false;
+  }
   runBtn.disabled = true;
 
-  loadModelBtn.addEventListener("click", () => {
-    loadModel();
+  loadModelBtn.addEventListener("click", async () => {
+    await activateApiRuntime("モデルロード時");
+    await loadModel();
   });
+  if (activateApiBtn) {
+    activateApiBtn.addEventListener("click", async () => {
+      await activateApiRuntime("手動実行");
+    });
+  }
+  if ("serviceWorker" in navigator) {
+    navigator.serviceWorker.addEventListener("controllerchange", () => {
+      refreshApiStatus();
+    });
+  }
+  refreshApiStatus();
+
   runBtn.addEventListener("click", () => {
     runInference();
   });
