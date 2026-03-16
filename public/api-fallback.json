@@ -1,0 +1,4 @@
+{
+  "error": "browser api runtime is not active yet",
+  "hint": "Open https://micklab.web.app/ in the same browser once to register the service worker, then retry /api/chat, /api/generate, or /api/tags."
+}
