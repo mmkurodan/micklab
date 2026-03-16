@@ -30,12 +30,14 @@
     .status { margin: 8px 0; padding: 10px; border-radius: 8px; border: 1px solid var(--line); background: #0d1117; color: var(--muted); white-space: pre-wrap; }
     .status.error { border-color: rgba(255,107,107,0.6); color: var(--error); }
     #response { min-height: 120px; }
+    /* Hide API-related descriptions from users without deleting them */
+    .api-hidden { display: none !important; }
   </style>
 </head>
 <body>
   <main class="app">
     <h1>ローカルLLM（GGUF）推論ビューア</h1>
-    <p>指定URLのGGUFモデルをブラウザでダウンロードし、IndexedDBに保存して再利用しながら実推論を行います。Ollama互換の <code>/api/tags</code> / <code>/api/generate</code> / <code>/api/chat</code> も利用できます。</p>
+    <p class="api-hidden">指定URLのGGUFモデルをブラウザでダウンロードし、IndexedDBに保存して再利用しながら実推論を行います。Ollama互換の <code>/api/tags</code> / <code>/api/generate</code> / <code>/api/chat</code> も利用できます。</p>
 
     <div id="gpuStatus" class="status">推論エンジンを初期化中...</div>
 
@@ -44,9 +46,9 @@
     <p class="traffic-note">※ 初回および定期的に約1GBの通信が発生します。</p>
     <div id="modelStatus" class="status">モデル未ロード（ボタン押下でダウンロード/キャッシュ再利用）</div>
 
-    <label class="field">1.5) API有効化（Service Worker）</label>
-    <button id="activateApiBtn" type="button">APIを有効化する</button>
-    <div id="apiStatus" class="status">API状態: 未確認</div>
+    <label class="field api-hidden">1.5) API有効化（Service Worker）</label>
+    <button id="activateApiBtn" class="api-hidden" type="button">APIを有効化する</button>
+    <div id="apiStatus" class="status api-hidden">API状態: 未確認</div>
 
     <label class="field">
       2) プロンプト入力
@@ -55,13 +57,13 @@
     <button id="runBtn" type="button" disabled>送信（実推論）</button>
     <pre id="response" class="status" aria-live="polite">ここにレスポンスが表示されます。</pre>
 
-    <label class="field">3) Ollama互換API（同一オリジン fetch）</label>
-    <div class="status">
+    <label class="field api-hidden">3) Ollama互換API（同一オリジン fetch）</label>
+    <div class="status api-hidden">
 GET /api/tags
 POST /api/generate {"model":"default","prompt":"こんにちは","stream":false}
 POST /api/chat {"model":"default","messages":[{"role":"user","content":"こんにちは"}],"stream":false}
     </div>
-    <p>※ stream を省略すると既定値は true（NDJSON ストリーム）です。モデル未ロード時は 503 を返します。</p>
+    <p class="api-hidden">※ stream を省略すると既定値は true（NDJSON ストリーム）です。モデル未ロード時は 503 を返します。</p>
   </main>
 
   <script defer src="/browser-api-register.js"></script>
