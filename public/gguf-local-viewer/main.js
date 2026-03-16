@@ -758,7 +758,7 @@ function installOllamaApiFetch() {
 
 function bootstrap() {
   installOllamaApiFetch();
-  setStatus(gpuStatusEl, "ブラウザ内推論モードで起動しました。Ollama互換API: /api/tags /api/generate /api/chat");
+  if (gpuStatusEl) gpuStatusEl.style.display = "none";
   setStatus(modelStatusEl, "モデル未ロード。ボタン押下でURLから取得し、IndexedDBキャッシュを再利用します。");
   setApiStatus("API状態: 未確認");
   loadModelBtn.disabled = false;
