@@ -72,7 +72,7 @@
             <a class="card" href="/llama-tester.html"><h3>LLM tester with llama.cpp</h3><p>ローカル/リモートモデルに対するプロンプト検証ツール</p></a>
             <a class="card" href="/llama-chat.html"><h3>Dual AI Chat</h3><p>Ollama互換APIを使用したチャットアプリ</p></a>
             <a class="card" href="/android-ci.html"><h3>開発/CI 解説</h3><p>Userland / Termux と Copilot CLI による Android 開発と GitHub 連携の構成</p></a>
-            <a class="card" href="/gguf-local-viewer/index.html"><h3>ローカルLLM（GGUF）推論ビューア</h3><p>指定URLのGGUFをダウンロードしてIndexedDBに保存し、ブラウザ内で実推論を実行するデモ</p></a>
+            <a class="card" href="/gguf-local-viewer/index.html"><h3>ローカルLLM（GGUF）推論ビューア</h3><p>指定URLのGGUFをダウンロードしてIndexedDBに保存し、ブラウザ内で実推論と Ollama互換API（/api/tags, /api/generate, /api/chat）を提供するデモ</p></a>
           </div>
         </div>
       </div>
@@ -81,9 +81,9 @@
       <div class="card">
         <h3>最新の実験ノート</h3>
         <ul>
-          <li>LLM tester with llama.cpp：UI とドキュメントを整備（操作マニュアル・プライバシーポリシーを更新）、簡易プロンプト送信デモを削除</li>
+          <li>ローカルLLM（GGUF）推論ビューア：Ollama互換 API（<code>/api/tags</code> / <code>/api/generate</code> / <code>/api/chat</code>）を有効化</li>
+          <li>LLM tester with llama.cpp：UI とドキュメントを整備（操作マニュアル・プライバシーポリシーを更新）</li>
           <li>Dual AI Chat：製品ページとマニュアルを追加（アバターは同時に2つまでに訂正）</li>
-
           <li>Android アプリ（llamachat）のコード確認を継続、TTS・音声入力の挙動を検証中</li>
         </ul>
       </div>

@@ -33,7 +33,7 @@
 <body>
   <main class="app">
     <h1>ローカルLLM（GGUF）推論ビューア</h1>
-    <p>指定URLのGGUFモデルをブラウザでダウンロードし、IndexedDBに保存して再利用しながら実推論を行います。</p>
+    <p>指定URLのGGUFモデルをブラウザでダウンロードし、IndexedDBに保存して再利用しながら実推論を行います。Ollama互換の <code>/api/tags</code> / <code>/api/generate</code> / <code>/api/chat</code> も利用できます。</p>
 
     <div id="gpuStatus" class="status">推論エンジンを初期化中...</div>
 
@@ -47,6 +47,14 @@
     </label>
     <button id="runBtn" type="button" disabled>送信（実推論）</button>
     <pre id="response" class="status" aria-live="polite">ここにレスポンスが表示されます。</pre>
+
+    <label class="field">3) Ollama互換API（同一オリジン fetch）</label>
+    <div class="status">
+GET /api/tags
+POST /api/generate {"model":"default","prompt":"こんにちは","stream":false}
+POST /api/chat {"model":"default","messages":[{"role":"user","content":"こんにちは"}],"stream":false}
+    </div>
+    <p>※ stream を省略すると既定値は true（NDJSON ストリーム）です。モデル未ロード時は 503 を返します。</p>
   </main>
 
   <script type="module" src="./main.js"></script>
