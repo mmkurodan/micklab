@@ -5,94 +5,138 @@
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>プライバシーポリシー — Dual AI Chat — Mick Lab</title>
   <style>
-    :root{--bg:#08080a;--card:#0f1114;--muted:#9aa3b2;--accent:#7c5cff}
+    :root{--bg:#08080a;--card:#0f1114;--muted:#9aa3b2;--accent:#7c5cff;--line:rgba(255,255,255,0.08)}
     *{box-sizing:border-box}
-    body{margin:0;background:var(--bg);color:#e6eef8;font-family:Inter,system-ui,Segoe UI,Roboto,Arial}
-    header{padding:18px 24px;border-bottom:1px solid rgba(255,255,255,0.03)}
+    body{margin:0;background:var(--bg);color:#e6eef8;font-family:Inter,system-ui,Segoe UI,Roboto,Arial;line-height:1.7}
+    header{padding:18px 24px;border-bottom:1px solid rgba(255,255,255,0.03);display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap}
     a{color:var(--accent);text-decoration:none}
-    main{max-width:960px;margin:28px auto;padding:20px}
-    .card{background:var(--card);padding:18px;border-radius:10px;border:1px solid rgba(255,255,255,0.03)}
-    h1{margin:0 0 12px}
-    h2{margin:16px 0 8px}
-    ul{color:var(--muted)}
-    .back{font-size:14px;margin-bottom:12px;display:inline-block}
+    main{max-width:1040px;margin:28px auto;padding:20px}
+    .card{background:var(--card);padding:20px;border-radius:14px;border:1px solid rgba(255,255,255,0.03)}
+    .nav-links,.lang-switch{display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+    .back{font-size:14px}
+    .lang-switch{color:var(--muted);font-size:14px}
+    h1{margin:0 0 12px;font-size:32px}
+    h2{margin:0 0 10px;font-size:24px}
+    h3{margin:20px 0 8px;font-size:18px}
+    p{margin:0 0 12px}
+    ul{margin:0;padding-left:22px;color:var(--muted)}
+    li+li{margin-top:8px}
+    .updated,.lead{color:var(--muted)}
+    hr{border:0;border-top:1px solid var(--line);margin:32px 0}
   </style>
 </head>
 <body>
   <header>
-    <a class="back" href="/">← ホームへ戻る</a>
-    <a class="back" href="/llama-chat.html" style="margin-left:12px">← Dual AI Chat</a>
+    <div class="nav-links">
+      <a class="back" href="/">← ホームへ戻る</a>
+      <a class="back" href="/llama-chat.html">← Dual AI Chat</a>
+    </div>
+    <nav class="lang-switch" aria-label="Privacy languages">
+      <a href="#ja">日本語</a>
+      <span>|</span>
+      <a href="#en">English</a>
+    </nav>
   </header>
   <main>
     <div class="card">
-      <h1>プライバシーポリシー</h1>
+      <h1>プライバシーポリシー / Privacy Policy</h1>
+      <p class="updated">最終更新日 / Last updated: 2026-04-14</p>
+      <p class="lead">このページには日本語版と英語版を掲載しています。 / This page includes both Japanese and English versions.</p>
 
-      <h2>1. 収集する情報</h2>
-      <p>本アプリは、個人情報を外部サーバーへ送信しません。以下の情報を端末内に保存します。</p>
-      <ul>
-        <li>設定情報（OllamaサーバーURL、モデル名、各種パラメータ）</li>
-        <li>テンプレート名・キャラクター設定</li>
-        <li>チャット履歴</li>
-        <li>アバター画像ファイル</li>
-      </ul>
-      <p>会話内容は、ユーザーが設定した Ollama 互換 API サーバーへ送信されます。開発者が会話データを収集することはありません。</p>
+      <section id="ja">
+        <h2>日本語</h2>
 
-      <h2>2. 通信</h2>
-      <ul>
-        <li>設定画面を開くと、モデル一覧更新のため設定済み Ollama サーバーの /api/tags へ GET リクエストを送信します（会話本文は含まれません）。</li>
-        <li>チャット時は、ユーザー入力（会話内容）を設定済み Ollama 互換 API サーバーへ送信します。</li>
-        <li>Web検索機能を有効にした場合、検索クエリは設定済み検索 API に送信されます。</li>
-      </ul>
+        <h3>1. 適用範囲と権限</h3>
+        <p>本ポリシーは、Mick Lab が提供する Android アプリ「Dual AI Chat」に適用されます。本アプリは主に <code>INTERNET</code> と <code>RECORD_AUDIO</code> 権限を使用します。<code>RECORD_AUDIO</code> は音声入力機能を利用する場合にのみ必要です。</p>
 
-      <h2>3. 利用目的</h2>
-      <p>上記データは、アプリの動作、チャット機能、表示、音声機能のために使用します。ユーザー入力は応答生成のためにのみ利用されます。</p>
+        <h3>2. 端末内に保存される情報</h3>
+        <p>本アプリは、以下の情報をユーザーの端末内に保存します。</p>
+        <ul>
+          <li>設定ファイル（<code>chat_settings.json</code>）に含まれる接続先 URL、選択モデル、Streaming/TTS/Voice Input 設定、名前、System Prompt、History Limit、Web Search URL / API Key、表示言語、クイックスタート表示設定など</li>
+          <li>設定プロファイル（<code>settings_profiles</code>）</li>
+          <li>Base / Chatter Partner のアバター画像およびプロファイル用の画像バックアップ</li>
+        </ul>
+        <p>会話履歴は、現在のセッション中にリクエストを構成するためメモリ上で保持されますが、現行バージョンではアプリ再起動後まで永続保存されません。</p>
 
-      <h2>4. 音声機能</h2>
-      <p>音声入力（音声認識）機能を使用する場合、端末の音声認識サービスを利用します。音声データの処理は Android システムに依存し、本アプリが独自に収集することはありません。</p>
-      <p>TTS（テキスト読み上げ）機能は端末内で処理されます。</p>
+        <h3>3. ネットワーク通信と第三者サービス</h3>
+        <ul>
+          <li>起動時および設定画面を開いたとき、モデル一覧と接続状態タイルを更新するため、ユーザーが設定した Ollama 互換サーバーの <code>/api/tags</code> に GET リクエストを送信します。このリクエストには会話本文は含まれません。</li>
+          <li>チャット時は、現在の入力内容と直近の会話履歴（History Limit の範囲）が、ユーザーが設定した Ollama 互換サーバーの <code>/api/chat</code> に送信されます。</li>
+          <li>Web Search を有効にし、かつ API Key が設定されている場合、検索クエリはユーザーが設定した検索 API に送信されます。Brave 形式の URL を使う場合は Brave Search API 形式で通信します。</li>
+          <li>検索結果は応答生成のための追加コンテキストとして Ollama 互換サーバーへ送信される場合があります。</li>
+          <li>接続先 URL や検索 API はユーザーが指定します。リモートサーバーや第三者 API を利用する場合、それらの提供者が必要なデータを受け取り、それぞれのポリシーに従って処理します。</li>
+          <li>本アプリはクリアテキスト通信を許可しています。ユーザーが <code>http://</code> の URL を設定した場合、その通信は暗号化されないことがあります。</li>
+        </ul>
 
-      <h2>5. 保存期間</h2>
-      <p>設定・テンプレート・チャット履歴・アバター画像は、ユーザーが削除するかアプリのデータを消去するまで保持されます。チャット履歴は設定画面から削除できます。</p>
+        <h3>4. 音声機能</h3>
+        <ul>
+          <li>音声入力では端末の音声認識サービスを利用します。アプリはオフライン認識を優先し、利用不可の場合はオンライン認識へフォールバックすることがあります。</li>
+          <li>開発者は音声データを受信しません。音声認識の処理は、端末または選択された音声認識サービスの提供者によって行われます。</li>
+          <li>テキスト読み上げは端末の TTS エンジンを利用します。開発者は読み上げ対象テキストや音声データを受信しません。処理方法は利用中の TTS エンジンに依存します。</li>
+        </ul>
 
-      <h2>6. お問い合わせ</h2>
-      <p>ご不明点がある場合は、以下のメールアドレスまでお問い合わせください。<br>micklab2026@gmail.com</p>
+        <h3>5. 開発者による取得について</h3>
+        <p>開発者は、ユーザーの会話内容、音声、検索クエリ、API Key を受信しません。本アプリはこれらを開発者へ送信する広告 SDK や解析 SDK を組み込んでいません。ただし、ユーザー自身が指定したリモートサーバーや第三者 API は、その処理に必要なデータを受け取ります。</p>
 
-      <hr style="border:0;border-top:1px solid rgba(255,255,255,0.1);margin:28px 0">
+        <h3>6. 保存期間と利用者による管理</h3>
+        <ul>
+          <li>設定、API Key、プロファイル、アバター画像は、ユーザーが削除するかアプリデータを消去するまで端末内に保持されます。</li>
+          <li><strong>Reset Conversation Log</strong> で現在セッションの会話履歴をリセットできます。</li>
+          <li>設定画面から API Key を削除したり、プロファイルやアバター画像を削除したりできます。</li>
+        </ul>
 
-      <h2>Privacy Policy (English Version)</h2>
+        <h3>7. お問い合わせ</h3>
+        <p>ご不明点がある場合は、以下までお問い合わせください。<br>micklab2026@gmail.com</p>
+      </section>
 
-      <h3>1. Information Collected</h3>
-      <p>This application does not transmit any personal information to external servers. The following data is stored locally on the device:</p>
-      <ul>
-        <li>Configuration data (Ollama server URL, model names, and parameters)</li>
-        <li>Template names and character settings</li>
-        <li>Chat history</li>
-        <li>Avatar image files</li>
-      </ul>
-      <p>Conversation content is sent only to the Ollama-compatible API server configured by the user. The developer does not collect conversation data.</p>
+      <hr>
 
-      <h3>2. Communication</h3>
-      <ul>
-        <li>When opening settings, the app sends a GET request to /api/tags on your configured Ollama server to refresh model lists (no conversation content is included).</li>
-        <li>During chat, user input is sent to the configured Ollama-compatible API server.</li>
-        <li>When Web Search is enabled, search queries are sent to your configured search API.</li>
-      </ul>
+      <section id="en">
+        <h2>English</h2>
 
-      <h3>3. Purpose of Use</h3>
-      <p>The collected data is used solely for application functionality, chat features, display, and voice features. User input is used only for response generation.</p>
+        <h3>1. Scope and Permissions</h3>
+        <p>This policy applies to the Android application “Dual AI Chat” provided by Mick Lab. The app primarily uses the <code>INTERNET</code> and <code>RECORD_AUDIO</code> permissions. <code>RECORD_AUDIO</code> is needed only when you use voice input.</p>
 
-      <h3>4. Voice Features</h3>
-      <p>Voice input uses your device's speech recognition service. Audio processing depends on Android system features, and this app does not independently collect voice data.</p>
-      <p>Text-to-speech is processed locally on the device.</p>
+        <h3>2. Data Stored on Your Device</h3>
+        <p>The app stores the following information locally on the user’s device:</p>
+        <ul>
+          <li>Settings stored in <code>chat_settings.json</code>, including server URLs, selected models, streaming/TTS/voice input settings, names, system prompts, history limit, web search URL / API key, display language, and quick-start preference</li>
+          <li>Saved settings profiles in <code>settings_profiles</code></li>
+          <li>Avatar image files for Base and Chatter Partner, plus avatar backups used by saved profiles</li>
+        </ul>
+        <p>Conversation history is kept in memory during the current session so requests can be constructed, but in the current version it is not persisted across app restarts.</p>
 
-      <h3>5. Retention Period</h3>
-      <p>Settings, templates, chat history, and avatar images are retained until the user deletes them or clears the application data. Chat history can be deleted from the settings screen.</p>
+        <h3>3. Network Communication and Third-Party Services</h3>
+        <ul>
+          <li>On startup and when the settings panel is opened, the app sends a GET request to <code>/api/tags</code> on the Ollama-compatible server you configured in order to refresh model lists and the connection-status tile. This request does not include conversation content.</li>
+          <li>During chat, the current user message and recent conversation context (up to the configured History Limit) are sent to the configured Ollama-compatible server through <code>/api/chat</code>.</li>
+          <li>If Web Search is enabled and an API key is configured, search queries are sent to the search API URL you configured. If you use a Brave-compatible URL, requests are formatted for the Brave Search API.</li>
+          <li>Search results may then be included as extra context in requests sent to the Ollama-compatible server.</li>
+          <li>You choose the server URL and search API. If you point the app to a remote server or third-party API, that provider receives the data required to process your request and handles it under its own policies.</li>
+          <li>The app allows cleartext network traffic. If you configure an <code>http://</code> endpoint, that traffic may be unencrypted.</li>
+        </ul>
 
-      <h3>6. Contact</h3>
-      <p>If you have any questions, please contact: micklab2026@gmail.com</p>
+        <h3>4. Voice Features</h3>
+        <ul>
+          <li>Voice input uses the device’s speech recognition service. The app prefers offline recognition first and may fall back to online recognition if offline recognition is unavailable.</li>
+          <li>The developer does not receive your audio. Speech processing is performed by the device or by the speech-recognition service provider selected on the device.</li>
+          <li>Text-to-speech uses the device’s TTS engine. The developer does not receive the spoken text or audio output. Processing depends on the TTS engine you use.</li>
+        </ul>
 
+        <h3>5. What the Developer Receives</h3>
+        <p>The developer does not receive your conversation content, voice data, search queries, or API key. The app does not include advertising or analytics SDKs that transmit this data to the developer. However, remote servers and third-party APIs chosen by the user do receive the data needed to answer requests.</p>
+
+        <h3>6. Retention and User Control</h3>
+        <ul>
+          <li>Settings, API keys, saved profiles, and avatar images remain on the device until the user deletes them or clears the app data.</li>
+          <li>You can clear the current session conversation history with <strong>Reset Conversation Log</strong>.</li>
+          <li>You can remove API keys, saved profiles, and avatar images from the app settings.</li>
+        </ul>
+
+        <h3>7. Contact</h3>
+        <p>If you have any questions, please contact:<br>micklab2026@gmail.com</p>
+      </section>
     </div>
   </main>
-  <footer style="max-width:960px;margin:40px auto 60px;padding:0 20px;color:var(--muted);font-size:13px;text-align:center">© Mick Lab — 生成AIアプリケーション研究</footer>
 </body>
 </html>

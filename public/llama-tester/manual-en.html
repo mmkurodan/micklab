@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>User Manual — LLM tester with llama.cpp — Mick Lab</title>
+  <link rel="alternate" hreflang="ja" href="/llama-tester/manual.html">
+  <link rel="alternate" hreflang="en" href="/llama-tester/manual-en.html">
+  <style>
+    :root{--bg:#08080a;--card:#0f1114;--muted:#9aa3b2;--accent:#7c5cff;--line:rgba(255,255,255,0.08)}
+    *{box-sizing:border-box}
+    body{margin:0;background:var(--bg);color:#e6eef8;font-family:Inter,system-ui,Segoe UI,Roboto,Arial;line-height:1.7}
+    header{padding:18px 24px;border-bottom:1px solid rgba(255,255,255,0.03);display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap}
+    a{color:var(--accent);text-decoration:none}
+    main{max-width:1040px;margin:28px auto;padding:20px}
+    .card{background:var(--card);padding:20px;border-radius:14px;border:1px solid rgba(255,255,255,0.03);margin-bottom:18px}
+    h1{margin:0 0 12px;font-size:32px}
+    h2{margin:0 0 10px;font-size:23px}
+    p{margin:0 0 12px}
+    ul,ol{margin:0;padding-left:22px;color:var(--muted)}
+    li+li{margin-top:8px}
+    .lead{color:#eef4ff}
+    .note{color:var(--muted);font-size:14px}
+    .nav-links,.lang-switch{display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+    .back{font-size:14px}
+    .lang-switch{color:var(--muted);font-size:14px}
+    .lang-switch a[aria-current="page"]{color:#fff;font-weight:700}
+    table{width:100%;border-collapse:collapse;margin-top:12px}
+    th,td{padding:12px;border:1px solid var(--line);vertical-align:top;text-align:left}
+    th{color:#fff;background:rgba(255,255,255,0.03)}
+    td{color:var(--muted)}
+    code{background:rgba(255,255,255,0.05);padding:2px 6px;border-radius:4px}
+    .callout{background:linear-gradient(90deg,rgba(124,92,255,0.08),rgba(0,212,255,0.03));border:1px solid var(--line)}
+    @media (max-width:700px){main{padding:16px}h1{font-size:28px}table,thead,tbody,tr,th,td{display:block}th{border-bottom:none}td{border-top:none}}
+  </style>
+</head>
+<body>
+  <header>
+    <div class="nav-links">
+      <a class="back" href="/">← Home</a>
+      <a class="back" href="/llama-tester-en.html">← LLM tester with llama.cpp</a>
+    </div>
+    <nav class="lang-switch" aria-label="Language switch">
+      <a href="/llama-tester/manual.html">日本語</a>
+      <span>|</span>
+      <a href="/llama-tester/manual-en.html" aria-current="page">English</a>
+    </nav>
+  </header>
+  <main>
+    <section class="card callout">
+      <h1>User Manual</h1>
+      <p class="lead">This public manual summarizes how the current Android implementation of LLM tester with llama.cpp works.</p>
+      <p class="note">Related doc: <a href="/llama-tester/privacy.html#en">Privacy Policy</a></p>
+    </section>
+
+    <section class="card">
+      <h2>1. Overview</h2>
+      <p>LLM tester with llama.cpp is a local LLM testing app for Android that combines prompt input, inference tuning, template inspection, logging, and an optional Ollama-compatible API in one place.</p>
+      <ul>
+        <li>Built with Llama (llama.cpp)</li>
+        <li>Supports both URL-based model loading and local GGUF import</li>
+        <li>Can expose <code>/api/chat</code>, <code>/api/generate</code>, and <code>/api/tags</code> when the built-in API server is enabled</li>
+      </ul>
+    </section>
+
+    <section class="card">
+      <h2>2. Before You Start</h2>
+      <ul>
+        <li>Large model downloads can require gigabytes of data. Wi‑Fi is recommended instead of cellular data.</li>
+        <li>On first launch, the app may show Quick Start and API enablement prompts. Both support a “Don’t show next time” option.</li>
+        <li>While inference is busy, the Settings button is disabled and automatically re-enabled when processing finishes.</li>
+      </ul>
+    </section>
+
+    <section class="card">
+      <h2>3. Recommended Setup</h2>
+      <ol>
+        <li>Open <strong>Settings</strong> from the main screen.</li>
+        <li>In <strong>Model Selection</strong>, enter a model URL or import a local <code>.gguf</code> file.</li>
+        <li>Press <strong>Load Model</strong>. For local import, the picker opens in Downloads by default.</li>
+        <li>Adjust parameters if needed, then save the configuration with <strong>Save Config</strong>.</li>
+        <li>Press <strong>SAVE &amp; CLOSE</strong> to persist the settings and apply them immediately to the current model.</li>
+      </ol>
+      <p class="note">Reachable HTTP/HTTPS model URLs are supported. HTTPS uses standard SSL/TLS certificate verification.</p>
+    </section>
+
+    <section class="card">
+      <h2>4. Main Screen</h2>
+      <ul>
+        <li><strong>Enter Prompt</strong>: Type the prompt you want to run.</li>
+        <li><strong>Send</strong>: Starts generation. If the model is not already loaded, the app tries to load the model for the current configuration first.</li>
+        <li><strong>Settings</strong>: Disabled while inference is busy. Detailed settings live on a separate screen.</li>
+        <li><strong>Re-init Model</strong>: Stops the active job and reinitializes the current profile.</li>
+        <li><strong>View Log / Hide Log</strong>: Shows the latest 100 log lines in the output area, then toggles back to normal output.</li>
+        <li><strong>Update</strong>: Reloads the log view.</li>
+        <li><strong>Clear Log</strong>: Clears the log file.</li>
+        <li><strong>Start/Stop API Server</strong>: Toggles the built-in API server.</li>
+        <li><strong>Copy / Save</strong>: Copies or saves the current response, or the displayed log content.</li>
+        <li><strong>Processing Status / Logs</strong>: Shows timestamped processing logs.</li>
+      </ul>
+    </section>
+
+    <section class="card">
+      <h2>5. Settings Screen</h2>
+      <ul>
+        <li><strong>Configuration Management</strong>: Save, load, and delete configurations. A default <code>default</code> profile is created automatically.</li>
+        <li><strong>Model Selection</strong>: Load from a URL or import local <code>.gguf</code> files. Imported files are copied into app storage and only their filenames are stored in settings.</li>
+        <li><strong>Model Parameters</strong>: Configure basic parameters, penalties, Mirostat, extra sampling controls, DRY, and GPU Offload Layers.</li>
+        <li><strong>Prompt Template</strong>: Set System Prompt, Think on/off, and a custom chat template. If no custom template is set, the app auto-selects one based on model family.</li>
+        <li><strong>Llama API Server</strong>: Set the listening port. Start/stop is handled from the startup popup or the main screen.</li>
+        <li><strong>Display Language</strong>: Switch between Japanese and English. The first launch follows the device locale and later launches reuse your saved choice.</li>
+        <li><strong>Log Settings / Show License / Documents</strong>: Choose log level, view license text, and open the in-app documents screen.</li>
+        <li><strong>SAVE &amp; CLOSE / CLOSE</strong>: Save and apply immediately, or leave without saving.</li>
+      </ul>
+    </section>
+
+    <section class="card">
+      <h2>6. Parameter Groups at a Glance</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>Group</th>
+            <th>Main items</th>
+            <th>Purpose</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Basic</td>
+            <td><code>n_ctx</code>, <code>n_threads</code>, <code>n_batch</code>, GPU Offload Layers, <code>temp</code>, <code>top_p</code>, <code>top_k</code></td>
+            <td>Controls speed, memory usage, and the overall response style.</td>
+          </tr>
+          <tr>
+            <td>Penalty</td>
+            <td><code>penalty_last_n</code>, <code>penalty_repeat</code>, <code>penalty_freq</code>, <code>penalty_present</code></td>
+            <td>Helps suppress repetition and control how already-used tokens are treated.</td>
+          </tr>
+          <tr>
+            <td>Mirostat</td>
+            <td><code>mirostat</code>, <code>mirostat_tau</code>, <code>mirostat_eta</code></td>
+            <td>Enables automatic consistency control during sampling.</td>
+          </tr>
+          <tr>
+            <td>Additional sampling</td>
+            <td><code>min_p</code>, <code>typical_p</code>, <code>dynatemp_range</code>, <code>dynatemp_exponent</code>, <code>xtc_probability</code>, <code>xtc_threshold</code>, <code>top_n_sigma</code></td>
+            <td>Provides finer control when you want to study or tune response behavior in detail.</td>
+          </tr>
+          <tr>
+            <td>DRY</td>
+            <td><code>dry_multiplier</code>, <code>dry_base</code>, <code>dry_allowed_length</code>, <code>dry_penalty_last_n</code>, <code>dry_sequence_breakers</code></td>
+            <td>Useful for reducing repetitive patterns in longer generations.</td>
+          </tr>
+          <tr>
+            <td>Output / Think</td>
+            <td><code>streaming</code>, <code>enableThinking</code>, <code>systemPrompt</code>, <code>customChatTemplate</code></td>
+            <td>Controls real-time output, visible reasoning behavior, and template differences.</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section class="card">
+      <h2>7. Prompt Templates</h2>
+      <p>If the custom chat template is empty, the app estimates the model family from the filename and auto-selects a suitable template.</p>
+      <ul>
+        <li>Supported families: Gemma, Qwen, Mistral, LLaMA, Phi, Zephyr, Hermes</li>
+        <li>Fallback when unknown: ChatML</li>
+        <li>Gemma-family formatting preserves the system / user / model order.</li>
+        <li>The selected template is logged in Processing Status / Logs and INFO-level logs.</li>
+      </ul>
+    </section>
+
+    <section class="card">
+      <h2>8. Built-in API Server</h2>
+      <ul>
+        <li>Endpoints: <code>/api/chat</code>, <code>/api/generate</code>, <code>/api/tags</code></li>
+        <li>Only one generation can run at a time. When busy, up to 10 requests are queued for up to 60 seconds.</li>
+        <li>Queue overflow or timeout returns <code>503</code>.</li>
+        <li>Android 13 and later may require notification permission.</li>
+      </ul>
+    </section>
+
+    <section class="card">
+      <h2>9. Notes</h2>
+      <ul>
+        <li>Very large models may fail to load because of address-space or memory limits, or because a load was interrupted. If that happens, try a smaller model or load it again from Settings.</li>
+        <li>Logs and crash information remain on the device and can be reviewed or removed locally.</li>
+      </ul>
+    </section>
+  </main>
+</body>
+</html>

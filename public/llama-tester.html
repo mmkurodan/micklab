@@ -4,83 +4,103 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>LLM tester with llama.cpp — Mick Lab</title>
+  <link rel="alternate" hreflang="ja" href="/llama-tester.html">
+  <link rel="alternate" hreflang="en" href="/llama-tester-en.html">
   <style>
-    :root{--bg:#08080a;--card:#0f1114;--muted:#9aa3b2;--accent:#7c5cff}
-    body{margin:0;background:var(--bg);color:#e6eef8;font-family:Inter,system-ui,Segoe UI,Roboto,Arial}
-    header{padding:18px 24px;border-bottom:1px solid rgba(255,255,255,0.03)}
+    :root{--bg:#08080a;--card:#0f1114;--muted:#9aa3b2;--accent:#7c5cff;--line:rgba(255,255,255,0.08)}
+    *{box-sizing:border-box}
+    body{margin:0;background:var(--bg);color:#e6eef8;font-family:Inter,system-ui,Segoe UI,Roboto,Arial;line-height:1.65}
+    header{padding:18px 24px;border-bottom:1px solid rgba(255,255,255,0.03);display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap}
     a{color:var(--accent);text-decoration:none}
-    main{max-width:960px;margin:28px auto;padding:20px}
-    .card{background:var(--card);padding:18px;border-radius:10px;border:1px solid rgba(255,255,255,0.03)}
-    h1{margin:0 0 12px}
-    ul{color:var(--muted)}
-    .tool{margin-top:16px;padding:14px;background:rgba(255,255,255,0.02);border-radius:8px}
-    .back{font-size:14px;margin-bottom:12px;display:inline-block}
-    .form{display:flex;gap:10px;margin-top:10px}
-    .form input,.form button{padding:10px;border-radius:8px;border:1px solid rgba(255,255,255,0.03);background:transparent;color:inherit}
-    .hint{color:var(--muted);font-size:13px;margin-top:8px}
+    main{max-width:1040px;margin:28px auto;padding:20px}
+    .card{background:var(--card);padding:20px;border-radius:14px;border:1px solid rgba(255,255,255,0.03);margin-bottom:18px}
+    .eyebrow{margin:0 0 8px;color:#b7a9ff;font-size:13px;font-weight:700;letter-spacing:.08em;text-transform:uppercase}
+    h1{margin:0 0 12px;font-size:34px;line-height:1.15}
+    h2{margin:0 0 12px;font-size:22px}
+    p{margin:0 0 12px}
+    ul{margin:0;padding-left:20px;color:var(--muted)}
+    li+li{margin-top:8px}
+    .lead{color:#eef4ff;font-size:17px}
+    .doc-links,.note{color:var(--muted);font-size:14px}
+    .highlight{background:linear-gradient(90deg,rgba(124,92,255,0.08),rgba(0,212,255,0.03));border:1px solid var(--line);border-radius:12px;padding:14px 16px}
+    .highlight ul{color:#e6eef8;font-weight:600}
+    .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px}
+    figure{margin:0}
+    img{width:100%;border-radius:10px;display:block}
+    figcaption{margin-top:8px;color:var(--muted);font-size:13px}
+    .lang-switch{display:flex;align-items:center;gap:10px;color:var(--muted);font-size:14px}
+    .lang-switch a[aria-current="page"]{color:#fff;font-weight:700}
+    .nav-links{display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+    .back{font-size:14px}
+    code{background:rgba(255,255,255,0.05);padding:2px 6px;border-radius:4px}
+    @media (max-width:700px){main{padding:16px}h1{font-size:28px}}
   </style>
 </head>
 <body>
-  <header><a class="back" href="/">← ホームへ戻る</a></header>
-  <main>
-    <div class="card">
-      <h1>LLM tester with llama.cpp</h1>
-      <p class="lead">LLM tester with llama.cpp は、LLMの挙動を「測る・比較する・再現する」ためのローカルLLM向け実験ツールです。スマホ上でモデル比較、パラメータ検証、テンプレート検証が行えます。</p>
-      <p style="margin-top:8px;color:var(--muted);font-size:14px">文書: <a href="/llama-tester/manual.html">操作マニュアル</a> | <a href="/llama-tester/privacy.html">プライバシーポリシー</a></p>
-
-      <div style="background:linear-gradient(90deg,rgba(124,92,255,0.06),rgba(0,212,255,0.02));padding:12px;border-radius:8px;margin-top:12px;">
-        <ul style="margin:0;padding-left:18px;font-weight:600;color:#e6eef8">
-          <li>「LLMの“挙動”を可視化する。」 — 応答品質・速度・安定性を精密に測定する実験環境。</li>
-          <li>「ローカルLLMを、もっと正確に理解する。」 — モデル選択から生成ログまで、すべてを一つの画面で管理できます。</li>
-          <li>「モデル比較・テンプレ検証・パラメータ実験。すべて一つで。」 — 研究者・開発者向けの高度な機能を提供します。</li>
-        </ul>
-      </div>
-
-      <div class="tool" style="margin-top:12px">
-        <strong>スクリーンショット</strong>
-        <div style="display:flex;gap:12px;flex-wrap:wrap;margin-top:8px">
-          <figure style="width:30%;min-width:180px">
-            <img src="/llama-tester/sm101.png" alt="ローカルLLMのコンソール" style="width:100%;border-radius:8px"/>
-            <figcaption class="hint">ローカルLLMのコンソール（実行ログ・出力）</figcaption>
-          </figure>
-          <figure style="width:30%;min-width:180px">
-            <img src="/llama-tester/sm102.png" alt="設定画面（モデル選択）" style="width:100%;border-radius:8px"/>
-            <figcaption class="hint">設定画面（モデル選択・パラメータ）</figcaption>
-          </figure>
-          <figure style="width:30%;min-width:180px">
-            <img src="/llama-tester/sm103.png" alt="設定画面（テンプレート）" style="width:100%;border-radius:8px"/>
-            <figcaption class="hint">設定画面（テンプレート・ログ管理）</figcaption>
-          </figure>
-        </div>
-      </div>
-
-      <h2 style="margin-top:12px">主な特徴</h2>
-      <ul>
-        <li><strong>複数モデルの比較</strong>: 同一プロンプトで応答を並列比較し、モデルごとの違いを把握できます。</li>
-        <li><strong>詳細なログと再現性</strong>: 生成パラメータ、テンプレート、リクエスト/レスポンスを記録し、実験の再現性を確保します。</li>
-        <li><strong>テンプレート検証</strong>: ChatML / Qwen / LLaMA 等のテンプレート差異を簡単に比較検証できます。</li>
-        <li><strong>高度なサンプリング設定</strong>: Temperature、Top‑p、Mirostat、DRY などの影響を試験可能です。</li>
-        <li><strong>スマホ単体で完結</strong>: Android端末だけでモデルの挙動を分析できる軽量なテスト環境です。</li>
-        <li><strong>研究者向けの透明性</strong>: デバッグモードでAPIのやり取りを可視化し、挙動の原因分析を支援します。</li>
-      </ul>
-
-      <div class="tool">
-        <strong>API仕様（端末内 Ollama 互換サーバー）</strong>
-        <ul>
-          <li><strong><code>GET /api/tags</code>（<code>POST /api/tags</code> も可）</strong>: 設定済みモデル一覧を返します。レスポンス例: <code>{"models":[{"name":"default","model":"default","modified_at":"2026-03-15T00:00:00Z","size":0,"details":{"format":"gguf","family":"llama","parameter_size":"unknown","quantization_level":"unknown"}}]}</code></li>
-          <li><strong><code>POST /api/generate</code></strong>: 本文JSONは <code>model</code>（省略時 default）, <code>prompt</code>, <code>system</code>（任意）, <code>stream</code>（省略時 true）。<code>stream=true</code> は NDJSON チャンク（<code>response</code> を逐次返却、最終チャンクで <code>done:true</code>）、<code>stream=false</code> は単一JSON（<code>response</code> 全文 + <code>done:true</code>）です。</li>
-          <li><strong><code>POST /api/chat</code></strong>: 本文JSONは <code>model</code>（省略時 default）, <code>messages</code>（必須: role/content配列）, <code>stream</code>（省略時 true）。<code>stream=true</code> は NDJSON チャンク（<code>message.content</code> を逐次返却、最終チャンクで <code>done:true</code>）、<code>stream=false</code> は単一JSON（assistant の全文応答 + <code>done:true</code>）です。</li>
-          <li><strong>共通仕様</strong>: 同時生成は1件のみ。ビジー時は待機キュー最大10件・最大60秒で待機し、超過時は <code>503</code> を返します。主なエラーは <code>400</code>（不正JSON/メッセージ不足）, <code>500</code>（設定読み込み失敗）, <code>404</code>（未定義エンドポイント）です。</li>
-        </ul>
-      </div>
-
-      <div class="tool">
-        <strong>利用上の注意</strong>
-        <p class="hint">生成の速度や安定性はモデルや端末性能に依存します。</p>
-      </div>
+  <header>
+    <div class="nav-links">
+      <a class="back" href="/">← ホームへ戻る</a>
     </div>
-  </main>
+    <nav class="lang-switch" aria-label="Language switch">
+      <a href="/llama-tester.html" aria-current="page">日本語</a>
+      <span>|</span>
+      <a href="/llama-tester-en.html">English</a>
+    </nav>
+  </header>
+  <main>
+    <section class="card">
+      <p class="eyebrow">Android / llama.cpp / GGUF</p>
+      <h1>LLM tester with llama.cpp</h1>
+      <p class="lead">LLM tester with llama.cpp は、Android 端末上で GGUF モデルを読み込み、推論設定・プロンプトテンプレート・ログ・Ollama 互換 API を一つのアプリで扱えるローカルLLM検証ツールです。</p>
+      <p class="doc-links">文書: <a href="/llama-tester/manual.html">操作マニュアル</a> | <a href="/llama-tester/privacy.html#ja">プライバシーポリシー</a></p>
+      <div class="highlight">
+        <ul>
+          <li>モデル URL からのダウンロードと、端末内 <code>.gguf</code> ファイルの取り込みに対応。</li>
+          <li>生成パラメータ、Think 設定、カスタム chat template、表示言語をプロファイルとして保存・再利用できます。</li>
+          <li>必要に応じて端末内で Ollama 互換 API サーバーを起動し、他のクライアントから <code>/api/chat</code> などを利用できます。</li>
+        </ul>
+      </div>
+    </section>
 
+    <section class="card">
+      <h2>スクリーンショット</h2>
+      <div class="grid">
+        <figure>
+          <img src="/llama-tester/sm101.png" alt="LLM tester with llama.cpp のメイン画面">
+          <figcaption>メイン画面。プロンプト入力、モデル出力、処理ログ、APIサーバー操作をまとめて確認できます。</figcaption>
+        </figure>
+        <figure>
+          <img src="/llama-tester/sm102.png" alt="LLM tester with llama.cpp の設定画面">
+          <figcaption>設定画面。モデル URL / ローカル GGUF 取り込み、構成管理、推論パラメータを調整できます。</figcaption>
+        </figure>
+        <figure>
+          <img src="/llama-tester/sm103.png" alt="LLM tester with llama.cpp のテンプレート設定">
+          <figcaption>テンプレート・API・表示言語・ログ設定。System Prompt や custom chat template もここで管理します。</figcaption>
+        </figure>
+      </div>
+    </section>
+
+    <section class="card">
+      <h2>主な特徴</h2>
+      <ul>
+        <li><strong>端末内でのローカル推論</strong>: llama.cpp を使って Android 端末上で GGUF モデルを直接実行します。</li>
+        <li><strong>モデル導入の自由度</strong>: HTTP/HTTPS のモデル URL を指定した読み込みと、ローカル端末からの <code>.gguf</code> 取り込みの両方に対応しています。</li>
+        <li><strong>詳細な推論制御</strong>: <code>n_ctx</code>、<code>n_threads</code>、GPU Offload Layers、Top-p、Top-k、Penalty、Mirostat、DRY、Think、custom chat template まで調整できます。</li>
+        <li><strong>構成プロファイル管理</strong>: 設定の保存・読み込み・削除ができ、<code>SAVE &amp; CLOSE</code> で現在のモデルへ即時反映されます。</li>
+        <li><strong>ログと出力の扱いやすさ</strong>: 最新 100 行のログ表示、ログ更新、ログ消去、応答/ログのコピーと保存に対応しています。</li>
+        <li><strong>内蔵 Ollama 互換 API</strong>: <code>/api/chat</code>、<code>/api/generate</code>、<code>/api/tags</code> を提供し、同時生成は 1 件、待機キューは最大 10 件・最大 60 秒です。</li>
+      </ul>
+    </section>
+
+    <section class="card">
+      <h2>運用メモ</h2>
+      <ul>
+        <li>大きなモデルの取得には数 GB 単位の通信が必要になる場合があります。モデルのダウンロードは Wi-Fi 環境が推奨です。</li>
+        <li>ローカル API サーバーは同一端末またはローカルネットワーク向けの利用を想定しています。Android 13 以降では通知権限が必要になる場合があります。</li>
+        <li>生成速度や安定性は、モデルサイズ・端末メモリ・スレッド設定・GPU オフロード設定に依存します。</li>
+      </ul>
+    </section>
+  </main>
   <script defer src="/browser-api-register.js"></script>
 </body>
 </html>

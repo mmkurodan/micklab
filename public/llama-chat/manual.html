@@ -4,80 +4,166 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>操作マニュアル — Dual AI Chat — Mick Lab</title>
+  <link rel="alternate" hreflang="ja" href="/llama-chat/manual.html">
+  <link rel="alternate" hreflang="en" href="/llama-chat/manual-en.html">
   <style>
-    :root{--bg:#08080a;--card:#0f1114;--muted:#9aa3b2;--accent:#7c5cff}
+    :root{--bg:#08080a;--card:#0f1114;--muted:#9aa3b2;--accent:#7c5cff;--line:rgba(255,255,255,0.08)}
     *{box-sizing:border-box}
-    body{margin:0;background:var(--bg);color:#e6eef8;font-family:Inter,system-ui,Segoe UI,Roboto,Arial}
-    header{padding:18px 24px;border-bottom:1px solid rgba(255,255,255,0.03)}
+    body{margin:0;background:var(--bg);color:#e6eef8;font-family:Inter,system-ui,Segoe UI,Roboto,Arial;line-height:1.7}
+    header{padding:18px 24px;border-bottom:1px solid rgba(255,255,255,0.03);display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap}
     a{color:var(--accent);text-decoration:none}
-    main{max-width:960px;margin:28px auto;padding:20px}
-    .card{background:var(--card);padding:18px;border-radius:10px;border:1px solid rgba(255,255,255,0.03)}
-    h1{margin:0 0 12px}
-    h2{margin:16px 0 8px}
-    ul,ol{color:var(--muted)}
-    .back{font-size:14px;margin-bottom:12px;display:inline-block}
+    main{max-width:1040px;margin:28px auto;padding:20px}
+    .card{background:var(--card);padding:20px;border-radius:14px;border:1px solid rgba(255,255,255,0.03);margin-bottom:18px}
+    h1{margin:0 0 12px;font-size:32px}
+    h2{margin:0 0 10px;font-size:23px}
+    p{margin:0 0 12px}
+    ul,ol{margin:0;padding-left:22px;color:var(--muted)}
+    li+li{margin-top:8px}
+    .lead{color:#eef4ff}
+    .note{color:var(--muted);font-size:14px}
+    .nav-links,.lang-switch{display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+    .back{font-size:14px}
+    .lang-switch{color:var(--muted);font-size:14px}
+    .lang-switch a[aria-current="page"]{color:#fff;font-weight:700}
     code{background:rgba(255,255,255,0.05);padding:2px 6px;border-radius:4px}
+    .callout{background:linear-gradient(90deg,rgba(124,92,255,0.08),rgba(0,212,255,0.03));border:1px solid var(--line)}
+    table{width:100%;border-collapse:collapse;margin-top:12px}
+    th,td{padding:12px;border:1px solid var(--line);vertical-align:top;text-align:left}
+    th{color:#fff;background:rgba(255,255,255,0.03)}
+    td{color:var(--muted)}
+    @media (max-width:700px){main{padding:16px}h1{font-size:28px}table,thead,tbody,tr,th,td{display:block}th{border-bottom:none}td{border-top:none}}
   </style>
 </head>
 <body>
   <header>
-    <a class="back" href="/">← ホームへ戻る</a>
-    <a class="back" href="/llama-chat.html" style="margin-left:12px">← Dual AI Chat</a>
+    <div class="nav-links">
+      <a class="back" href="/">← ホームへ戻る</a>
+      <a class="back" href="/llama-chat.html">← Dual AI Chat</a>
+    </div>
+    <nav class="lang-switch" aria-label="Language switch">
+      <a href="/llama-chat/manual.html" aria-current="page">日本語</a>
+      <span>|</span>
+      <a href="/llama-chat/manual-en.html">English</a>
+    </nav>
   </header>
   <main>
-    <div class="card">
+    <section class="card callout">
       <h1>操作マニュアル</h1>
+      <p class="lead">このページは、現在の Android 実装に基づく Dual AI Chat の操作ガイドです。設定項目や通信挙動は、実際のアプリ挙動に合わせて記載しています。</p>
+      <p class="note">関連文書: <a href="/llama-chat/privacy.html#ja">プライバシーポリシー</a></p>
+    </section>
 
-      <h2>1. アプリ概要</h2>
-      <p>Dual AI ChatはOllama互換APIサーバーと連携し、LLMとチャットできるAndroidアプリです。<a href="/llama-tester.html">LLM tester with llama.cpp</a>のAPIサーバー機能、または外部のOllamaサーバーと接続して使用します。</p>
+    <section class="card">
+      <h2>1. 概要</h2>
+      <p>Dual AI Chat は、ユーザーが指定した Ollama 互換サーバーと接続し、テキストチャット・音声入力・TTS・2 AI 掛け合い・Web Search を扱える Android アプリです。</p>
+      <ul>
+        <li>Normal モード: 1 つのモデルとの通常チャット</li>
+        <li>Chatter モード: Base と Chatter Partner が交互に会話</li>
+        <li>設定プロファイル、アバター、Debug Mode を端末内に保存</li>
+      </ul>
+    </section>
 
-      <h2>2. 初期設定（推奨手順）</h2>
+    <section class="card">
+      <h2>2. クイックスタート</h2>
       <ol>
-        <li><a href="/llama-tester.html">LLM tester with llama.cpp</a>を起動し、モデルを読み込んでAPIサーバーを開始します。</li>
-        <li>Dual AI Chatを起動し、設定画面を開きます。</li>
-        <li>サーバーURL（例: <code>http://localhost:11434</code>）を入力します。</li>
-        <li>「モデル一覧取得」を実行し、使用するモデルを選択します。</li>
-        <li>設定を保存してメイン画面に戻ります。</li>
+        <li>起動時に表示される Quick Start は、「次回以降は表示しない」を選ぶまで表示されます。</li>
+        <li><a href="/llama-tester.html">LLM tester with llama.cpp</a> の API サーバー、または任意の Ollama 互換サーバーを用意します。</li>
+        <li>画面右上の <strong>⚙</strong> で設定を開き、<strong>Ollama URL</strong> に接続先を入力します。設定を閉じるときは同じボタンが <strong>💾</strong> に変わり、保存して閉じます。</li>
+        <li>起動時と設定画面を開いたときに <code>/api/tags</code> が呼ばれ、モデル一覧と接続状態タイルが更新されます。</li>
+        <li>必要なモデル、System Prompt、音声設定、Web Search 設定を入力したら保存してチャットに戻ります。</li>
       </ol>
+    </section>
 
-      <h2>3. メイン画面</h2>
+    <section class="card">
+      <h2>3. メイン画面の使い方</h2>
       <ul>
-        <li><strong>メッセージ入力欄</strong>: テキストを入力して送信します。</li>
-        <li><strong>音声入力ボタン</strong>: 長押しで音声認識を開始します。</li>
-        <li><strong>送信ボタン</strong>: メッセージをサーバーに送信します。</li>
-        <li><strong>チャット履歴</strong>: 過去のメッセージと応答が表示されます。</li>
+        <li><strong>入力欄 + Send</strong>: メッセージを送信します。</li>
+        <li><strong>入力欄が空のまま Send</strong>: Voice Input が有効なら音声認識を開始します。</li>
+        <li><strong>処理中の Send</strong>: ボタン表示が STOP に変わり、タップすると現在のリクエストを中止できます。</li>
+        <li><strong>チャットパネル</strong>: 会話ログとアバター表示を確認できます。</li>
+        <li><strong>ログエリア上部のハンドル</strong>: チャットエリアの拡大/縮小を切り替えます。</li>
       </ul>
+    </section>
 
-      <h2>4. 設定画面</h2>
+    <section class="card">
+      <h2>4. 設定の見どころ</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>セクション</th>
+            <th>内容</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>General</td>
+            <td>表示言語、Ollama URL、接続状態タイル、Streaming、TTS、Voice Input、Auto Voice Input、ユーザー名、Config Profile を設定します。</td>
+          </tr>
+          <tr>
+            <td>Chat</td>
+            <td>Normal / Chatter モード、History Limit、おしゃべり間隔、Base / Chatter Partner のモデル・名前・音声・System Prompt を設定します。</td>
+          </tr>
+          <tr>
+            <td>Expert</td>
+            <td>Web Search、検索 API URL / API Key、Web Search Model、Debug Mode を設定します。</td>
+          </tr>
+          <tr>
+            <td>Config Profile</td>
+            <td>設定プロファイルの保存、<strong>SELECT Template</strong> による読込、削除を行います。アバター画像もプロファイルと一緒に扱われます。</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section class="card">
+      <h2>5. モードと会話履歴</h2>
       <ul>
-        <li><strong>サーバー設定</strong>: APIサーバーのURLとポートを指定します。</li>
-        <li><strong>モデル選択</strong>: 使用するLLMモデルを選択します。</li>
-        <li><strong>ストリーミング</strong>: ON/OFFを切り替えます（ONで応答がリアルタイム表示）。</li>
-        <li><strong>TTS設定</strong>: テキスト読み上げの有効/無効を切り替えます。</li>
-        <li><strong>キャラクター設定</strong>: システムプロンプトやアバター画像を設定します。</li>
-        <li><strong>履歴管理</strong>: チャット履歴の保存・削除を行います。</li>
+        <li><strong>Normal</strong>: Base 側のモデルで通常の会話を行います。</li>
+        <li><strong>Chatter</strong>: Base と Chatter Partner が交互に応答します。間隔は <strong>Chatter Interval</strong> で設定します。</li>
+        <li><strong>History Limit</strong>: リクエスト時に送る過去メッセージ数を制御します。</li>
+        <li><strong>Reset Conversation Log</strong>: 現在セッション中の会話ログをリセットします。</li>
+        <li>現在の実装では会話履歴はメモリ上で保持され、アプリ再起動後に復元される永続保存は行われません。</li>
       </ul>
+    </section>
 
-      <h2>5. キャラクター機能</h2>
-      <p>最大2つのキャラクターを登録できます。各キャラクターには以下を設定可能です：</p>
+    <section class="card">
+      <h2>6. 音声機能</h2>
       <ul>
-        <li>名前</li>
-        <li>システムプロンプト（LLMの振る舞いを定義）</li>
-        <li>アバター画像</li>
+        <li><strong>Voice Input</strong>: 音声認識を使って入力できます。アプリはまずオフライン認識を優先し、必要に応じてオンライン認識へフォールバックします。</li>
+        <li><strong>Text-to-Speech</strong>: 応答を文単位で読み上げます。</li>
+        <li><strong>Auto Voice Input</strong>: 応答完了後、条件が整えば次の音声入力を自動で開始します。</li>
+        <li><strong>Speech Language / Rate / Pitch</strong>: Base と Chatter Partner それぞれで独立して設定できます。</li>
       </ul>
+    </section>
 
-      <h2>6. Web検索機能（オプション）</h2>
-      <p>検索APIを設定することで、チャット中にWeb検索結果を参照できます。検索結果はLLMのコンテキストに追加され、より正確な回答が可能になります。</p>
-
-      <h2>7. トラブルシューティング</h2>
+    <section class="card">
+      <h2>7. Web Search と Debug Mode</h2>
       <ul>
-        <li><strong>接続エラー</strong>: LLM tester with llama.cpp のAPIサーバーが起動しているか確認してください。</li>
-        <li><strong>応答が遅い</strong>: モデルサイズや端末性能に依存します。小さいモデルを試してください。</li>
-        <li><strong>音声認識が動作しない</strong>: マイク権限を許可してください。</li>
+        <li>Web Search を有効にし、API Key を設定すると、検索クエリを指定 API に送信して結果を会話コンテキストへ追加できます。</li>
+        <li>Brave Search API 形式の URL を設定した場合は Brave 向けの処理を使います。</li>
+        <li><strong>Web Search Model</strong> は <code>/api/tags</code> で取得したモデル一覧から選択します。</li>
+        <li><strong>Debug Mode</strong> を有効にすると、API リクエスト / レスポンスの詳細ログを画面上で確認できます。</li>
       </ul>
+    </section>
 
-    </div>
+    <section class="card">
+      <h2>8. アバターと設定プロファイル</h2>
+      <ul>
+        <li>アバターは c0（背景）/ c1（基本）/ c2（まばたき）/ c3（会話中）の 4 スロット構成です。</li>
+        <li>Base と Chatter Partner で別々の画像を設定できます。</li>
+        <li><strong>Clear</strong> を押すと既定状態に戻せます。</li>
+        <li>設定プロファイルを保存すると、設定値と対応するアバター画像バックアップをまとめて再利用できます。</li>
+      </ul>
+    </section>
+
+    <section class="card">
+      <h2>9. 補足</h2>
+      <ul>
+        <li>接続エラー時は、Ollama URL の状態タイルと <code>/api/tags</code> の取得結果を確認してください。</li>
+        <li>音声認識が動かない場合は、マイク権限と端末の音声認識サービスの利用可否を確認してください。</li>
+        <li>検索 API やリモートサーバーを使う場合、送信データはそれぞれの提供者側ポリシーに従って処理されます。</li>
+      </ul>
+    </section>
   </main>
-  <footer style="max-width:960px;margin:40px auto 60px;padding:0 20px;color:var(--muted);font-size:13px;text-align:center">© Mick Lab — 生成AIアプリケーション研究</footer>
 </body>
 </html>

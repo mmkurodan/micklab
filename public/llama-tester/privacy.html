@@ -5,94 +5,122 @@
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>プライバシーポリシー — LLM tester with llama.cpp — Mick Lab</title>
   <style>
-    :root{--bg:#08080a;--card:#0f1114;--muted:#9aa3b2;--accent:#7c5cff}
+    :root{--bg:#08080a;--card:#0f1114;--muted:#9aa3b2;--accent:#7c5cff;--line:rgba(255,255,255,0.08)}
     *{box-sizing:border-box}
-    body{margin:0;background:var(--bg);color:#e6eef8;font-family:Inter,system-ui,Segoe UI,Roboto,Arial}
-    header{padding:18px 24px;border-bottom:1px solid rgba(255,255,255,0.03)}
+    body{margin:0;background:var(--bg);color:#e6eef8;font-family:Inter,system-ui,Segoe UI,Roboto,Arial;line-height:1.7}
+    header{padding:18px 24px;border-bottom:1px solid rgba(255,255,255,0.03);display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap}
     a{color:var(--accent);text-decoration:none}
-    main{max-width:960px;margin:28px auto;padding:20px}
-    .card{background:var(--card);padding:18px;border-radius:10px;border:1px solid rgba(255,255,255,0.03)}
-    h1{margin:0 0 12px}
-    ul{color:var(--muted)}
-    .back{font-size:14px;margin-bottom:12px;display:inline-block}
+    main{max-width:1040px;margin:28px auto;padding:20px}
+    .card{background:var(--card);padding:20px;border-radius:14px;border:1px solid rgba(255,255,255,0.03)}
+    .nav-links,.lang-switch{display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+    .back{font-size:14px}
+    .lang-switch{color:var(--muted);font-size:14px}
+    h1{margin:0 0 12px;font-size:32px}
+    h2{margin:0 0 10px;font-size:24px}
+    h3{margin:20px 0 8px;font-size:18px}
+    p{margin:0 0 12px}
+    ul{margin:0;padding-left:22px;color:var(--muted)}
+    li+li{margin-top:8px}
+    .updated,.lead{color:var(--muted)}
+    hr{border:0;border-top:1px solid var(--line);margin:32px 0}
   </style>
 </head>
 <body>
   <header>
-    <a class="back" href="/">← ホームへ戻る</a>
+    <div class="nav-links">
+      <a class="back" href="/">← ホームへ戻る</a>
+      <a class="back" href="/llama-tester.html">← LLM tester with llama.cpp</a>
+    </div>
+    <nav class="lang-switch" aria-label="Privacy languages">
+      <a href="#ja">日本語</a>
+      <span>|</span>
+      <a href="#en">English</a>
+    </nav>
   </header>
   <main>
     <div class="card">
-      <h1>プライバシーポリシー</h1>
+      <h1>プライバシーポリシー / Privacy Policy</h1>
+      <p class="updated">最終更新日 / Last updated: 2026-04-14</p>
+      <p class="lead">このページには日本語版と英語版を掲載しています。 / This page includes both Japanese and English versions.</p>
 
-      <h2>1. 収集する情報</h2>
-      <p>本アプリは、個人情報を外部サーバーへ送信しません。以下の情報を端末内に保存します。</p>
-      <ul>
-        <li>設定情報（モデルURL、各種パラメータ、APIポート、ログレベル）</li>
-        <li>構成ファイル（configs/*.json）</li>
-        <li>ダウンロードしたモデルファイル</li>
-        <li>ログファイル（ollama.log）</li>
-      </ul>
-      <p>また、アプリの生成機能を利用する際、ユーザーが入力したテキスト（会話内容）は、端末内または同一ローカルネットワーク内で動作するローカルAPIに送信されます。このデータは外部サーバーへ送信されず、保存も行いません。</p>
+      <section id="ja">
+        <h2>日本語</h2>
 
-      <h2>2. 通信</h2>
-      <ul>
-        <li>モデルのダウンロード時に、ユーザーが入力した URL へ通信します。</li>
-        <li>API サーバーを有効にした場合、端末内またはローカルネットワーク内のポート（0.0.0.0）でリクエストを受け付けます。</li>
-        <li>ユーザーの入力内容（会話全文）はローカル API に送信されますが、インターネットを経由して外部サーバーへ送信されることはありません。</li>
-        <li>ローカルネットワーク内からアクセス可能ですが、外部ネットワークからのアクセスは意図されておらず、アプリは外部公開を行いません。</li>
-        <li>ローカル通信は暗号化されていない場合がありますが、通信は端末内または同一ネットワーク内に限定されます。</li>
-      </ul>
+        <h3>1. 適用範囲</h3>
+        <p>本ポリシーは、Mick Lab が提供する Android アプリ「LLM tester with llama.cpp」に適用されます。</p>
 
-      <h2>3. 利用目的</h2>
-      <p>上記データは、アプリの動作、生成機能、表示のために使用します。ユーザーの入力内容は生成処理のためにのみ利用され、外部送信・第三者提供・保存は行いません。</p>
+        <h3>2. 端末内に保存される情報</h3>
+        <p>本アプリは、以下の情報をユーザーの端末内に保存します。</p>
+        <ul>
+          <li>設定情報（モデル URL、各種推論パラメータ、API ポート、ログレベル、表示言語など）</li>
+          <li>構成ファイル（<code>configs/*.json</code>）</li>
+          <li>ダウンロードまたは取り込んだモデルファイル</li>
+          <li>ログファイルおよびクラッシュ関連ファイル（<code>ollama.log</code>、<code>last_crash.txt</code>、<code>native_crash.txt</code>）</li>
+        </ul>
 
-      <h2>4. ログ</h2>
-      <p>ログにはアプリの動作状況や API リクエスト情報が記録される場合があります。ログは端末内にのみ保存され、外部へ送信されません。</p>
+        <h3>3. ネットワーク通信</h3>
+        <ul>
+          <li>モデルを URL から取得する場合、アプリはユーザーが指定した URL に通信します。</li>
+          <li>ローカル <code>.gguf</code> ファイルを取り込む場合、選択ファイルはアプリ保存領域へコピーされ、外部サーバー通信は行いません。</li>
+          <li>アプリ内の通常のプロンプト生成は端末内で処理され、開発者へ送信されません。</li>
+          <li>内蔵の Ollama 互換 API サーバーを有効にした場合、アプリは <code>0.0.0.0</code> で待機し、同一端末またはローカルネットワーク内からのリクエストを受け付けます。</li>
+          <li>この API に送られたプロンプトやメッセージ本文は、端末内またはローカルネットワーク内で処理され、開発者へ送信されません。</li>
+          <li>HTTPS URL を使用する場合、通常の SSL/TLS 証明書検証が行われます。ローカル API を HTTP で利用する場合、通信は暗号化されないことがあります。</li>
+        </ul>
 
-      <h2>5. 保存期間</h2>
-      <p>設定・モデル・ログは、ユーザーが削除するかアプリのデータを消去するまで保持されます。ログはメイン画面の「Clear Log」で削除できます。</p>
+        <h3>4. 利用目的</h3>
+        <p>上記データは、モデルの読み込み、推論の実行、設定の再利用、ログ表示、API 提供など、アプリ機能を実現するためにのみ使用されます。</p>
 
-      <h2>6. お問い合わせ</h2>
-      <p>ご不明点がある場合は、以下のメールアドレスまでお問い合わせください。<br>micklab2026@gmail.com</p>
+        <h3>5. ログと保持期間</h3>
+        <p>ログにはアプリの動作状況や、機能利用に応じた API 関連情報が含まれる場合があります。これらは端末内にのみ保持され、ユーザーが削除するかアプリデータを消去するまで保存されます。ログはメイン画面の <strong>Clear Log</strong> から削除できます。</p>
 
-      <hr style="border:0;border-top:1px solid rgba(255,255,255,0.1);margin:28px 0">
+        <h3>6. 開発者による取得について</h3>
+        <p>開発者は、ユーザーのプロンプト、モデル出力、ログ、モデルファイルを受信しません。本アプリは広告 SDK や解析 SDK を利用してこれらの情報を開発者へ送信する実装にはなっていません。</p>
 
-      <h2>Privacy Policy (English Version)</h2>
+        <h3>7. お問い合わせ</h3>
+        <p>ご不明点がある場合は、以下までお問い合わせください。<br>micklab2026@gmail.com</p>
+      </section>
 
-      <h3>1. Information Collected</h3>
-      <p>This application does not transmit any personal information to external servers. The following data is stored locally on the device:</p>
-      <ul>
-        <li>Configuration data (model URL, parameters, API port, log level)</li>
-        <li>Configuration files (configs/*.json)</li>
-        <li>Downloaded model files</li>
-        <li>Log file (ollama.log)</li>
-      </ul>
-      <p>When using the generation features, the text entered by the user (conversation content) is sent to a local API running on the device or within the same local network. This data is not transmitted to external servers and is not stored.</p>
+      <hr>
 
-      <h3>2. Communication</h3>
-      <ul>
-        <li>When downloading models, the application communicates with the URL entered by the user.</li>
-        <li>When the API server is enabled, it listens on a port (0.0.0.0) accessible within the device or the local network.</li>
-        <li>User input (full conversation text) is sent to the local API, but it is never transmitted over the internet or to any external server.</li>
-        <li>The API may be accessible from devices within the same local network, but it is not intended for external network access, and the application does not expose the API to the internet.</li>
-        <li>Local communication may be unencrypted, but all communication is restricted to the device or the same local network.</li>
-      </ul>
+      <section id="en">
+        <h2>English</h2>
 
-      <h3>3. Purpose of Use</h3>
-      <p>The collected data is used solely for application functionality, generation processing, and display. User input is used only for generation and is not transmitted externally, shared with third parties, or stored.</p>
+        <h3>1. Scope</h3>
+        <p>This policy applies to the Android application “LLM tester with llama.cpp” provided by Mick Lab.</p>
 
-      <h3>4. Logs</h3>
-      <p>Logs may contain operational information or API request details. Logs are stored only on the device and are not transmitted externally.</p>
+        <h3>2. Data Stored on Your Device</h3>
+        <p>The app stores the following information locally on the user’s device:</p>
+        <ul>
+          <li>Configuration data, such as model URLs, inference parameters, API port, log level, and display language</li>
+          <li>Configuration files (<code>configs/*.json</code>)</li>
+          <li>Downloaded or imported model files</li>
+          <li>Log and crash-related files (<code>ollama.log</code>, <code>last_crash.txt</code>, and <code>native_crash.txt</code>)</li>
+        </ul>
 
-      <h3>5. Retention Period</h3>
-      <p>Settings, models, and logs are retained until the user deletes them or clears the application data. Logs can be deleted using the "Clear Log" option on the main screen.</p>
+        <h3>3. Network Communication</h3>
+        <ul>
+          <li>When you download a model from a URL, the app connects only to the URL you specify.</li>
+          <li>When you import a local <code>.gguf</code> file, the selected file is copied into app storage and no external server communication occurs.</li>
+          <li>Normal prompt generation inside the app is processed on-device and is not sent to the developer.</li>
+          <li>If you enable the built-in Ollama-compatible API server, the app listens on <code>0.0.0.0</code> and accepts requests from the same device or the local network.</li>
+          <li>Prompts and message bodies sent to that API are processed on-device or within the local network and are not transmitted to the developer.</li>
+          <li>For HTTPS model URLs, standard SSL/TLS certificate verification is used. If you use the local API over HTTP, that traffic may be unencrypted.</li>
+        </ul>
 
-      <h3>6. Contact</h3>
-      <p>If you have any questions, please contact: micklab2026@gmail.com</p>
+        <h3>4. Purpose of Use</h3>
+        <p>The data above is used only to provide app functionality such as model loading, inference, saved configurations, log display, and the built-in API.</p>
 
+        <h3>5. Logs and Retention</h3>
+        <p>Logs may contain operational information and, depending on the feature used, API-related details. They remain on the device only and are retained until the user deletes them or clears the app data. Logs can be removed with <strong>Clear Log</strong> on the main screen.</p>
+
+        <h3>6. What the Developer Receives</h3>
+        <p>The developer does not receive your prompts, model outputs, logs, or model files. The current app implementation does not send this information to the developer through advertising or analytics SDKs.</p>
+
+        <h3>7. Contact</h3>
+        <p>If you have any questions, please contact:<br>micklab2026@gmail.com</p>
+      </section>
     </div>
   </main>
-  <footer style="max-width:960px;margin:40px auto 60px;padding:0 20px;color:var(--muted);font-size:13px;text-align:center">© Mick Lab — 生成AIアプリケーション研究</footer>
 </body>
 </html>

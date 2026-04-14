@@ -4,71 +4,190 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>操作マニュアル — LLM tester with llama.cpp — Mick Lab</title>
+  <link rel="alternate" hreflang="ja" href="/llama-tester/manual.html">
+  <link rel="alternate" hreflang="en" href="/llama-tester/manual-en.html">
   <style>
-    :root{--bg:#08080a;--card:#0f1114;--muted:#9aa3b2;--accent:#7c5cff}
+    :root{--bg:#08080a;--card:#0f1114;--muted:#9aa3b2;--accent:#7c5cff;--line:rgba(255,255,255,0.08)}
     *{box-sizing:border-box}
-    body{margin:0;background:var(--bg);color:#e6eef8;font-family:Inter,system-ui,Segoe UI,Roboto,Arial}
-    header{padding:18px 24px;border-bottom:1px solid rgba(255,255,255,0.03)}
+    body{margin:0;background:var(--bg);color:#e6eef8;font-family:Inter,system-ui,Segoe UI,Roboto,Arial;line-height:1.7}
+    header{padding:18px 24px;border-bottom:1px solid rgba(255,255,255,0.03);display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap}
     a{color:var(--accent);text-decoration:none}
-    main{max-width:960px;margin:28px auto;padding:20px}
-    .card{background:var(--card);padding:18px;border-radius:10px;border:1px solid rgba(255,255,255,0.03)}
-    h1{margin:0 0 12px}
-    h2{margin:16px 0 8px}
-    ul,ol{color:var(--muted)}
-    .back{font-size:14px;margin-bottom:12px;display:inline-block}
+    main{max-width:1040px;margin:28px auto;padding:20px}
+    .card{background:var(--card);padding:20px;border-radius:14px;border:1px solid rgba(255,255,255,0.03);margin-bottom:18px}
+    h1{margin:0 0 12px;font-size:32px}
+    h2{margin:0 0 10px;font-size:23px}
+    h3{margin:18px 0 8px;font-size:18px}
+    p{margin:0 0 12px}
+    ul,ol{margin:0;padding-left:22px;color:var(--muted)}
+    li+li{margin-top:8px}
+    .lead{color:#eef4ff}
+    .note{color:var(--muted);font-size:14px}
+    .nav-links,.lang-switch{display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+    .back{font-size:14px}
+    .lang-switch{color:var(--muted);font-size:14px}
+    .lang-switch a[aria-current="page"]{color:#fff;font-weight:700}
+    table{width:100%;border-collapse:collapse;margin-top:12px}
+    th,td{padding:12px;border:1px solid var(--line);vertical-align:top;text-align:left}
+    th{color:#fff;background:rgba(255,255,255,0.03)}
+    td{color:var(--muted)}
+    code{background:rgba(255,255,255,0.05);padding:2px 6px;border-radius:4px}
+    .callout{background:linear-gradient(90deg,rgba(124,92,255,0.08),rgba(0,212,255,0.03));border:1px solid var(--line)}
+    @media (max-width:700px){main{padding:16px}h1{font-size:28px}table,thead,tbody,tr,th,td{display:block}th{border-bottom:none}td{border-top:none}}
   </style>
 </head>
 <body>
   <header>
-    <a class="back" href="/">← ホームへ戻る</a>
-    <a class="back" href="/llama-tester.html" style="margin-left:12px">← LLM tester with llama.cpp</a>
+    <div class="nav-links">
+      <a class="back" href="/">← ホームへ戻る</a>
+      <a class="back" href="/llama-tester.html">← LLM tester with llama.cpp</a>
+    </div>
+    <nav class="lang-switch" aria-label="Language switch">
+      <a href="/llama-tester/manual.html" aria-current="page">日本語</a>
+      <span>|</span>
+      <a href="/llama-tester/manual-en.html">English</a>
+    </nav>
   </header>
   <main>
-    <div class="card">
+    <section class="card callout">
       <h1>操作マニュアル</h1>
+      <p class="lead">このページは、現在の Android アプリ実装に合わせて、LLM tester with llama.cpp の使い方と挙動を整理した公開マニュアルです。</p>
+      <p class="note">関連文書: <a href="/llama-tester/privacy.html#ja">プライバシーポリシー</a></p>
+    </section>
 
-      <h2>1. アプリ概要</h2>
-      <p>アプリ名: LLM tester with llama.cpp<br>Built with Llama (llama.cpp)<br>本アプリは端末上でLLMを実行し、プロンプトに対する回答を生成します。必要に応じてOllama互換APIサーバーを起動できます。</p>
+    <section class="card">
+      <h2>1. 概要</h2>
+      <p>LLM tester with llama.cpp は、Android 端末上で GGUF モデルを実行し、プロンプト入力・推論パラメータ調整・テンプレート確認・ログ確認・Ollama 互換 API 提供までを一つのアプリで扱えるローカルLLM検証ツールです。</p>
+      <ul>
+        <li>Built with Llama (llama.cpp)</li>
+        <li>モデルは URL からの取得とローカルファイル取り込みの両方に対応</li>
+        <li>必要に応じて <code>/api/chat</code> / <code>/api/generate</code> / <code>/api/tags</code> を提供</li>
+      </ul>
+    </section>
 
-      <h2>2. 初期設定（推奨手順）</h2>
+    <section class="card">
+      <h2>2. 使い始める前に</h2>
+      <ul>
+        <li>大きなモデルのダウンロードには数 GB 単位の通信が必要になる場合があります。モバイル回線ではなく Wi‑Fi の利用を推奨します。</li>
+        <li>初回起動時には Quick Start と API サーバー有効化ポップアップが表示される場合があります。どちらも「次回以降は表示しない」を選べます。</li>
+        <li>推論中（Busy）は Settings ボタンが無効化され、処理完了後に自動で再度有効になります。</li>
+      </ul>
+    </section>
+
+    <section class="card">
+      <h2>3. 推奨セットアップ</h2>
       <ol>
-        <li>メイン画面で「Settings」を開きます。</li>
-        <li>モデルURLを入力し「Load Model」を押してモデルを読み込みます。</li>
-        <li>パラメータを調整する場合は各項目を編集し「Save Config」で保存します。</li>
+        <li>メイン画面で <strong>Settings</strong> を開きます。</li>
+        <li><strong>Model Selection</strong> で、モデル URL を入力するか、ローカル端末から <code>.gguf</code> ファイルを取り込みます。</li>
+        <li><strong>Load Model</strong> でモデルを読み込みます。ローカル取り込み時、ファイルピッカーは Downloads を既定で開きます。</li>
+        <li>必要に応じてパラメータを調整し、<strong>Save Config</strong> で構成を保存します。</li>
+        <li><strong>SAVE &amp; CLOSE</strong> を押すと設定が保存され、その時点のモデルへ即時反映されます。</li>
       </ol>
+      <p class="note">HTTP/HTTPS のモデル URL を使用できます。HTTPS では通常の SSL/TLS 証明書検証が行われます。</p>
+    </section>
 
-      <h2>3. メイン画面</h2>
+    <section class="card">
+      <h2>4. メイン画面</h2>
       <ul>
         <li><strong>Enter Prompt</strong>: プロンプトを入力します。</li>
-        <li><strong>Send</strong>: 生成を開始します（モデル未読み込み時はエラー表示）。</li>
-        <li><strong>Re-init Model</strong>: 現在のモデルを解放して再初期化します。</li>
-        <li><strong>View Log</strong>: ログファイル内容を出力欄に表示します。</li>
+        <li><strong>Send</strong>: 生成を開始します。モデル未ロード時は、現在の構成に対応するモデルのロードを自動で試みます。</li>
+        <li><strong>Settings</strong>: 推論中は無効化されます。設定パネルではなく別画面で詳細設定を行います。</li>
+        <li><strong>Re-init Model</strong>: 進行中の生成を停止し、現在のプロファイルを再初期化します。</li>
+        <li><strong>View Log / Hide Log</strong>: モデル出力欄にログファイルの最新 100 行を表示し、再度押すと通常の出力へ戻ります。</li>
+        <li><strong>Update</strong>: ログ表示中の内容を再読み込みします。</li>
         <li><strong>Clear Log</strong>: ログファイルを空にします。</li>
-        <li><strong>Start/Stop API Server</strong>: APIサーバーを起動/停止します。</li>
-        <li><strong>Copy</strong>: 出力/ログをクリップボードへコピーします。</li>
+        <li><strong>Start/Stop API Server</strong>: 内蔵 API サーバーを起動または停止します。</li>
+        <li><strong>Copy / Save</strong>: モデル出力またはログ表示内容をコピー・保存します。</li>
+        <li><strong>Processing Status / Logs</strong>: タイムスタンプ付きの処理ログを表示します。</li>
       </ul>
+    </section>
 
-      <h2>4. 設定画面の操作</h2>
+    <section class="card">
+      <h2>5. 設定画面</h2>
       <ul>
-        <li><strong>Configuration Management</strong>: 設定の保存/削除/読み込みを行います。</li>
-        <li><strong>Model Selection</strong>: モデルURLを指定し読み込みます。</li>
-        <li><strong>Model Parameters</strong>: 生成パラメータを設定します。</li>
-        <li><strong>Prompt Template</strong>: {USER_INPUT} で入力を差し込みます。</li>
-        <li><strong>Llama API Server</strong>: サーバーポートを指定します。</li>
-        <li><strong>Log Settings</strong>: ログレベルを選択します。</li>
-        <li><strong>Show License</strong>: ライセンス文面を表示します。</li>
-        <li><strong>Documents</strong>: 操作マニュアル、プライバシーポリシーを確認できます。</li>
+        <li><strong>Configuration Management</strong>: 設定の保存・読み込み・削除を行います。既定の <code>default</code> 構成が自動生成されます。</li>
+        <li><strong>Model Selection</strong>: URL からの取得に加えて、ローカル端末の <code>.gguf</code> を取り込めます。取り込んだファイルはアプリ保存領域へコピーされ、設定欄にはファイル名のみが保存されます。</li>
+        <li><strong>Model Parameters</strong>: 基本パラメータ、Penalty、Mirostat、追加サンプリング、DRY、GPU Offload Layers を設定できます。</li>
+        <li><strong>Prompt Template</strong>: System Prompt、Think 有効/無効、custom chat template を設定できます。未指定時はモデルファミリーから自動選択されます。</li>
+        <li><strong>Llama API Server</strong>: API の待受ポートを設定できます。起動/停止は起動時ポップアップまたはメイン画面から行います。</li>
+        <li><strong>Display Language</strong>: 日本語 / English を切り替えられます。初回は端末言語をもとに決まり、選択内容は保存されます。</li>
+        <li><strong>Log Settings / Show License / Documents</strong>: ログレベル、ライセンス表示、文書画面への移動を行います。</li>
+        <li><strong>SAVE &amp; CLOSE / CLOSE</strong>: 保存して即時適用するか、保存せず閉じるかを選べます。</li>
       </ul>
+    </section>
 
-      <h2>5. APIサーバー（任意）</h2>
+    <section class="card">
+      <h2>6. パラメータ群の見どころ</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>項目群</th>
+            <th>主な項目</th>
+            <th>用途</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>基本</td>
+            <td><code>n_ctx</code>, <code>n_threads</code>, <code>n_batch</code>, GPU Offload Layers, <code>temp</code>, <code>top_p</code>, <code>top_k</code></td>
+            <td>速度、メモリ使用量、応答の多様性や安定性を調整します。</td>
+          </tr>
+          <tr>
+            <td>Penalty</td>
+            <td><code>penalty_last_n</code>, <code>penalty_repeat</code>, <code>penalty_freq</code>, <code>penalty_present</code></td>
+            <td>同じ語句の繰り返しや、出現済みトークンの扱いを調整します。</td>
+          </tr>
+          <tr>
+            <td>Mirostat</td>
+            <td><code>mirostat</code>, <code>mirostat_tau</code>, <code>mirostat_eta</code></td>
+            <td>出力の一貫性を自動調整するサンプリング手法を切り替えます。</td>
+          </tr>
+          <tr>
+            <td>追加サンプリング</td>
+            <td><code>min_p</code>, <code>typical_p</code>, <code>dynatemp_range</code>, <code>dynatemp_exponent</code>, <code>xtc_probability</code>, <code>xtc_threshold</code>, <code>top_n_sigma</code></td>
+            <td>モデルの出力傾向をさらに細かく追い込みたいときに使います。</td>
+          </tr>
+          <tr>
+            <td>DRY</td>
+            <td><code>dry_multiplier</code>, <code>dry_base</code>, <code>dry_allowed_length</code>, <code>dry_penalty_last_n</code>, <code>dry_sequence_breakers</code></td>
+            <td>長文生成での単調な繰り返しを抑えたいときに有効です。</td>
+          </tr>
+          <tr>
+            <td>出力 / Think</td>
+            <td><code>streaming</code>, <code>enableThinking</code>, <code>systemPrompt</code>, <code>customChatTemplate</code></td>
+            <td>ストリーミング表示、思考出力の扱い、テンプレート差分の検証に使います。</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section class="card">
+      <h2>7. プロンプトテンプレート</h2>
+      <p>custom chat template が空の場合、アプリはモデルファイル名からファミリーを推定し、適切なテンプレートを自動選択します。</p>
       <ul>
-        <li>起動すると端末内で <code>/api/chat</code>, <code>/api/generate</code>, <code>/api/tags</code> を提供します。</li>
-        <li>同時生成は1件のみです（ビジー時は503を返します）。</li>
-        <li>Android 13以上では通知権限が必要な場合があります。</li>
+        <li>対応ファミリー: Gemma, Qwen, Mistral, LLaMA, Phi, Zephyr, Hermes</li>
+        <li>未判定時のフォールバック: ChatML</li>
+        <li>Gemma 系では system / user / model の並びを維持します。</li>
+        <li>選択結果は Processing Status / Logs と INFO レベルログに記録されます。</li>
       </ul>
+    </section>
 
-    </div>
+    <section class="card">
+      <h2>8. 内蔵 API サーバー</h2>
+      <ul>
+        <li>提供エンドポイント: <code>/api/chat</code>, <code>/api/generate</code>, <code>/api/tags</code></li>
+        <li>同時生成は 1 件のみです。ビジー時は最大 10 件までキューに入り、最大 60 秒待機します。</li>
+        <li>キュー満杯または待機超過時は <code>503</code> を返します。</li>
+        <li>Android 13 以上では通知権限が必要になる場合があります。</li>
+      </ul>
+    </section>
+
+    <section class="card">
+      <h2>9. 補足</h2>
+      <ul>
+        <li>大きなモデルの読み込みは、アドレス空間不足や中断操作で失敗する場合があります。その場合は小さいモデルを試すか、Settings から再度読み込んでください。</li>
+        <li>ログやクラッシュ情報は端末内に保持され、必要に応じて確認や削除ができます。</li>
+      </ul>
+    </section>
   </main>
-  <footer style="max-width:960px;margin:40px auto 60px;padding:0 20px;color:var(--muted);font-size:13px;text-align:center">© Mick Lab — 生成AIアプリケーション研究</footer>
 </body>
 </html>

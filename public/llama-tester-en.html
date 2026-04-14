@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>LLM tester with llama.cpp — Mick Lab</title>
+  <link rel="alternate" hreflang="ja" href="/llama-tester.html">
+  <link rel="alternate" hreflang="en" href="/llama-tester-en.html">
+  <style>
+    :root{--bg:#08080a;--card:#0f1114;--muted:#9aa3b2;--accent:#7c5cff;--line:rgba(255,255,255,0.08)}
+    *{box-sizing:border-box}
+    body{margin:0;background:var(--bg);color:#e6eef8;font-family:Inter,system-ui,Segoe UI,Roboto,Arial;line-height:1.65}
+    header{padding:18px 24px;border-bottom:1px solid rgba(255,255,255,0.03);display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap}
+    a{color:var(--accent);text-decoration:none}
+    main{max-width:1040px;margin:28px auto;padding:20px}
+    .card{background:var(--card);padding:20px;border-radius:14px;border:1px solid rgba(255,255,255,0.03);margin-bottom:18px}
+    .eyebrow{margin:0 0 8px;color:#b7a9ff;font-size:13px;font-weight:700;letter-spacing:.08em;text-transform:uppercase}
+    h1{margin:0 0 12px;font-size:34px;line-height:1.15}
+    h2{margin:0 0 12px;font-size:22px}
+    p{margin:0 0 12px}
+    ul{margin:0;padding-left:20px;color:var(--muted)}
+    li+li{margin-top:8px}
+    .lead{color:#eef4ff;font-size:17px}
+    .doc-links,.note{color:var(--muted);font-size:14px}
+    .highlight{background:linear-gradient(90deg,rgba(124,92,255,0.08),rgba(0,212,255,0.03));border:1px solid var(--line);border-radius:12px;padding:14px 16px}
+    .highlight ul{color:#e6eef8;font-weight:600}
+    .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px}
+    figure{margin:0}
+    img{width:100%;border-radius:10px;display:block}
+    figcaption{margin-top:8px;color:var(--muted);font-size:13px}
+    .lang-switch{display:flex;align-items:center;gap:10px;color:var(--muted);font-size:14px}
+    .lang-switch a[aria-current="page"]{color:#fff;font-weight:700}
+    .nav-links{display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+    .back{font-size:14px}
+    code{background:rgba(255,255,255,0.05);padding:2px 6px;border-radius:4px}
+    @media (max-width:700px){main{padding:16px}h1{font-size:28px}}
+  </style>
+</head>
+<body>
+  <header>
+    <div class="nav-links">
+      <a class="back" href="/">← Home</a>
+    </div>
+    <nav class="lang-switch" aria-label="Language switch">
+      <a href="/llama-tester.html">日本語</a>
+      <span>|</span>
+      <a href="/llama-tester-en.html" aria-current="page">English</a>
+    </nav>
+  </header>
+  <main>
+    <section class="card">
+      <p class="eyebrow">Android / llama.cpp / GGUF</p>
+      <h1>LLM tester with llama.cpp</h1>
+      <p class="lead">LLM tester with llama.cpp is a local LLM testing tool for Android that lets you load GGUF models, tune inference settings, inspect prompt templates and logs, and optionally expose an Ollama-compatible API from a single app.</p>
+      <p class="doc-links">Docs: <a href="/llama-tester/manual-en.html">User Manual</a> | <a href="/llama-tester/privacy.html#en">Privacy Policy</a></p>
+      <div class="highlight">
+        <ul>
+          <li>Supports both model downloads from a URL and importing local <code>.gguf</code> files from the device.</li>
+          <li>Lets you save and reuse profiles for generation settings, Think behavior, custom chat templates, and display language.</li>
+          <li>Can start an on-device Ollama-compatible API server so other clients can call endpoints such as <code>/api/chat</code>.</li>
+        </ul>
+      </div>
+    </section>
+
+    <section class="card">
+      <h2>Screenshots</h2>
+      <div class="grid">
+        <figure>
+          <img src="/llama-tester/sm101.png" alt="LLM tester with llama.cpp main screen">
+          <figcaption>Main screen with prompt input, model output, processing logs, and API server controls.</figcaption>
+        </figure>
+        <figure>
+          <img src="/llama-tester/sm102.png" alt="LLM tester with llama.cpp settings screen">
+          <figcaption>Settings screen for model URLs, local GGUF import, configuration management, and inference parameters.</figcaption>
+        </figure>
+        <figure>
+          <img src="/llama-tester/sm103.png" alt="LLM tester with llama.cpp template settings">
+          <figcaption>Template, API, language, and log settings, including System Prompt and custom chat template fields.</figcaption>
+        </figure>
+      </div>
+    </section>
+
+    <section class="card">
+      <h2>Key Features</h2>
+      <ul>
+        <li><strong>On-device local inference</strong>: Runs GGUF models directly on Android with llama.cpp.</li>
+        <li><strong>Flexible model loading</strong>: Supports downloadable model URLs and local <code>.gguf</code> imports.</li>
+        <li><strong>Deep inference controls</strong>: Adjust <code>n_ctx</code>, <code>n_threads</code>, GPU Offload Layers, Top-p, Top-k, penalties, Mirostat, DRY, Think behavior, and custom chat templates.</li>
+        <li><strong>Configuration profiles</strong>: Save, load, and delete profiles, then apply them immediately with <code>SAVE &amp; CLOSE</code>.</li>
+        <li><strong>Practical log/output workflow</strong>: View the latest 100 log lines, refresh logs, clear logs, copy results, and save responses or logs.</li>
+        <li><strong>Built-in Ollama-compatible API</strong>: Provides <code>/api/chat</code>, <code>/api/generate</code>, and <code>/api/tags</code>; only one generation runs at a time, with a queue of up to 10 requests for up to 60 seconds.</li>
+      </ul>
+    </section>
+
+    <section class="card">
+      <h2>Operational Notes</h2>
+      <ul>
+        <li>Model downloads can be several gigabytes. Wi‑Fi is strongly recommended.</li>
+        <li>The local API server is intended for the same device or a local network. Android 13+ may require notification permission.</li>
+        <li>Generation speed and stability depend on model size, device memory, thread settings, and GPU offload configuration.</li>
+      </ul>
+    </section>
+  </main>
+  <script defer src="/browser-api-register.js"></script>
+</body>
+</html>

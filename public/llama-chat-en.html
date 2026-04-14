@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Dual AI Chat — Mick Lab</title>
+  <link rel="alternate" hreflang="ja" href="/llama-chat.html">
+  <link rel="alternate" hreflang="en" href="/llama-chat-en.html">
+  <style>
+    :root{--bg:#08080a;--card:#0f1114;--muted:#9aa3b2;--accent:#7c5cff;--line:rgba(255,255,255,0.08)}
+    *{box-sizing:border-box}
+    body{margin:0;background:var(--bg);color:#e6eef8;font-family:Inter,system-ui,Segoe UI,Roboto,Arial;line-height:1.65}
+    header{padding:18px 24px;border-bottom:1px solid rgba(255,255,255,0.03);display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap}
+    a{color:var(--accent);text-decoration:none}
+    main{max-width:1040px;margin:28px auto;padding:20px}
+    .card{background:var(--card);padding:20px;border-radius:14px;border:1px solid rgba(255,255,255,0.03);margin-bottom:18px}
+    .eyebrow{margin:0 0 8px;color:#b7a9ff;font-size:13px;font-weight:700;letter-spacing:.08em;text-transform:uppercase}
+    h1{margin:0 0 12px;font-size:34px;line-height:1.15}
+    h2{margin:0 0 12px;font-size:22px}
+    p{margin:0 0 12px}
+    ul{margin:0;padding-left:20px;color:var(--muted)}
+    li+li{margin-top:8px}
+    .lead{color:#eef4ff;font-size:17px}
+    .doc-links,.note{color:var(--muted);font-size:14px}
+    .highlight{background:linear-gradient(90deg,rgba(124,92,255,0.08),rgba(0,212,255,0.03));border:1px solid var(--line);border-radius:12px;padding:14px 16px}
+    .highlight ul{color:#e6eef8;font-weight:600}
+    .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px}
+    figure{margin:0}
+    img{width:100%;border-radius:10px;display:block}
+    figcaption{margin-top:8px;color:var(--muted);font-size:13px}
+    .lang-switch{display:flex;align-items:center;gap:10px;color:var(--muted);font-size:14px}
+    .lang-switch a[aria-current="page"]{color:#fff;font-weight:700}
+    .nav-links{display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+    .back{font-size:14px}
+    @media (max-width:700px){main{padding:16px}h1{font-size:28px}}
+  </style>
+</head>
+<body>
+  <header>
+    <div class="nav-links">
+      <a class="back" href="/">← Home</a>
+    </div>
+    <nav class="lang-switch" aria-label="Language switch">
+      <a href="/llama-chat.html">日本語</a>
+      <span>|</span>
+      <a href="/llama-chat-en.html" aria-current="page">English</a>
+    </nav>
+  </header>
+  <main>
+    <section class="card">
+      <p class="eyebrow">Android / Ollama-compatible chat / Voice</p>
+      <h1>Dual AI Chat</h1>
+      <p class="lead">Dual AI Chat is an Android chat client for user-configured Ollama-compatible servers. It combines single-model chat, two-AI back-and-forth chatter, voice input, TTS, avatars, settings profiles, optional web search, and debug logging in one app.</p>
+      <p class="doc-links">Docs: <a href="/llama-chat/manual-en.html">User Manual</a> | <a href="/llama-chat/privacy.html#en">Privacy Policy</a></p>
+      <div class="highlight">
+        <ul>
+          <li>Use Normal mode for one-model chat or Chatter mode for alternating turns between Base and Chatter Partner.</li>
+          <li>Voice Input, Auto Voice Input, and Text-to-Speech make hands-free interaction possible.</li>
+          <li>Profiles, avatar images, search APIs, and Debug Mode are managed locally on the device.</li>
+        </ul>
+      </div>
+    </section>
+
+    <section class="card">
+      <h2>Screenshots</h2>
+      <div class="grid">
+        <figure>
+          <img src="/llama-chat/sm201.png" alt="Dual AI Chat main chat screen">
+          <figcaption>Chat screen with avatar presentation and live message history.</figcaption>
+        </figure>
+        <figure>
+          <img src="/llama-chat/sm202.png" alt="Dual AI Chat conversation view">
+          <figcaption>Conversation view used for both Normal and Chatter modes.</figcaption>
+        </figure>
+        <figure>
+          <img src="/llama-chat/sm203.png" alt="Dual AI Chat settings screen">
+          <figcaption>Settings screen for server connection, models, voice options, avatars, profiles, and Web Search.</figcaption>
+        </figure>
+      </div>
+    </section>
+
+    <section class="card">
+      <h2>Key Features</h2>
+      <ul>
+        <li><strong>Connects to your Ollama-compatible server</strong>: On startup and when settings are opened, the app calls <code>/api/tags</code> to refresh model lists and the connection-status tile.</li>
+        <li><strong>Normal and Chatter modes</strong>: Base and Chatter Partner can each have their own model, name, system prompt, and speech settings.</li>
+        <li><strong>Voice interaction</strong>: When Voice Input is enabled, pressing <strong>Send</strong> with an empty input field starts speech recognition. TTS and Auto Voice Input are also available.</li>
+        <li><strong>Settings profiles</strong>: Save, load, and delete profiles, including the avatar images associated with them.</li>
+        <li><strong>Web Search and Debug Mode</strong>: Add search results from custom or Brave-compatible APIs into the chat context and inspect API request/response logs.</li>
+        <li><strong>Avatar system</strong>: Configure c0 (background), c1 (base), c2 (blink), and c3 (talking) slots separately for Base and Chatter Partner.</li>
+      </ul>
+    </section>
+
+    <section class="card">
+      <h2>Usage Notes</h2>
+      <ul>
+        <li>You can use the built-in API from <a href="/llama-tester-en.html">LLM tester with llama.cpp</a> or any other Ollama-compatible server, whether local or remote.</li>
+        <li>Server URLs and search APIs are chosen by the user. If you use remote servers or third-party APIs, those providers process the request data under their own policies.</li>
+        <li>In the current implementation, conversation history is kept in memory during the active session and is not persisted across app restarts.</li>
+      </ul>
+    </section>
+  </main>
+  <script defer src="/browser-api-register.js"></script>
+</body>
+</html>

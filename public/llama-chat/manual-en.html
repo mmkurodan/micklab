@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>User Manual — Dual AI Chat — Mick Lab</title>
+  <link rel="alternate" hreflang="ja" href="/llama-chat/manual.html">
+  <link rel="alternate" hreflang="en" href="/llama-chat/manual-en.html">
+  <style>
+    :root{--bg:#08080a;--card:#0f1114;--muted:#9aa3b2;--accent:#7c5cff;--line:rgba(255,255,255,0.08)}
+    *{box-sizing:border-box}
+    body{margin:0;background:var(--bg);color:#e6eef8;font-family:Inter,system-ui,Segoe UI,Roboto,Arial;line-height:1.7}
+    header{padding:18px 24px;border-bottom:1px solid rgba(255,255,255,0.03);display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap}
+    a{color:var(--accent);text-decoration:none}
+    main{max-width:1040px;margin:28px auto;padding:20px}
+    .card{background:var(--card);padding:20px;border-radius:14px;border:1px solid rgba(255,255,255,0.03);margin-bottom:18px}
+    h1{margin:0 0 12px;font-size:32px}
+    h2{margin:0 0 10px;font-size:23px}
+    p{margin:0 0 12px}
+    ul,ol{margin:0;padding-left:22px;color:var(--muted)}
+    li+li{margin-top:8px}
+    .lead{color:#eef4ff}
+    .note{color:var(--muted);font-size:14px}
+    .nav-links,.lang-switch{display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+    .back{font-size:14px}
+    .lang-switch{color:var(--muted);font-size:14px}
+    .lang-switch a[aria-current="page"]{color:#fff;font-weight:700}
+    code{background:rgba(255,255,255,0.05);padding:2px 6px;border-radius:4px}
+    .callout{background:linear-gradient(90deg,rgba(124,92,255,0.08),rgba(0,212,255,0.03));border:1px solid var(--line)}
+    table{width:100%;border-collapse:collapse;margin-top:12px}
+    th,td{padding:12px;border:1px solid var(--line);vertical-align:top;text-align:left}
+    th{color:#fff;background:rgba(255,255,255,0.03)}
+    td{color:var(--muted)}
+    @media (max-width:700px){main{padding:16px}h1{font-size:28px}table,thead,tbody,tr,th,td{display:block}th{border-bottom:none}td{border-top:none}}
+  </style>
+</head>
+<body>
+  <header>
+    <div class="nav-links">
+      <a class="back" href="/">← Home</a>
+      <a class="back" href="/llama-chat-en.html">← Dual AI Chat</a>
+    </div>
+    <nav class="lang-switch" aria-label="Language switch">
+      <a href="/llama-chat/manual.html">日本語</a>
+      <span>|</span>
+      <a href="/llama-chat/manual-en.html" aria-current="page">English</a>
+    </nav>
+  </header>
+  <main>
+    <section class="card callout">
+      <h1>User Manual</h1>
+      <p class="lead">This page describes how the current Android implementation of Dual AI Chat works, based on the actual app behavior.</p>
+      <p class="note">Related doc: <a href="/llama-chat/privacy.html#en">Privacy Policy</a></p>
+    </section>
+
+    <section class="card">
+      <h2>1. Overview</h2>
+      <p>Dual AI Chat is an Android app that connects to a user-configured Ollama-compatible server and combines text chat, voice input, TTS, two-AI chatter, and optional Web Search.</p>
+      <ul>
+        <li>Normal mode: standard chat with one model</li>
+        <li>Chatter mode: Base and Chatter Partner alternate turns</li>
+        <li>Profiles, avatars, and Debug Mode are stored locally on the device</li>
+      </ul>
+    </section>
+
+    <section class="card">
+      <h2>2. Quick Start</h2>
+      <ol>
+        <li>The Quick Start popup is shown until you choose “Do not show again”.</li>
+        <li>Prepare either the API server from <a href="/llama-tester-en.html">LLM tester with llama.cpp</a> or another Ollama-compatible server.</li>
+        <li>Open settings with the <strong>⚙</strong> button, enter your server in <strong>Ollama URL</strong>, and close settings with the same button after it changes to <strong>💾</strong>.</li>
+        <li>On startup and whenever settings are opened, the app calls <code>/api/tags</code> to refresh model lists and the status tile.</li>
+        <li>Set the model, system prompt, speech options, and optional Web Search values, then save and return to chat.</li>
+      </ol>
+    </section>
+
+    <section class="card">
+      <h2>3. Main Screen Behavior</h2>
+      <ul>
+        <li><strong>Input + Send</strong>: Sends the current message.</li>
+        <li><strong>Empty input + Send</strong>: If Voice Input is enabled, speech recognition starts instead.</li>
+        <li><strong>Send while processing</strong>: The button changes to STOP and can cancel the active request.</li>
+        <li><strong>Chat panel</strong>: Shows message history and avatar state.</li>
+        <li><strong>Log-area handle</strong>: Expands or collapses the chat panel.</li>
+      </ul>
+    </section>
+
+    <section class="card">
+      <h2>4. Settings at a Glance</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>Section</th>
+            <th>What it controls</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>General</td>
+            <td>Display language, Ollama URL, connection-status tile, Streaming, TTS, Voice Input, Auto Voice Input, user name, and Config Profile actions.</td>
+          </tr>
+          <tr>
+            <td>Chat</td>
+            <td>Normal / Chatter mode, History Limit, chatter interval, plus model/name/speech/system prompt settings for Base and Chatter Partner.</td>
+          </tr>
+          <tr>
+            <td>Expert</td>
+            <td>Web Search, search API URL / API key, Web Search Model, and Debug Mode.</td>
+          </tr>
+          <tr>
+            <td>Config Profile</td>
+            <td>Save profiles, load them through <strong>SELECT Template</strong>, and delete them. Avatar images are carried with the profile data.</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section class="card">
+      <h2>5. Modes and Conversation Memory</h2>
+      <ul>
+        <li><strong>Normal</strong>: Standard one-model chat using the Base settings.</li>
+        <li><strong>Chatter</strong>: Base and Chatter Partner talk to each other. The interval is controlled by <strong>Chatter Interval</strong>.</li>
+        <li><strong>History Limit</strong>: Controls how many recent messages are included when the next request is sent.</li>
+        <li><strong>Reset Conversation Log</strong>: Clears the current session conversation memory.</li>
+        <li>In the current implementation, conversation history is kept in memory during the session and is not restored after an app restart.</li>
+      </ul>
+    </section>
+
+    <section class="card">
+      <h2>6. Voice Features</h2>
+      <ul>
+        <li><strong>Voice Input</strong>: Uses speech recognition for message input. The app prefers offline recognition first and can fall back to online recognition if needed.</li>
+        <li><strong>Text-to-Speech</strong>: Reads responses aloud sentence by sentence.</li>
+        <li><strong>Auto Voice Input</strong>: Can automatically start the next voice-input cycle after a response finishes.</li>
+        <li><strong>Speech Language / Rate / Pitch</strong>: Can be configured independently for Base and Chatter Partner.</li>
+      </ul>
+    </section>
+
+    <section class="card">
+      <h2>7. Web Search and Debug Mode</h2>
+      <ul>
+        <li>If Web Search is enabled and an API key is configured, the app sends the query to the configured search API and adds the results to the chat context.</li>
+        <li>If the configured URL is Brave-compatible, the app uses Brave-specific request formatting.</li>
+        <li><strong>Web Search Model</strong> is chosen from the list returned by <code>/api/tags</code>.</li>
+        <li><strong>Debug Mode</strong> shows detailed API request and response logs inside the app.</li>
+      </ul>
+    </section>
+
+    <section class="card">
+      <h2>8. Avatars and Profiles</h2>
+      <ul>
+        <li>Each avatar uses four slots: c0 (background), c1 (base), c2 (blink), and c3 (talking).</li>
+        <li>You can set separate image sets for Base and Chatter Partner.</li>
+        <li><strong>Clear</strong> resets a slot back to its default state.</li>
+        <li>When you save a settings profile, the related avatar backups are saved with it for later reuse.</li>
+      </ul>
+    </section>
+
+    <section class="card">
+      <h2>9. Notes</h2>
+      <ul>
+        <li>If you cannot connect, check the Ollama URL status tile and whether <code>/api/tags</code> is reachable.</li>
+        <li>If voice recognition does not start, check microphone permission and whether speech recognition is available on the device.</li>
+        <li>If you use remote servers or third-party search APIs, those services process the relevant data under their own policies.</li>
+      </ul>
+    </section>
+  </main>
+</body>
+</html>

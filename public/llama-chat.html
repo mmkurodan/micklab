@@ -4,69 +4,101 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>Dual AI Chat — Mick Lab</title>
+  <link rel="alternate" hreflang="ja" href="/llama-chat.html">
+  <link rel="alternate" hreflang="en" href="/llama-chat-en.html">
   <style>
-    :root{--bg:#08080a;--card:#0f1114;--muted:#9aa3b2;--accent:#7c5cff}
-    body{margin:0;background:var(--bg);color:#e6eef8;font-family:Inter,system-ui,Segoe UI,Roboto,Arial}
-    header{padding:18px 24px;border-bottom:1px solid rgba(255,255,255,0.03)}
+    :root{--bg:#08080a;--card:#0f1114;--muted:#9aa3b2;--accent:#7c5cff;--line:rgba(255,255,255,0.08)}
+    *{box-sizing:border-box}
+    body{margin:0;background:var(--bg);color:#e6eef8;font-family:Inter,system-ui,Segoe UI,Roboto,Arial;line-height:1.65}
+    header{padding:18px 24px;border-bottom:1px solid rgba(255,255,255,0.03);display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap}
     a{color:var(--accent);text-decoration:none}
-    main{max-width:960px;margin:28px auto;padding:20px}
-    .card{background:var(--card);padding:18px;border-radius:10px;border:1px solid rgba(255,255,255,0.03)}
-    h1{margin:0 0 12px}
-    ul{color:var(--muted)}
-    .tool{margin-top:16px;padding:14px;background:rgba(255,255,255,0.02);border-radius:8px}
-    .back{font-size:14px;margin-bottom:12px;display:inline-block}
-    .note{color:var(--muted);font-size:14px;margin-top:8px}
+    main{max-width:1040px;margin:28px auto;padding:20px}
+    .card{background:var(--card);padding:20px;border-radius:14px;border:1px solid rgba(255,255,255,0.03);margin-bottom:18px}
+    .eyebrow{margin:0 0 8px;color:#b7a9ff;font-size:13px;font-weight:700;letter-spacing:.08em;text-transform:uppercase}
+    h1{margin:0 0 12px;font-size:34px;line-height:1.15}
+    h2{margin:0 0 12px;font-size:22px}
+    p{margin:0 0 12px}
+    ul{margin:0;padding-left:20px;color:var(--muted)}
+    li+li{margin-top:8px}
+    .lead{color:#eef4ff;font-size:17px}
+    .doc-links,.note{color:var(--muted);font-size:14px}
+    .highlight{background:linear-gradient(90deg,rgba(124,92,255,0.08),rgba(0,212,255,0.03));border:1px solid var(--line);border-radius:12px;padding:14px 16px}
+    .highlight ul{color:#e6eef8;font-weight:600}
+    .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px}
+    figure{margin:0}
+    img{width:100%;border-radius:10px;display:block}
+    figcaption{margin-top:8px;color:var(--muted);font-size:13px}
+    .lang-switch{display:flex;align-items:center;gap:10px;color:var(--muted);font-size:14px}
+    .lang-switch a[aria-current="page"]{color:#fff;font-weight:700}
+    .nav-links{display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+    .back{font-size:14px}
+    @media (max-width:700px){main{padding:16px}h1{font-size:28px}}
   </style>
 </head>
 <body>
-  <header><a class="back" href="/">← ホームへ戻る</a></header>
+  <header>
+    <div class="nav-links">
+      <a class="back" href="/">← ホームへ戻る</a>
+    </div>
+    <nav class="lang-switch" aria-label="Language switch">
+      <a href="/llama-chat.html" aria-current="page">日本語</a>
+      <span>|</span>
+      <a href="/llama-chat-en.html">English</a>
+    </nav>
+  </header>
   <main>
-    <div class="card">
+    <section class="card">
+      <p class="eyebrow">Android / Ollama-compatible chat / Voice</p>
       <h1>Dual AI Chat</h1>
-      <p class="lead">AIを“使う”から、AIを“操る”へ。Dual AI Chatは、複数のAIモデルを自由に組み合わせ、研究者・開発者向けの実験機能を備えた高度なチャットプラットフォームです。</p>
-      <p class="note">文書: <a href="/llama-chat/manual.html">操作マニュアル</a> | <a href="/llama-chat/privacy.html">プライバシーポリシー</a></p>
-
-      <div style="background:linear-gradient(90deg,rgba(124,92,255,0.06),rgba(0,212,255,0.02));padding:12px;border-radius:8px;margin-top:12px;">
-        <ul style="margin:0;padding-left:18px;font-weight:600;color:#e6eef8">
-          <li>「AIが、あなたのために語り合う。」 — 複数のAIが自動で対話し、多角的な回答を導きます。</li>
-          <li>「AIを“使う”から、AIを“操る”へ。」 — モデル選択やプロンプト制御で挙動を詳細に調整できます。</li>
-          <li>「AI同士が語り合う。あなたは聞くだけ。」 — Chatterモードで2つのAIが自動で掛け合います。</li>
+      <p class="lead">Dual AI Chat は、ユーザーが指定した Ollama 互換サーバーに接続し、1 AI チャットと 2 AI 掛け合いを切り替えられる Android 向けチャットクライアントです。音声入力、TTS、アバター、設定プロファイル、Web Search、Debug Mode をひとつにまとめています。</p>
+      <p class="doc-links">文書: <a href="/llama-chat/manual.html">操作マニュアル</a> | <a href="/llama-chat/privacy.html#ja">プライバシーポリシー</a></p>
+      <div class="highlight">
+        <ul>
+          <li>Normal モードでは 1 つのモデルと対話し、Chatter モードでは Base と Chatter Partner が交互に会話します。</li>
+          <li>Voice Input、Auto Voice Input、Text-to-Speech により、ハンズフリー寄りの対話フローを構築できます。</li>
+          <li>設定プロファイル、アバター画像、検索 API、Debug Mode を端末内で管理できます。</li>
         </ul>
       </div>
+    </section>
 
-      <div class="tool" style="margin-top:12px">
-        <strong>スクリーンショット</strong>
-        <div style="display:flex;gap:12px;flex-wrap:wrap;margin-top:8px">
-          <figure style="width:30%;min-width:180px">
-            <img src="/llama-chat/sm201.png" alt="チャット画面（AIによる自動翻訳の例）" style="width:100%;border-radius:8px"/>
-            <figcaption class="hint">二人のAIアバターが会話しており、発言中のアバターが前面に表示されています</figcaption>
-          </figure>
-          <figure style="width:30%;min-width:180px">
-            <img src="/llama-chat/sm202.png" alt="設定画面" style="width:100%;border-radius:8px"/>
-            <figcaption class="hint">二人のAIアバター同士のやり取りをチャット履歴として全面に表示しています</figcaption>
-          </figure>
-          <figure style="width:30%;min-width:180px">
-            <img src="/llama-chat/sm203.png" alt="アバターカスタマイズ画面" style="width:100%;border-radius:8px"/>
-            <figcaption class="hint">設定画面：アバター情報やモデルを設定でき、設定をプロファイルとして保存できます</figcaption>
-          </figure>
-        </div>
+    <section class="card">
+      <h2>スクリーンショット</h2>
+      <div class="grid">
+        <figure>
+          <img src="/llama-chat/sm201.png" alt="Dual AI Chat のチャット画面">
+          <figcaption>チャット画面。応答中のアバター表示と会話ログを同じ画面で確認できます。</figcaption>
+        </figure>
+        <figure>
+          <img src="/llama-chat/sm202.png" alt="Dual AI Chat の会話表示">
+          <figcaption>会話表示。Normal / Chatter の両モードでメッセージ履歴を追えます。</figcaption>
+        </figure>
+        <figure>
+          <img src="/llama-chat/sm203.png" alt="Dual AI Chat の設定画面">
+          <figcaption>設定画面。接続先、モデル、音声、アバター、プロファイル、Web Search をまとめて管理できます。</figcaption>
+        </figure>
       </div>
+    </section>
 
-      <h2 style="margin-top:12px">主な特徴</h2>
+    <section class="card">
+      <h2>主な特徴</h2>
       <ul>
-        <li><strong>Chatter モード（2 AI）</strong>: 2つのAIが交互に会話を続け、議論・翻訳・物語生成などを自動生成します。</li>
-        <li><strong>高度なカスタマイズ</strong>: モデル、システムプロンプト、音声設定、アバター（最大2体）をモデルごとに設定可能。</li>
-        <li><strong>音声ループ・Auto Voice Input</strong>: 応答後に自動で音声入力が再開することでハンズフリー体験を提供します。</li>
-        <li><strong>Web Search 拡張</strong>: 任意の検索APIを接続して、生成コンテキストに検索結果を取り込めます。</li>
-        <li><strong>開発者向け機能</strong>: 詳細ログ、Debug Mode、APIリクエスト/レスポンスの可視化。</li>
-        <li><strong>ローカル保存で高いプライバシー性</strong>: 設定・会話履歴・アバター画像は端末内に保存されます。</li>
+        <li><strong>ユーザー指定の Ollama 互換サーバーに接続</strong>: 起動時と設定画面を開いたときに <code>/api/tags</code> を取得し、モデル一覧と接続状態タイルを更新します。</li>
+        <li><strong>Normal / Chatter モード</strong>: Base と Chatter Partner で別々のモデル、名前、System Prompt、音声設定を持てます。</li>
+        <li><strong>音声対話</strong>: Voice Input を有効にすると、入力欄が空のまま <strong>Send</strong> を押した際に音声認識を開始します。TTS と Auto Voice Input も利用できます。</li>
+        <li><strong>設定プロファイル</strong>: 設定を保存・読込・削除でき、Base/Chatter ごとのアバター画像もプロファイルと一緒に扱えます。</li>
+        <li><strong>Web Search と Debug Mode</strong>: 検索 API を設定し、Brave 互換形式を含む検索結果を生成コンテキストへ追加できます。通信ログの可視化も可能です。</li>
+        <li><strong>アバター表現</strong>: c0（背景）/ c1（基本）/ c2（まばたき）/ c3（会話中）を Base と Chatter Partner それぞれで設定できます。</li>
       </ul>
+    </section>
 
-      <div class="tool">
-        <strong>利用上の注意</strong>
-        <p class="note">Dual AI Chat は Ollama 互換の API サーバー（ローカルまたは同一ネットワーク）が必要です。<a href="/llama-tester.html">LLM tester with llama.cpp</a> の API 機能と組み合わせて利用することを想定しています。</p>
-      </div>
-    </div>
+    <section class="card">
+      <h2>利用上の注意</h2>
+      <ul>
+        <li><a href="/llama-tester.html">LLM tester with llama.cpp</a> の API サーバー、または任意の Ollama 互換サーバー（ローカル / リモート）と組み合わせて利用できます。</li>
+        <li>接続先 URL や検索 API はユーザーが設定します。リモートサーバーや第三者 API を使う場合、その通信は各提供者のポリシーに従って処理されます。</li>
+        <li>現在の実装では会話履歴はセッション中のメモリで管理され、アプリ再起動後まで永続化はされません。</li>
+      </ul>
+    </section>
   </main>
   <script defer src="/browser-api-register.js"></script>
 </body>
