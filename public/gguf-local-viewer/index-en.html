@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="ja">
+<html lang="en">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>ローカルLLM（GGUF）推論ビューア — Mick Lab</title>
+  <title>Local LLM (GGUF) Inference Viewer — Mick Lab</title>
   <link rel="alternate" hreflang="ja" href="/gguf-local-viewer/index.html">
   <link rel="alternate" hreflang="en" href="/gguf-local-viewer/index-en.html">
   <style>
@@ -38,50 +38,49 @@
     .status { margin: 8px 0; padding: 10px; border-radius: 8px; border: 1px solid var(--line); background: #0d1117; color: var(--muted); white-space: pre-wrap; }
     .status.error { border-color: rgba(255,107,107,0.6); color: var(--error); }
     #response { min-height: 120px; }
-    /* Hide API-related descriptions from users without deleting them */
     .api-hidden { display: none !important; }
   </style>
 </head>
 <body>
   <header class="page-nav">
     <div class="nav-links">
-      <a class="back" href="/">← ホームへ戻る</a>
+      <a class="back" href="/index-en.html">← Home</a>
     </div>
     <nav class="lang-switch" aria-label="Language switch">
-      <a href="/gguf-local-viewer/index.html" aria-current="page">日本語</a>
+      <a href="/gguf-local-viewer/index.html">日本語</a>
       <span>|</span>
-      <a href="/gguf-local-viewer/index-en.html">English</a>
+      <a href="/gguf-local-viewer/index-en.html" aria-current="page">English</a>
     </nav>
   </header>
   <main class="app">
-    <h1>ローカルLLM（GGUF）推論ビューア</h1>
-    <p class="api-hidden">指定URLのGGUFモデルをブラウザでダウンロードし、IndexedDBに保存して再利用しながら実推論を行います。Ollama互換の <code>/api/tags</code> / <code>/api/generate</code> / <code>/api/chat</code> も利用できます。</p>
+    <h1>Local LLM (GGUF) Inference Viewer</h1>
+    <p class="api-hidden">This demo downloads a GGUF model from a fixed URL, stores it in IndexedDB for reuse, and runs real inference in the browser. It can also expose Ollama-compatible <code>/api/tags</code>, <code>/api/generate</code>, and <code>/api/chat</code> endpoints.</p>
 
-    <div id="gpuStatus" class="status">推論エンジンを初期化中...</div>
+    <div id="gpuStatus" class="status">Initializing inference engine...</div>
 
-    <label class="field">1) 固定モデル（Qwen2.5-1.5B-Instruct-GGUF）を取得</label>
-    <button id="loadModelBtn" class="button-strong" type="button" disabled>モデルをダウンロードして読み込む</button>
-    <p class="traffic-note">※ 初回および定期的に約1GBの通信が発生します。</p>
-    <div id="modelStatus" class="status">モデル未ロード（ボタン押下でダウンロード/キャッシュ再利用）</div>
+    <label class="field">1) Fetch the fixed model (Qwen2.5-1.5B-Instruct-GGUF)</label>
+    <button id="loadModelBtn" class="button-strong" type="button" disabled>Download and load model</button>
+    <p class="traffic-note">* The first run and periodic refreshes require about 1 GB of traffic.</p>
+    <div id="modelStatus" class="status">Model not loaded yet (press the button to download it or reuse the cache).</div>
 
-    <label class="field api-hidden">1.5) API有効化（Service Worker）</label>
-    <button id="activateApiBtn" class="api-hidden" type="button">APIを有効化する</button>
-    <div id="apiStatus" class="status api-hidden">API状態: 未確認</div>
+    <label class="field api-hidden">1.5) Enable API (Service Worker)</label>
+    <button id="activateApiBtn" class="api-hidden" type="button">Enable API</button>
+    <div id="apiStatus" class="status api-hidden">API status: unchecked</div>
 
     <label class="field">
-      2) プロンプト入力
-      <textarea id="promptInput" placeholder="例: このモデルのテスト応答を返してください"></textarea>
+      2) Enter a prompt
+      <textarea id="promptInput" placeholder="Example: Please return a short test response from this model"></textarea>
     </label>
-    <button id="runBtn" type="button" disabled>送信（実推論）</button>
-    <pre id="response" class="status" aria-live="polite">ここにレスポンスが表示されます。</pre>
+    <button id="runBtn" type="button" disabled>Run inference</button>
+    <pre id="response" class="status" aria-live="polite">The response will appear here.</pre>
 
-    <label class="field api-hidden">3) Ollama互換API（同一オリジン fetch）</label>
+    <label class="field api-hidden">3) Ollama-compatible API (same-origin fetch)</label>
     <div class="status api-hidden">
 GET /api/tags
-POST /api/generate {"model":"default","prompt":"こんにちは","stream":false}
-POST /api/chat {"model":"default","messages":[{"role":"user","content":"こんにちは"}],"stream":false}
+POST /api/generate {"model":"default","prompt":"hello","stream":false}
+POST /api/chat {"model":"default","messages":[{"role":"user","content":"hello"}],"stream":false}
     </div>
-    <p class="api-hidden">※ stream を省略すると既定値は true（NDJSON ストリーム）です。モデル未ロード時は 503 を返します。</p>
+    <p class="api-hidden">* If <code>stream</code> is omitted, the default is <code>true</code> (NDJSON stream). The API returns 503 when no model is loaded.</p>
   </main>
 
   <script defer src="/browser-api-register.js"></script>

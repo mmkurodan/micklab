@@ -26,6 +26,79 @@ const DB_NAME = "gguf-viewer-cache";
 const STORE_NAME = "models";
 const DB_VERSION = 1;
 const MODEL_CACHE_KEY = MODEL_URL;
+const locale = document.documentElement.lang.toLowerCase().startsWith("en") ? "en" : "ja";
+const uiText = {
+  ja: {
+    controllerPresent: "あり",
+    controllerMissing: "なし",
+    apiUnavailableNoSw: "API未有効: Service Worker非対応ブラウザです。",
+    apiChecking: "API状態を確認中...",
+    apiEnabled: (checkUrl) => `API有効です。\n確認API: ${checkUrl}`,
+    apiDisabled: (controllerLabel) =>
+      `API未有効（controller: ${controllerLabel}）。「APIを有効化する」を押してください。`,
+    apiProbeFailed: (error) => `API状態確認に失敗: ${getErrorMessage(error)}`,
+    apiActivationUnavailable: "API有効化不可: Service Worker非対応ブラウザです。",
+    apiActivating: (triggerLabel) => `API有効化を実行中... (${triggerLabel})`,
+    apiDisabledWithReason: (controllerLabel, reason) =>
+      `API未有効（controller: ${controllerLabel}）。\n${reason}`,
+    apiActivationFailed: (error) => `API有効化に失敗: ${getErrorMessage(error)}`,
+    downloadModelFailed: (status) => `モデルのダウンロードに失敗しました (${status})`,
+    indexedDbCache: (name, size) => `IndexedDBキャッシュを使用: ${name} (${size})`,
+    downloadingModel: (name) => `モデルをダウンロード中: ${name}`,
+    downloadComplete: (name, size) => `ダウンロード完了。IndexedDBに保存: ${name} (${size})`,
+    preparingModel: "モデル準備中...",
+    initializingInference: "推論エンジンを初期化中...",
+    modelReady: (sourceLabel, name) => `モデル準備完了 (${sourceLabel}) : ${name}`,
+    cacheSource: "IndexedDB",
+    downloadSource: "ダウンロード",
+    modelLoadFailed: (error) => `モデル読み込み失敗: ${getErrorMessage(error)}`,
+    loadModelFirst: "先にモデルを読み込んでください。",
+    enterPrompt: "プロンプトを入力してください。",
+    inferring: "推論中...",
+    emptyResponse: "(空の応答)",
+    inferenceError: (error) => `推論エラー: ${getErrorMessage(error)}`,
+    initialModelStatus:
+      "モデル未ロード。ボタン押下でURLから取得し、IndexedDBキャッシュを再利用します。",
+    initialApiStatus: "API状態: 未確認",
+    triggerModelLoad: "モデルロード時",
+    triggerManual: "手動実行",
+  },
+  en: {
+    controllerPresent: "present",
+    controllerMissing: "none",
+    apiUnavailableNoSw: "API unavailable: this browser does not support Service Workers.",
+    apiChecking: "Checking API status...",
+    apiEnabled: (checkUrl) => `API is enabled.\nCheck API: ${checkUrl}`,
+    apiDisabled: (controllerLabel) =>
+      `API is not enabled (controller: ${controllerLabel}). Click "Enable API".`,
+    apiProbeFailed: (error) => `Failed to check API status: ${getErrorMessage(error)}`,
+    apiActivationUnavailable: "Cannot enable the API: this browser does not support Service Workers.",
+    apiActivating: (triggerLabel) => `Enabling API... (${triggerLabel})`,
+    apiDisabledWithReason: (controllerLabel, reason) =>
+      `API is not enabled (controller: ${controllerLabel}).\n${reason}`,
+    apiActivationFailed: (error) => `Failed to enable the API: ${getErrorMessage(error)}`,
+    downloadModelFailed: (status) => `Failed to download the model (${status})`,
+    indexedDbCache: (name, size) => `Using IndexedDB cache: ${name} (${size})`,
+    downloadingModel: (name) => `Downloading model: ${name}`,
+    downloadComplete: (name, size) => `Download complete. Saved to IndexedDB: ${name} (${size})`,
+    preparingModel: "Preparing model...",
+    initializingInference: "Initializing inference engine...",
+    modelReady: (sourceLabel, name) => `Model ready (${sourceLabel}): ${name}`,
+    cacheSource: "IndexedDB",
+    downloadSource: "download",
+    modelLoadFailed: (error) => `Failed to load model: ${getErrorMessage(error)}`,
+    loadModelFirst: "Load the model first.",
+    enterPrompt: "Enter a prompt.",
+    inferring: "Running inference...",
+    emptyResponse: "(empty response)",
+    inferenceError: (error) => `Inference error: ${getErrorMessage(error)}`,
+    initialModelStatus:
+      "Model not loaded yet. Press the button to fetch it from the URL and reuse the IndexedDB cache.",
+    initialApiStatus: "API status: unchecked",
+    triggerModelLoad: "during model load",
+    triggerManual: "manual activation",
+  },
+}[locale];
 
 const state = {
   wllama: null,
@@ -98,34 +171,34 @@ async function probeApiActivationStatus() {
 
 async function refreshApiStatus() {
   if (!("serviceWorker" in navigator)) {
-    setApiStatus("API未有効: Service Worker非対応ブラウザです。", true);
+    setApiStatus(uiText.apiUnavailableNoSw, true);
     return;
   }
 
-  setApiStatus("API状態を確認中...");
+  setApiStatus(uiText.apiChecking);
   try {
     const result = await probeApiActivationStatus();
     if (result.active) {
-      setApiStatus(`API有効です。\n確認API: ${result.checkUrl}`);
+      setApiStatus(uiText.apiEnabled(result.checkUrl));
       return;
     }
-    const controllerLabel = navigator.serviceWorker.controller ? "あり" : "なし";
-    setApiStatus(`API未有効（controller: ${controllerLabel}）。「APIを有効化する」を押してください。`, true);
+    const controllerLabel = navigator.serviceWorker.controller ? uiText.controllerPresent : uiText.controllerMissing;
+    setApiStatus(uiText.apiDisabled(controllerLabel), true);
   } catch (error) {
-    setApiStatus(`API状態確認に失敗: ${getErrorMessage(error)}`, true);
+    setApiStatus(uiText.apiProbeFailed(error), true);
   }
 }
 
 async function activateApiRuntime(triggerLabel) {
   if (!("serviceWorker" in navigator)) {
-    setApiStatus("API有効化不可: Service Worker非対応ブラウザです。", true);
+    setApiStatus(uiText.apiActivationUnavailable, true);
     return false;
   }
 
   if (activateApiBtn) {
     activateApiBtn.disabled = true;
   }
-  setApiStatus(`API有効化を実行中... (${triggerLabel})`);
+  setApiStatus(uiText.apiActivating(triggerLabel));
 
   try {
     const registration = await navigator.serviceWorker.register("/browser-api-sw.js", {
@@ -142,15 +215,15 @@ async function activateApiRuntime(triggerLabel) {
     await waitForController();
     const result = await probeApiActivationStatus();
     if (result.active) {
-      setApiStatus(`API有効です。\n確認API: ${result.checkUrl}`);
+      setApiStatus(uiText.apiEnabled(result.checkUrl));
       return true;
     }
 
-    const controllerLabel = navigator.serviceWorker.controller ? "あり" : "なし";
-    setApiStatus(`API未有効（controller: ${controllerLabel}）。\n${result.reason}`, true);
+    const controllerLabel = navigator.serviceWorker.controller ? uiText.controllerPresent : uiText.controllerMissing;
+    setApiStatus(uiText.apiDisabledWithReason(controllerLabel, result.reason), true);
     return false;
   } catch (error) {
-    setApiStatus(`API有効化に失敗: ${getErrorMessage(error)}`, true);
+    setApiStatus(uiText.apiActivationFailed(error), true);
     return false;
   } finally {
     if (activateApiBtn) {
@@ -374,7 +447,7 @@ async function putCachedModel(record) {
 async function downloadModelFromUrl(url) {
   const response = await fetch(url, { cache: "no-store" });
   if (!response.ok) {
-    throw new Error(`モデルのダウンロードに失敗しました (${response.status})`);
+    throw new Error(uiText.downloadModelFailed(response.status));
   }
   return response.arrayBuffer();
 }
@@ -384,12 +457,12 @@ async function resolveModelBytes() {
   if (cached && cached.bytes) {
     setStatus(
       modelStatusEl,
-      `IndexedDBキャッシュを使用: ${MODEL_NAME} (${formatBytes(cached.size || cached.bytes.byteLength)})`
+      uiText.indexedDbCache(MODEL_NAME, formatBytes(cached.size || cached.bytes.byteLength))
     );
     return { bytes: cached.bytes, source: "cache" };
   }
 
-  setStatus(modelStatusEl, `モデルをダウンロード中: ${MODEL_NAME}`);
+  setStatus(modelStatusEl, uiText.downloadingModel(MODEL_NAME));
   const bytes = await downloadModelFromUrl(MODEL_URL);
   await putCachedModel({
     id: MODEL_CACHE_KEY,
@@ -399,14 +472,14 @@ async function resolveModelBytes() {
     updatedAt: Date.now(),
     bytes,
   });
-  setStatus(modelStatusEl, `ダウンロード完了。IndexedDBに保存: ${MODEL_NAME} (${formatBytes(bytes.byteLength)})`);
+  setStatus(modelStatusEl, uiText.downloadComplete(MODEL_NAME, formatBytes(bytes.byteLength)));
   return { bytes, source: "download" };
 }
 
 async function loadModel() {
   loadModelBtn.disabled = true;
   runBtn.disabled = true;
-  setStatus(modelStatusEl, "モデル準備中...");
+  setStatus(modelStatusEl, uiText.preparingModel);
   try {
     const { bytes, source } = await resolveModelBytes();
     if (state.wllama) {
@@ -414,7 +487,7 @@ async function loadModel() {
       state.wllama = null;
     }
 
-    setStatus(modelStatusEl, "推論エンジンを初期化中...");
+    setStatus(modelStatusEl, uiText.initializingInference);
     const blob = new Blob([bytes], { type: "application/octet-stream" });
     state.wllama = new Wllama(WLLAMA_ASSETS, { logger: LoggerWithoutDebug });
     await state.wllama.loadModel([blob], { n_ctx: 2048 });
@@ -428,11 +501,11 @@ async function loadModel() {
     };
     setStatus(
       modelStatusEl,
-      `モデル準備完了 (${source === "cache" ? "IndexedDB" : "ダウンロード"}) : ${MODEL_NAME}`
+      uiText.modelReady(source === "cache" ? uiText.cacheSource : uiText.downloadSource, MODEL_NAME)
     );
     runBtn.disabled = false;
   } catch (error) {
-    setStatus(modelStatusEl, `モデル読み込み失敗: ${getErrorMessage(error)}`, true);
+    setStatus(modelStatusEl, uiText.modelLoadFailed(error), true);
   } finally {
     loadModelBtn.disabled = false;
   }
@@ -479,27 +552,27 @@ async function runModelCompletion(messages, onToken) {
 async function runInference() {
   const prompt = promptInputEl.value.trim();
   if (!state.wllama || !state.model) {
-    setStatus(responseEl, "先にモデルを読み込んでください。", true);
+    setStatus(responseEl, uiText.loadModelFirst, true);
     return;
   }
   if (!prompt) {
-    setStatus(responseEl, "プロンプトを入力してください。", true);
+    setStatus(responseEl, uiText.enterPrompt, true);
     return;
   }
 
   runBtn.disabled = true;
-  setStatus(responseEl, "推論中...");
+  setStatus(responseEl, uiText.inferring);
   try {
     let streamedText = "";
     const output = await withInferenceLock(() =>
       runModelCompletion([{ role: "user", content: prompt }], (_piece, currentText) => {
         streamedText = currentText;
-        setStatus(responseEl, currentText || "推論中...");
+        setStatus(responseEl, currentText || uiText.inferring);
       })
     );
-    setStatus(responseEl, output || streamedText || "(空の応答)");
+    setStatus(responseEl, output || streamedText || uiText.emptyResponse);
   } catch (error) {
-    setStatus(responseEl, `推論エラー: ${getErrorMessage(error)}`, true);
+    setStatus(responseEl, uiText.inferenceError(error), true);
   } finally {
     runBtn.disabled = false;
   }
@@ -759,8 +832,8 @@ function installOllamaApiFetch() {
 function bootstrap() {
   installOllamaApiFetch();
   if (gpuStatusEl) gpuStatusEl.style.display = "none";
-  setStatus(modelStatusEl, "モデル未ロード。ボタン押下でURLから取得し、IndexedDBキャッシュを再利用します。");
-  setApiStatus("API状態: 未確認");
+  setStatus(modelStatusEl, uiText.initialModelStatus);
+  setApiStatus(uiText.initialApiStatus);
   loadModelBtn.disabled = false;
   if (activateApiBtn) {
     activateApiBtn.disabled = false;
@@ -768,12 +841,12 @@ function bootstrap() {
   runBtn.disabled = true;
 
   loadModelBtn.addEventListener("click", async () => {
-    await activateApiRuntime("モデルロード時");
+    await activateApiRuntime(uiText.triggerModelLoad);
     await loadModel();
   });
   if (activateApiBtn) {
     activateApiBtn.addEventListener("click", async () => {
-      await activateApiRuntime("手動実行");
+      await activateApiRuntime(uiText.triggerManual);
     });
   }
   if ("serviceWorker" in navigator) {

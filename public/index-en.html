@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="ja">
+<html lang="en">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>Mick Lab — 生成AIアプリケーション研究</title>
+  <title>Mick Lab — Generative AI Application Research</title>
   <link rel="alternate" hreflang="ja" href="/">
   <link rel="alternate" hreflang="en" href="/index-en.html">
   <style>
@@ -47,62 +47,62 @@
       <div class="logo">ML</div>
       <div>
         <div class="title">Mick Lab</div>
-        <div style="font-size:12px;color:var(--muted)">生成AIを中心にしたアプリケーション研究</div>
+        <div style="font-size:12px;color:var(--muted)">Research centered on generative AI applications</div>
       </div>
     </div>
     <div class="header-actions">
       <nav>
-        <a href="/">ホーム</a>
-        <a href="/llama-tester.html">LLM tester with llama.cpp</a>
-        <a href="/llama-chat.html">Dual AI Chat</a>
-        <a href="/android-ci.html">開発/CI</a>
+        <a href="/index-en.html">Home</a>
+        <a href="/llama-tester-en.html">LLM tester with llama.cpp</a>
+        <a href="/llama-chat-en.html">Dual AI Chat</a>
+        <a href="/android-ci-en.html">Development / CI</a>
         <a href="#apps">Apps</a>
       </nav>
       <div class="lang-switch" aria-label="Language switch">
-        <a href="/" aria-current="page">日本語</a>
+        <a href="/">日本語</a>
         <span>|</span>
-        <a href="/index-en.html">English</a>
+        <a href="/index-en.html" aria-current="page">English</a>
       </div>
     </div>
   </header>
   <main>
     <section class="hero">
       <div class="hero-left">
-        <h1>Mick Lab — 実験と実装の場所</h1>
-        <p class="lead">Mick Lab のアプリは、Androidスマホのみで設計・実装・検証・公開まで完結しています。モバイル単体で生成AIアプリを継続開発する実践を公開しています。</p>
+        <h1>Mick Lab — where experiments become working apps</h1>
+        <p class="lead">Every Mick Lab app is designed, implemented, tested, and published using only an Android phone. This site documents a practical workflow for continuously developing generative AI apps on mobile alone.</p>
         <div class="card" style="margin-top:14px">
-          <h3>Androidスマホ単体での開発体制</h3>
-          <p>PCに依存せず、LLM tester with llama.cpp / Dual AI Chat を含む全アプリを Android 端末上で開発しています。</p>
-          <p style="margin-top:10px"><a href="/android-ci.html">Userland + Termux + Copilot CLI + 独自スクリプトによる GitHub CI 運用の詳細を見る</a></p>
+          <h3>Android-only development stack</h3>
+          <p>All apps, including LLM tester with llama.cpp and Dual AI Chat, are developed directly on Android without relying on a PC.</p>
+          <p style="margin-top:10px"><a href="/android-ci-en.html">See how Userland + Termux + Copilot CLI + custom scripts are used for GitHub CI operations</a></p>
         </div>
 
       </div>
       <div class="hero-right" style="width:320px">
         <div class="card">
-          <h3>アプリケーションメニュー</h3>
-          <p>以下は現在利用可能なツールです。クリックして詳細や実験ページへ移動できます。</p>
+          <h3>Application menu</h3>
+          <p>The following tools are currently available. Select a card to open its product page or demo.</p>
           <div id="apps" class="apps" style="margin-top:12px">
-            <a class="card" href="/llama-tester.html"><h3>LLM tester with llama.cpp</h3><p>ローカル/リモートモデルに対するプロンプト検証ツール</p></a>
-            <a class="card" href="/llama-chat.html"><h3>Dual AI Chat</h3><p>Ollama互換APIを使用したチャットアプリ</p></a>
-            <a class="card" href="/android-ci.html"><h3>開発/CI 解説</h3><p>Userland / Termux と Copilot CLI による Android 開発と GitHub 連携の構成</p></a>
-            <a class="card" href="/gguf-local-viewer/index.html"><h3>ローカルLLM（GGUF）推論ビューア</h3><p>指定URLのGGUFをダウンロードしてIndexedDBに保存し、ブラウザ内で実推論を行うデモ</p></a>
+            <a class="card" href="/llama-tester-en.html"><h3>LLM tester with llama.cpp</h3><p>Prompt verification tool for local and remote models</p></a>
+            <a class="card" href="/llama-chat-en.html"><h3>Dual AI Chat</h3><p>Chat app for Ollama-compatible APIs</p></a>
+            <a class="card" href="/android-ci-en.html"><h3>Development / CI notes</h3><p>Android development and GitHub integration with Userland, Termux, and Copilot CLI</p></a>
+            <a class="card" href="/gguf-local-viewer/index-en.html"><h3>Local LLM (GGUF) inference viewer</h3><p>Demo that downloads a GGUF from a fixed URL, stores it in IndexedDB, and runs inference in the browser</p></a>
           </div>
         </div>
       </div>
     </section>
     <section style="margin-top:40px">
       <div class="card">
-        <h3>最新の実験ノート</h3>
+        <h3>Latest experiment notes</h3>
         <ul>
-          <li>ローカルLLM（GGUF）推論ビューア：GGUFをダウンロードしてブラウザ内で実推論</li>
-          <li>LLM tester with llama.cpp：UI とドキュメントを整備（操作マニュアル・プライバシーポリシーを更新）</li>
-          <li>Dual AI Chat：製品ページとマニュアルを追加（アバターは同時に2つまでに訂正）</li>
-          <li>Android アプリ（llamachat）のコード確認を継続、TTS・音声入力の挙動を検証中</li>
+          <li>Local LLM (GGUF) inference viewer: download GGUF and run actual inference inside the browser</li>
+          <li>LLM tester with llama.cpp: refined UI and docs, including the user manual and privacy policy</li>
+          <li>Dual AI Chat: added the product page and manual, and corrected the avatar limit to two simultaneous avatars</li>
+          <li>Android app (llamachat): continuing code review and checking TTS / voice-input behavior</li>
         </ul>
       </div>
     </section>
   </main>
-  <footer>© Mick Lab — 生成AIアプリケーション研究</footer>
+  <footer>© Mick Lab — Generative AI Application Research</footer>
   <script defer src="/browser-api-register.js"></script>
 </body>
 </html>

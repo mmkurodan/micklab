@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Android Development and GitHub CI — Mick Lab</title>
+  <link rel="alternate" hreflang="ja" href="/android-ci.html">
+  <link rel="alternate" hreflang="en" href="/android-ci-en.html">
+  <style>
+    :root{--bg:#08080a;--card:#0f1114;--muted:#9aa3b2;--accent:#7c5cff}
+    *{box-sizing:border-box}
+    body{margin:0;background:var(--bg);color:#e6eef8;font-family:Inter,system-ui,Segoe UI,Roboto,Arial}
+    header{padding:18px 24px;border-bottom:1px solid rgba(255,255,255,0.03);display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap}
+    a{color:var(--accent);text-decoration:none}
+    main{max-width:960px;margin:28px auto;padding:20px}
+    .card{background:var(--card);padding:18px;border-radius:10px;border:1px solid rgba(255,255,255,0.03)}
+    h1{margin:0 0 12px}
+    h2{margin:16px 0 8px}
+    ul,ol,p{color:var(--muted);line-height:1.7}
+    .back{font-size:14px;margin-bottom:12px;display:inline-block}
+    .nav-links,.lang-switch{display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+    .lang-switch{color:var(--muted);font-size:14px}
+    .lang-switch a[aria-current="page"]{color:#fff;font-weight:700}
+    code{background:rgba(255,255,255,0.05);padding:2px 6px;border-radius:4px;color:#e6eef8}
+  </style>
+</head>
+<body>
+  <header>
+    <div class="nav-links">
+      <a class="back" href="/index-en.html">← Home</a>
+    </div>
+    <nav class="lang-switch" aria-label="Language switch">
+      <a href="/android-ci.html">日本語</a>
+      <span>|</span>
+      <a href="/android-ci-en.html" aria-current="page">English</a>
+    </nav>
+  </header>
+  <main>
+    <div class="card">
+      <h1>Development on Android phones only, connected to GitHub CI</h1>
+      <p>At Mick Lab, app development is completed using only an Android smartphone. A Linux environment runs inside Userland / Termux, implementation work is done with Copilot CLI, and scripted operations connect the workflow to GitHub CI.</p>
+
+      <h2>Development stack</h2>
+      <ul>
+        <li><strong>Device:</strong> Android smartphone</li>
+        <li><strong>Environment:</strong> Userland / Termux (Linux user space)</li>
+        <li><strong>Implementation support:</strong> Copilot CLI (terminal-based development)</li>
+        <li><strong>Operational scripts:</strong> <code>android_base.sh</code> / <code>push.sh</code></li>
+      </ul>
+
+      <h2>Role of the scripts</h2>
+      <ul>
+        <li><code>android_base.sh</code>: given <code>&lt;ProjectName&gt; &lt;GitHubRepo&gt; [public|private]</code>, it generates the Android project skeleton, Gradle settings, Manifest, MainActivity, and CI workflow.</li>
+        <li>It creates <code>.github/workflows/android.yml</code>, including Gradle 8.2.1 setup, <code>assembleDebug</code>, and APK artifact upload.</li>
+        <li><code>push.sh</code>: operational helper that runs <code>git add/commit/push</code> and triggers GitHub Actions.</li>
+        <li>Initial setup also executes <code>gh repo create ... --push</code> so repository creation and the first push are automated.</li>
+      </ul>
+
+      <h2>CI flow (summary)</h2>
+      <ol>
+        <li>Generate the project and CI definition with <code>android_base.sh</code></li>
+        <li>Implement and revise code on Android + Userland / Termux with Copilot CLI</li>
+        <li>Push changes with <code>push.sh</code></li>
+        <li>Let GitHub Actions run the Android CI / Hosting workflows</li>
+      </ol>
+
+      <h2>Why this setup exists</h2>
+      <p>The goal is a reproducible workflow that removes the PC requirement and keeps continuous development possible on a mobile device alone. Mick Lab apps are improved on top of this operating foundation.</p>
+    </div>
+  </main>
+  <footer style="max-width:960px;margin:40px auto 60px;padding:0 20px;color:var(--muted);font-size:13px;text-align:center">© Mick Lab — Generative AI Application Research</footer>
+  <script defer src="/browser-api-register.js"></script>
+</body>
+</html>
