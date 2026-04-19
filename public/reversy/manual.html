@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>操作マニュアル — Dual AI Reversy — Mick Lab</title>
+  <link rel="alternate" hreflang="ja" href="/reversy/manual.html">
+  <link rel="alternate" hreflang="en" href="/reversy/manual-en.html">
+  <style>
+    :root{--bg:#08080a;--card:#0f1114;--muted:#9aa3b2;--accent:#7c5cff;--line:rgba(255,255,255,0.08)}
+    *{box-sizing:border-box}
+    body{margin:0;background:var(--bg);color:#e6eef8;font-family:Inter,system-ui,Segoe UI,Roboto,Arial;line-height:1.7}
+    header{padding:18px 24px;border-bottom:1px solid rgba(255,255,255,0.03);display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap}
+    a{color:var(--accent);text-decoration:none}
+    main{max-width:1040px;margin:28px auto;padding:20px}
+    .card{background:var(--card);padding:20px;border-radius:14px;border:1px solid rgba(255,255,255,0.03);margin-bottom:18px}
+    h1{margin:0 0 12px;font-size:32px}
+    h2{margin:0 0 10px;font-size:23px}
+    p{margin:0 0 12px}
+    ul,ol{margin:0;padding-left:22px;color:var(--muted)}
+    li+li{margin-top:8px}
+    .lead{color:#eef4ff}
+    .note{color:var(--muted);font-size:14px}
+    .nav-links,.lang-switch{display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+    .back{font-size:14px}
+    .lang-switch{color:var(--muted);font-size:14px}
+    .lang-switch a[aria-current="page"]{color:#fff;font-weight:700}
+    code{background:rgba(255,255,255,0.05);padding:2px 6px;border-radius:4px}
+    .callout{background:linear-gradient(90deg,rgba(124,92,255,0.08),rgba(0,212,255,0.03));border:1px solid var(--line)}
+    @media (max-width:700px){main{padding:16px}h1{font-size:28px}}
+  </style>
+</head>
+<body>
+  <header>
+    <div class="nav-links">
+      <a class="back" href="/">← ホームへ戻る</a>
+      <a class="back" href="/reversy.html">← Dual AI Reversy</a>
+    </div>
+    <nav class="lang-switch" aria-label="Language switch">
+      <a href="/reversy/manual.html" aria-current="page">日本語</a>
+      <span>|</span>
+      <a href="/reversy/manual-en.html">English</a>
+    </nav>
+  </header>
+  <main>
+    <section class="card callout">
+      <h1>操作マニュアル</h1>
+      <p class="lead">このページは、現在の Android 実装に基づく Dual AI Reversy の操作ガイドです。アプリ内ドキュメントの内容をベースに、公開ページ向けに整理して掲載しています。</p>
+      <p class="note">関連文書: <a href="/reversy/privacy.html#ja">プライバシーポリシー</a></p>
+    </section>
+
+    <section class="card">
+      <h2>1. 対局準備</h2>
+      <ul>
+        <li>画面上部の <strong>黒</strong> / <strong>白</strong> ボタンで、それぞれの操作モードを ユーザ / CPU / AI の順に切り替えます。</li>
+        <li><strong>黒設定</strong> / <strong>白設定</strong> では、CPU 深さ、AI 接続先 URL、モデル、AI プロンプト、タイムアウト、再試行回数を調整できます。</li>
+        <li>AI モードでは <code>api/tags</code> からモデル一覧を取得して選択できます。</li>
+      </ul>
+    </section>
+
+    <section class="card">
+      <h2>2. 対局開始と進行</h2>
+      <ul>
+        <li><strong>対局開始</strong> を押すと新しい対局を始めます。</li>
+        <li>対局が始まると同じ位置のボタンが <strong>リセット</strong> に変わり、盤面を初期配置へ戻せます。</li>
+        <li>ユーザ操作の手番では、盤面の置けるマスをタップして石を置きます。</li>
+        <li>CPU や AI を含む対局でも、必要になった時点でリセットできます。</li>
+      </ul>
+    </section>
+
+    <section class="card">
+      <h2>3. コメント欄</h2>
+      <ul>
+        <li>画面下部のコメント欄には、CPU や AI の着手理由が新しい順で表示されます。</li>
+        <li>コメント本文はスクロールとコピー選択ができます。</li>
+        <li>まだ自動対戦コメントが無い場合は案内文が表示されます。</li>
+      </ul>
+    </section>
+
+    <section class="card">
+      <h2>4. AI モード</h2>
+      <ul>
+        <li>AI モードでは、設定した URL の API サーバーへ盤面情報、合法手候補、AI 用プロンプトを送信して着手候補を取得します。</li>
+        <li>応答は 1 行目に座標、2 行目に理由を返す形式を前提としています。</li>
+        <li>設定画面の <strong>黒AIログ</strong> / <strong>白AIログ</strong> から送受信履歴を確認・コピー・クリアできます。</li>
+        <li>既定の接続先は <code>http://127.0.0.1:11434</code> です。</li>
+      </ul>
+    </section>
+
+    <section class="card">
+      <h2>5. CPU 思考</h2>
+      <ul>
+        <li>CPU は角の確保、相手の合法手数、自分の将来の手数、相手が角を取り返せるかなどを考慮して着手を選びます。</li>
+        <li><strong>CPU深さ</strong> は設定画面から 1〜10 の範囲で切り替えられます。</li>
+      </ul>
+    </section>
+
+    <section class="card">
+      <h2>6. ドキュメント</h2>
+      <ul>
+        <li><strong>ドキュメント</strong> ボタンから、操作マニュアル、Privacy Policy、権利表記を参照できます。</li>
+        <li>ドキュメント画面では、選択中の文書をクリップボードへコピーできます。</li>
+      </ul>
+    </section>
+
+    <section class="card">
+      <h2>7. 権利表記の要点</h2>
+      <ul>
+        <li>ゲームロジック、UI、説明文、対局コメント表示などの独自実装部分の権利は本アプリ提供者に帰属します。</li>
+        <li>同梱アイコン画像やアバター画像などのアセットは、本アプリの配布物として管理されています。</li>
+        <li>AI モードで接続するモデル、API、サーバー応答の権利は、それぞれの提供元に帰属します。</li>
+      </ul>
+    </section>
+
+    <section class="card">
+      <h2>8. 注意事項</h2>
+      <ul>
+        <li>外部 AI サーバーを使う場合は、送信先 URL の安全性と利用規約を確認してください。</li>
+        <li>通信できない場合や応答形式が想定と異なる場合、AI の着手は失敗することがあります。</li>
+      </ul>
+    </section>
+  </main>
+</body>
+</html>

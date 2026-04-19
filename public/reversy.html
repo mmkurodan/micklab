@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Dual AI Reversy — Mick Lab</title>
+  <link rel="alternate" hreflang="ja" href="/reversy.html">
+  <link rel="alternate" hreflang="en" href="/reversy-en.html">
+  <style>
+    :root{--bg:#08080a;--card:#0f1114;--muted:#9aa3b2;--accent:#7c5cff;--line:rgba(255,255,255,0.08)}
+    *{box-sizing:border-box}
+    body{margin:0;background:var(--bg);color:#e6eef8;font-family:Inter,system-ui,Segoe UI,Roboto,Arial;line-height:1.65}
+    header{padding:18px 24px;border-bottom:1px solid rgba(255,255,255,0.03);display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap}
+    a{color:var(--accent);text-decoration:none}
+    main{max-width:1040px;margin:28px auto;padding:20px}
+    .card{background:var(--card);padding:20px;border-radius:14px;border:1px solid rgba(255,255,255,0.03);margin-bottom:18px}
+    .eyebrow{margin:0 0 8px;color:#b7a9ff;font-size:13px;font-weight:700;letter-spacing:.08em;text-transform:uppercase}
+    h1{margin:0 0 12px;font-size:34px;line-height:1.15}
+    h2{margin:0 0 12px;font-size:22px}
+    p{margin:0 0 12px}
+    ul{margin:0;padding-left:20px;color:var(--muted)}
+    li+li{margin-top:8px}
+    .lead{color:#eef4ff;font-size:17px}
+    .doc-links,.note{color:var(--muted);font-size:14px}
+    .highlight{background:linear-gradient(90deg,rgba(124,92,255,0.08),rgba(0,212,255,0.03));border:1px solid var(--line);border-radius:12px;padding:14px 16px}
+    .highlight ul{color:#e6eef8;font-weight:600}
+    .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px}
+    figure{margin:0}
+    .shot{width:100%;aspect-ratio:9/16;border-radius:10px;border:1px dashed rgba(255,255,255,0.18);background:linear-gradient(180deg,rgba(124,92,255,0.08),rgba(255,255,255,0.02));display:flex;align-items:center;justify-content:center;padding:18px;text-align:center;color:#d8def0}
+    .shot span{display:block;color:var(--muted);font-size:13px;margin-top:6px}
+    figcaption{margin-top:8px;color:var(--muted);font-size:13px}
+    .lang-switch{display:flex;align-items:center;gap:10px;color:var(--muted);font-size:14px}
+    .lang-switch a[aria-current="page"]{color:#fff;font-weight:700}
+    .nav-links{display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+    .back{font-size:14px}
+    code{background:rgba(255,255,255,0.05);padding:2px 6px;border-radius:4px}
+    @media (max-width:700px){main{padding:16px}h1{font-size:28px}}
+  </style>
+</head>
+<body>
+  <header>
+    <div class="nav-links">
+      <a class="back" href="/">← ホームへ戻る</a>
+    </div>
+    <nav class="lang-switch" aria-label="Language switch">
+      <a href="/reversy.html" aria-current="page">日本語</a>
+      <span>|</span>
+      <a href="/reversy-en.html">English</a>
+    </nav>
+  </header>
+  <main>
+    <section class="card">
+      <p class="eyebrow">Android / Reversi / Human・CPU・AI</p>
+      <h1>Dual AI Reversy</h1>
+      <p class="lead">Dual AI Reversy は、黒と白それぞれを ユーザ / CPU / AI で切り替えられる Android 向けリバーシアプリです。ローカル対戦、CPU 対戦、AI 対戦を 1 つの画面で扱え、着手理由コメントや AI 通信ログ、アプリ内ドキュメントも確認できます。</p>
+      <p class="doc-links">文書: <a href="/reversy/manual.html">操作マニュアル</a> | <a href="/reversy/privacy.html#ja">プライバシーポリシー</a></p>
+      <div class="highlight">
+        <ul>
+          <li>黒と白で別々に操作モードを設定でき、片側だけ CPU / AI にした練習対局にも対応します。</li>
+          <li>AI モードでは接続先 URL、モデル、プロンプト、タイムアウト、再試行回数をプレイヤーごとに調整できます。</li>
+          <li>コメント欄には CPU / AI の着手理由が新しい順で表示され、アプリ内のドキュメント画面から説明文をコピーできます。</li>
+        </ul>
+      </div>
+    </section>
+
+    <section class="card">
+      <h2>スクリーンショット</h2>
+      <p class="note">画面イメージは後から差し替えできるよう、現在はプレースホルダー枠のみ配置しています。</p>
+      <div class="grid">
+        <figure>
+          <div class="shot">スクリーンショット追加予定<span>盤面、黒/白モード切替、対局開始/リセットを表示するメイン画面</span></div>
+          <figcaption>8x8 の盤面と操作ボタンをまとめた対局画面。黒と白を独立して Human / CPU / AI に切り替えられます。</figcaption>
+        </figure>
+        <figure>
+          <div class="shot">スクリーンショット追加予定<span>黒設定 / 白設定、モデル選択、AI通信ログの画面</span></div>
+          <figcaption>設定ダイアログでは、CPU 深さ、AI URL、モデル、プロンプト、タイムアウト、再試行回数をプレイヤーごとに調整できます。</figcaption>
+        </figure>
+        <figure>
+          <div class="shot">スクリーンショット追加予定<span>コメント欄とドキュメント画面の表示例</span></div>
+          <figcaption>対局下部のコメント欄には着手理由が蓄積され、ドキュメント画面からマニュアルや Privacy Policy を参照できます。</figcaption>
+        </figure>
+      </div>
+    </section>
+
+    <section class="card">
+      <h2>主な特徴</h2>
+      <ul>
+        <li><strong>黒/白を個別に制御</strong>: 画面上部のボタンで黒・白それぞれの担当を ユーザ / CPU / AI の順に切り替えられます。</li>
+        <li><strong>CPU 思考</strong>: 角の確保、相手の合法手、将来の取り返しやすさを考慮する評価で着手を選びます。</li>
+        <li><strong>AI 接続</strong>: <code>/api/tags</code> でモデル一覧を取得し、対局時には盤面情報と合法手候補を AI 用プロンプトとして送信します。</li>
+        <li><strong>AI 通信ログ</strong>: 黒・白ごとに送受信ログを保持し、ダイアログから確認・コピー・クリアできます。</li>
+        <li><strong>コメントビュー</strong>: CPU / AI の理由説明を対局画面下部へ時系列で蓄積します。</li>
+        <li><strong>アプリ内ドキュメント</strong>: 操作マニュアル、Privacy Policy、権利表記をアプリ内から参照できます。</li>
+      </ul>
+    </section>
+
+    <section class="card">
+      <h2>利用メモ</h2>
+      <ul>
+        <li>初期状態では黒がユーザ、白が CPU です。設定を保存すると盤面はリセットされ、次の対局から新設定が反映されます。</li>
+        <li>AI モードの既定接続先は <code>http://127.0.0.1:11434</code> です。ローカルの Ollama 互換 API でもリモートサーバーでも利用できます。</li>
+        <li>外部 AI サーバーを指定した場合、盤面情報やプロンプトなどの通信は、その接続先のポリシーに従って処理されます。</li>
+      </ul>
+    </section>
+  </main>
+  <script defer src="/browser-api-register.js"></script>
+</body>
+</html>

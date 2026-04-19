@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>プライバシーポリシー — Dual AI Reversy — Mick Lab</title>
+  <style>
+    :root{--bg:#08080a;--card:#0f1114;--muted:#9aa3b2;--accent:#7c5cff;--line:rgba(255,255,255,0.08)}
+    *{box-sizing:border-box}
+    body{margin:0;background:var(--bg);color:#e6eef8;font-family:Inter,system-ui,Segoe UI,Roboto,Arial;line-height:1.7}
+    header{padding:18px 24px;border-bottom:1px solid rgba(255,255,255,0.03);display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap}
+    a{color:var(--accent);text-decoration:none}
+    main{max-width:1040px;margin:28px auto;padding:20px}
+    .card{background:var(--card);padding:20px;border-radius:14px;border:1px solid rgba(255,255,255,0.03)}
+    .nav-links,.lang-switch{display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+    .back{font-size:14px}
+    .lang-switch{color:var(--muted);font-size:14px}
+    h1{margin:0 0 12px;font-size:32px}
+    h2{margin:0 0 10px;font-size:24px}
+    h3{margin:20px 0 8px;font-size:18px}
+    p{margin:0 0 12px}
+    ul{margin:0;padding-left:22px;color:var(--muted)}
+    li+li{margin-top:8px}
+    .updated,.lead{color:var(--muted)}
+    hr{border:0;border-top:1px solid var(--line);margin:32px 0}
+    code{background:rgba(255,255,255,0.05);padding:2px 6px;border-radius:4px}
+  </style>
+</head>
+<body>
+  <header>
+    <div class="nav-links">
+      <a class="back" href="/">← ホームへ戻る</a>
+      <a class="back" href="/reversy.html">← Dual AI Reversy</a>
+    </div>
+    <nav class="lang-switch" aria-label="Privacy languages">
+      <a href="#ja">日本語</a>
+      <span>|</span>
+      <a href="#en">English</a>
+    </nav>
+  </header>
+  <main>
+    <div class="card">
+      <h1>プライバシーポリシー / Privacy Policy</h1>
+      <p class="updated">最終更新日 / Last updated: 2026-04-19</p>
+      <p class="lead">このページには日本語版と英語版を掲載しています。 / This page includes both Japanese and English versions.</p>
+
+      <section id="ja">
+        <h2>日本語</h2>
+
+        <h3>1. 適用範囲</h3>
+        <p>本ポリシーは、Mick Lab が提供する Android アプリ「Dual AI Reversy」に適用されます。現行実装では主に <code>INTERNET</code> 権限を使用し、ユーザーが指定した AI 接続先に応じて通信を行います。</p>
+
+        <h3>2. 取得する情報</h3>
+        <p>本アプリは、氏名、メールアドレス、連絡先、位置情報などの個人情報をアプリ内で登録させません。</p>
+
+        <h3>3. 通信について</h3>
+        <ul>
+          <li>AI モードを利用した場合のみ、盤面情報、合法手候補、AI 用プロンプト、選択した接続先 URL に応じた通信が発生します。</li>
+          <li>モデル一覧の取得時には、設定画面から <code>/api/tags</code> へアクセスします。</li>
+          <li>接続先が <code>127.0.0.1</code> などのローカルホストであれば、通信は同一端末またはローカル環境内に留まります。</li>
+          <li>接続先を外部サーバーへ変更した場合、そのサーバー運用者によるデータ取扱いは当該サーバーのポリシーに従います。</li>
+          <li>本アプリはクリアテキスト通信を許可しています。<code>http://</code> の接続先を設定した場合、その通信は暗号化されないことがあります。</li>
+        </ul>
+
+        <h3>4. 端末内で扱う情報</h3>
+        <p>黒設定・白設定、AI の応答、対局コメント、AI 通信ログは、対局と画面表示のために端末内で扱われます。本バージョンでは、これらの内容をユーザーアカウントへ送信したり、広告目的で第三者へ提供したりしません。</p>
+
+        <h3>5. 外部送信・第三者提供</h3>
+        <p>本アプリには広告 SDK、解析 SDK、クラウド認証機能は含まれていません。ただし、ユーザーが AI 接続先として外部サービスを指定した場合、その通信はユーザーの操作によって行われます。</p>
+
+        <h3>6. 改定</h3>
+        <p>プライバシーポリシーは、機能追加や権限変更に応じて、アプリ内文書および公開ページを更新する形で改定されることがあります。</p>
+      </section>
+
+      <hr>
+
+      <section id="en">
+        <h2>English</h2>
+
+        <h3>1. Scope</h3>
+        <p>This policy applies to the Android application “Dual AI Reversy” provided by Mick Lab. In the current implementation, the app primarily uses the <code>INTERNET</code> permission and communicates only according to the AI endpoint selected by the user.</p>
+
+        <h3>2. Information Collected</h3>
+        <p>The app does not ask users to register personal information such as name, email address, contact details, or location data inside the app.</p>
+
+        <h3>3. Network Communication</h3>
+        <ul>
+          <li>Network communication occurs only when AI mode is used, and may include board state, legal-move candidates, the AI prompt, and the configured destination URL.</li>
+          <li>When fetching model lists, the settings screen accesses <code>/api/tags</code>.</li>
+          <li>If the destination is a localhost address such as <code>127.0.0.1</code>, communication stays within the same device or local environment.</li>
+          <li>If you change the destination to an external server, that operator handles data under its own policies.</li>
+          <li>The app allows cleartext traffic. If you configure an <code>http://</code> endpoint, that traffic may be unencrypted.</li>
+        </ul>
+
+        <h3>4. Information Used on the Device</h3>
+        <p>Black/White settings, AI responses, move comments, and AI communication logs are used on the device for gameplay and display. In this version, the app does not send this information to a user account or provide it to third parties for advertising purposes.</p>
+
+        <h3>5. External Transmission and Third Parties</h3>
+        <p>The app does not include advertising SDKs, analytics SDKs, or cloud-auth features. However, if the user points AI mode to an external service, that communication happens as a result of the user’s own configuration.</p>
+
+        <h3>6. Revisions</h3>
+        <p>This privacy policy may be revised by updating the in-app documents and public page when features or permissions change.</p>
+      </section>
+    </div>
+  </main>
+</body>
+</html>

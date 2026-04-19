@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Dual AI Reversy — Mick Lab</title>
+  <link rel="alternate" hreflang="ja" href="/reversy.html">
+  <link rel="alternate" hreflang="en" href="/reversy-en.html">
+  <style>
+    :root{--bg:#08080a;--card:#0f1114;--muted:#9aa3b2;--accent:#7c5cff;--line:rgba(255,255,255,0.08)}
+    *{box-sizing:border-box}
+    body{margin:0;background:var(--bg);color:#e6eef8;font-family:Inter,system-ui,Segoe UI,Roboto,Arial;line-height:1.65}
+    header{padding:18px 24px;border-bottom:1px solid rgba(255,255,255,0.03);display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap}
+    a{color:var(--accent);text-decoration:none}
+    main{max-width:1040px;margin:28px auto;padding:20px}
+    .card{background:var(--card);padding:20px;border-radius:14px;border:1px solid rgba(255,255,255,0.03);margin-bottom:18px}
+    .eyebrow{margin:0 0 8px;color:#b7a9ff;font-size:13px;font-weight:700;letter-spacing:.08em;text-transform:uppercase}
+    h1{margin:0 0 12px;font-size:34px;line-height:1.15}
+    h2{margin:0 0 12px;font-size:22px}
+    p{margin:0 0 12px}
+    ul{margin:0;padding-left:20px;color:var(--muted)}
+    li+li{margin-top:8px}
+    .lead{color:#eef4ff;font-size:17px}
+    .doc-links,.note{color:var(--muted);font-size:14px}
+    .highlight{background:linear-gradient(90deg,rgba(124,92,255,0.08),rgba(0,212,255,0.03));border:1px solid var(--line);border-radius:12px;padding:14px 16px}
+    .highlight ul{color:#e6eef8;font-weight:600}
+    .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px}
+    figure{margin:0}
+    .shot{width:100%;aspect-ratio:9/16;border-radius:10px;border:1px dashed rgba(255,255,255,0.18);background:linear-gradient(180deg,rgba(124,92,255,0.08),rgba(255,255,255,0.02));display:flex;align-items:center;justify-content:center;padding:18px;text-align:center;color:#d8def0}
+    .shot span{display:block;color:var(--muted);font-size:13px;margin-top:6px}
+    figcaption{margin-top:8px;color:var(--muted);font-size:13px}
+    .lang-switch{display:flex;align-items:center;gap:10px;color:var(--muted);font-size:14px}
+    .lang-switch a[aria-current="page"]{color:#fff;font-weight:700}
+    .nav-links{display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+    .back{font-size:14px}
+    code{background:rgba(255,255,255,0.05);padding:2px 6px;border-radius:4px}
+    @media (max-width:700px){main{padding:16px}h1{font-size:28px}}
+  </style>
+</head>
+<body>
+  <header>
+    <div class="nav-links">
+      <a class="back" href="/index-en.html">← Home</a>
+    </div>
+    <nav class="lang-switch" aria-label="Language switch">
+      <a href="/reversy.html">日本語</a>
+      <span>|</span>
+      <a href="/reversy-en.html" aria-current="page">English</a>
+    </nav>
+  </header>
+  <main>
+    <section class="card">
+      <p class="eyebrow">Android / Reversi / Human・CPU・AI</p>
+      <h1>Dual AI Reversy</h1>
+      <p class="lead">Dual AI Reversy is an Android Reversi app where Black and White can each be switched independently between Human, CPU, and AI. It supports local play, CPU matches, and AI-assisted matches in one screen, with move-reason comments, per-player AI logs, and built-in documents.</p>
+      <p class="doc-links">Docs: <a href="/reversy/manual-en.html">User Manual</a> | <a href="/reversy/privacy.html#en">Privacy Policy</a></p>
+      <div class="highlight">
+        <ul>
+          <li>Set Black and White separately, so you can practice with only one side controlled by CPU or AI.</li>
+          <li>AI mode exposes per-player URL, model, prompt, timeout, and retry settings.</li>
+          <li>The comment pane shows CPU / AI move reasons in reverse chronological order, and the in-app document screen supports copy actions.</li>
+        </ul>
+      </div>
+    </section>
+
+    <section class="card">
+      <h2>Screenshots</h2>
+      <p class="note">Only placeholder frames are shown for now so actual screen images can be dropped in later.</p>
+      <div class="grid">
+        <figure>
+          <div class="shot">Screenshot placeholder<span>Main game screen with board, Black/White mode switches, and the start/reset action</span></div>
+          <figcaption>The main game view combines the 8x8 board and control buttons. Black and White can be switched independently between Human, CPU, and AI.</figcaption>
+        </figure>
+        <figure>
+          <div class="shot">Screenshot placeholder<span>Black / White settings, model picker, and AI communication log</span></div>
+          <figcaption>The settings dialog lets you adjust CPU depth, AI URL, model, prompt, timeout, and retry count for each player.</figcaption>
+        </figure>
+        <figure>
+          <div class="shot">Screenshot placeholder<span>Comment pane and document viewer example</span></div>
+          <figcaption>The lower comment pane accumulates move explanations, and the document viewer provides the manual and privacy policy inside the app.</figcaption>
+        </figure>
+      </div>
+    </section>
+
+    <section class="card">
+      <h2>Key Features</h2>
+      <ul>
+        <li><strong>Independent Black/White control</strong>: The top buttons cycle each side through Human, CPU, and AI.</li>
+        <li><strong>CPU move selection</strong>: The CPU favors corners, considers opponent mobility, and evaluates future board stability.</li>
+        <li><strong>AI connectivity</strong>: The app fetches model names through <code>/api/tags</code> and sends board state plus legal-move candidates as part of the AI prompt during matches.</li>
+        <li><strong>AI communication log</strong>: Separate logs are kept for Black and White, and can be viewed, copied, or cleared from a dialog.</li>
+        <li><strong>Move comment view</strong>: CPU / AI move reasons are accumulated in the lower pane during play.</li>
+        <li><strong>Built-in documents</strong>: The app includes an operation manual, privacy policy, and rights notice.</li>
+      </ul>
+    </section>
+
+    <section class="card">
+      <h2>Usage Notes</h2>
+      <ul>
+        <li>The default setup is Human for Black and CPU for White. Saving settings resets the board so the next match starts with the updated configuration.</li>
+        <li>The default AI endpoint is <code>http://127.0.0.1:11434</code>. You can use either a local Ollama-compatible API or a remote server.</li>
+        <li>If you point the app to an external AI service, board data and prompts are processed under that service’s policies.</li>
+      </ul>
+    </section>
+  </main>
+  <script defer src="/browser-api-register.js"></script>
+</body>
+</html>

@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>User Manual — Dual AI Reversy — Mick Lab</title>
+  <link rel="alternate" hreflang="ja" href="/reversy/manual.html">
+  <link rel="alternate" hreflang="en" href="/reversy/manual-en.html">
+  <style>
+    :root{--bg:#08080a;--card:#0f1114;--muted:#9aa3b2;--accent:#7c5cff;--line:rgba(255,255,255,0.08)}
+    *{box-sizing:border-box}
+    body{margin:0;background:var(--bg);color:#e6eef8;font-family:Inter,system-ui,Segoe UI,Roboto,Arial;line-height:1.7}
+    header{padding:18px 24px;border-bottom:1px solid rgba(255,255,255,0.03);display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap}
+    a{color:var(--accent);text-decoration:none}
+    main{max-width:1040px;margin:28px auto;padding:20px}
+    .card{background:var(--card);padding:20px;border-radius:14px;border:1px solid rgba(255,255,255,0.03);margin-bottom:18px}
+    h1{margin:0 0 12px;font-size:32px}
+    h2{margin:0 0 10px;font-size:23px}
+    p{margin:0 0 12px}
+    ul,ol{margin:0;padding-left:22px;color:var(--muted)}
+    li+li{margin-top:8px}
+    .lead{color:#eef4ff}
+    .note{color:var(--muted);font-size:14px}
+    .nav-links,.lang-switch{display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+    .back{font-size:14px}
+    .lang-switch{color:var(--muted);font-size:14px}
+    .lang-switch a[aria-current="page"]{color:#fff;font-weight:700}
+    code{background:rgba(255,255,255,0.05);padding:2px 6px;border-radius:4px}
+    .callout{background:linear-gradient(90deg,rgba(124,92,255,0.08),rgba(0,212,255,0.03));border:1px solid var(--line)}
+    @media (max-width:700px){main{padding:16px}h1{font-size:28px}}
+  </style>
+</head>
+<body>
+  <header>
+    <div class="nav-links">
+      <a class="back" href="/index-en.html">← Home</a>
+      <a class="back" href="/reversy-en.html">← Dual AI Reversy</a>
+    </div>
+    <nav class="lang-switch" aria-label="Language switch">
+      <a href="/reversy/manual.html">日本語</a>
+      <span>|</span>
+      <a href="/reversy/manual-en.html" aria-current="page">English</a>
+    </nav>
+  </header>
+  <main>
+    <section class="card callout">
+      <h1>User Manual</h1>
+      <p class="lead">This page describes the current Android implementation of Dual AI Reversy. It is organized from the in-app documents and adapted for the public product site.</p>
+      <p class="note">Related doc: <a href="/reversy/privacy.html#en">Privacy Policy</a></p>
+    </section>
+
+    <section class="card">
+      <h2>1. Match Setup</h2>
+      <ul>
+        <li>Use the <strong>Black</strong> and <strong>White</strong> buttons at the top to cycle each side through Human, CPU, and AI.</li>
+        <li><strong>Black Settings</strong> and <strong>White Settings</strong> let you adjust CPU depth, AI URL, model, AI prompt, timeout, and retry count.</li>
+        <li>When AI mode is used, the app can fetch the model list from <code>api/tags</code> and let you choose from it.</li>
+      </ul>
+    </section>
+
+    <section class="card">
+      <h2>2. Starting and Resetting a Game</h2>
+      <ul>
+        <li>Press <strong>Start Game</strong> to begin a new match.</li>
+        <li>Once the game has started, the same button becomes <strong>Reset</strong> and returns the board to the initial layout.</li>
+        <li>On Human turns, tap a legal square on the board to place a stone.</li>
+        <li>You can reset even during matches that include CPU or AI players.</li>
+      </ul>
+    </section>
+
+    <section class="card">
+      <h2>3. Comment Pane</h2>
+      <ul>
+        <li>The lower comment pane shows CPU and AI move reasons, with the newest entry first.</li>
+        <li>The text can be scrolled and selected for copying.</li>
+        <li>If there are no automatic-play comments yet, a guide message is shown instead.</li>
+      </ul>
+    </section>
+
+    <section class="card">
+      <h2>4. AI Mode</h2>
+      <ul>
+        <li>In AI mode, the app sends board state, legal-move candidates, and the configured AI prompt to the selected API server in order to obtain a move.</li>
+        <li>The response format is expected to be two lines: the coordinate on line 1 and the reason on line 2.</li>
+        <li>The settings screen provides <strong>Black AI Log</strong> and <strong>White AI Log</strong> views where you can inspect, copy, and clear communication history.</li>
+        <li>The default endpoint is <code>http://127.0.0.1:11434</code>.</li>
+      </ul>
+    </section>
+
+    <section class="card">
+      <h2>5. CPU Behavior</h2>
+      <ul>
+        <li>The CPU evaluates corners, opponent mobility, future move availability, and whether the opponent can immediately recover a corner.</li>
+        <li><strong>CPU Depth</strong> can be cycled between 1 and 10 in the settings dialog.</li>
+      </ul>
+    </section>
+
+    <section class="card">
+      <h2>6. Documents</h2>
+      <ul>
+        <li>The <strong>Documents</strong> button opens the operation manual, privacy policy, and rights notice.</li>
+        <li>The document viewer can copy the currently selected text to the clipboard.</li>
+      </ul>
+    </section>
+
+    <section class="card">
+      <h2>7. Rights Notice Summary</h2>
+      <ul>
+        <li>The rights for the original game logic, UI, explanatory text, and move-comment presentation belong to the app provider.</li>
+        <li>Bundled icons, avatar images, and related assets are managed as part of the app distribution.</li>
+        <li>The rights for AI models, APIs, and server responses used through AI mode belong to their respective providers.</li>
+      </ul>
+    </section>
+
+    <section class="card">
+      <h2>8. Notes</h2>
+      <ul>
+        <li>If you use an external AI server, verify the destination URL, security, and terms of service first.</li>
+        <li>If communication fails or the response format does not match the expected pattern, the AI move may fail.</li>
+      </ul>
+    </section>
+  </main>
+</body>
+</html>
