@@ -50,143 +50,209 @@
   <main>
     <section class="card callout">
       <h1>操作マニュアル</h1>
-      <p class="lead">このページは、現在の Android アプリ実装に合わせて、LLM tester with llama.cpp の使い方と挙動を整理した公開マニュアルです。</p>
+      <p class="lead">このページは、Android アプリ実装に合わせて、LLM tester with llama.cpp の使い方と挙動を整理した公開マニュアルです。</p>
       <p class="note">関連文書: <a href="/llama-tester/privacy.html#ja">プライバシーポリシー</a></p>
     </section>
 
     <section class="card">
-      <h2>1. 概要</h2>
-      <p>LLM tester with llama.cpp は、Android 端末上で GGUF モデルを実行し、プロンプト入力・推論パラメータ調整・テンプレート確認・ログ確認・Ollama 互換 API 提供までを一つのアプリで扱えるローカルLLM検証ツールです。</p>
+      <h2>【重要】ダウンロード通信について</h2>
+      <p>モデルのダウンロードには数GB単位の通信が必要になる場合があります。モバイルデータ通信を使用すると高額な通信料が発生する可能性があるため、可能な限りWi-Fi環境でのダウンロードを強く推奨します。</p>
+    </section>
+
+    <section class="card">
+      <h2>1. アプリ概要</h2>
       <ul>
-        <li>Built with Llama (llama.cpp)</li>
-        <li>モデルは URL からの取得とローカルファイル取り込みの両方に対応</li>
-        <li>必要に応じて <code>/api/chat</code> / <code>/api/generate</code> / <code>/api/tags</code> を提供</li>
+        <li><strong>アプリ名:</strong> LLM tester with llama.cpp</li>
+        <li><strong>Built with:</strong> Llama (llama.cpp)</li>
+        <li>本アプリは端末上でLLMを実行し、プロンプトに対する回答を生成します。</li>
+        <li>必要に応じてOllama互換APIサーバーと llama.cpp 標準WebUIを同じポートで起動できます。</li>
       </ul>
     </section>
 
     <section class="card">
-      <h2>2. 使い始める前に</h2>
-      <ul>
-        <li>大きなモデルのダウンロードには数 GB 単位の通信が必要になる場合があります。モバイル回線ではなく Wi‑Fi の利用を推奨します。</li>
-        <li>初回起動時には Quick Start と API サーバー有効化ポップアップが表示される場合があります。どちらも「次回以降は表示しない」を選べます。</li>
-        <li>推論中（Busy）は Settings ボタンが無効化され、処理完了後に自動で再度有効になります。</li>
-      </ul>
-    </section>
-
-    <section class="card">
-      <h2>3. 推奨セットアップ</h2>
+      <h2>2. 初期設定（推奨手順）</h2>
       <ol>
-        <li>メイン画面で <strong>Settings</strong> を開きます。</li>
-        <li><strong>Model Selection</strong> で、モデル URL を入力するか、ローカル端末から <code>.gguf</code> ファイルを取り込みます。</li>
-        <li><strong>Load Model</strong> でモデルを読み込みます。ローカル取り込み時、ファイルピッカーは Downloads を既定で開きます。</li>
-        <li>必要に応じてパラメータを調整し、<strong>Save Config</strong> で構成を保存します。</li>
-        <li><strong>SAVE &amp; CLOSE</strong> を押すと設定が保存され、その時点のモデルへ即時反映されます。</li>
+        <li>アプリ起動時にAPI/WebUI有効化ポップアップが表示された場合は、必要に応じて有効化するか、「次回以降は表示しない」をチェックすると次回から表示されません。</li>
+        <li>初回起動時のQuick Startで「次回以降は表示しない」をチェックすると、次回起動以降は表示されません。</li>
+        <li>メイン画面で「設定」を開きます。<br><span class="note">※推論中（Busy）は設定ボタンが無効化されます。処理完了後に自動で再有効化されます。</span></li>
+        <li>モデルURLを入力するか、ローカル端末から <code>.gguf</code> ファイルを取り込み、「モデルを読み込む」を押してモデルを読み込みます。<br><span class="note">※ローカル取り込みのファイル選択は Downloads フォルダを既定で開き、必要に応じて端末内の他の場所へ移動して選択できます。HTTP/HTTPS URLを利用でき、HTTPSでは通常のSSL/TLS証明書検証を行います。ローカル取り込み時は設定欄にファイル名のみが保存されます。</span></li>
+        <li>パラメータを調整する場合は各項目を編集し「設定を保存」で保存します。</li>
+        <li>「保存して閉じる」を押すと設定が保存され、モデルに即座に適用されます。</li>
       </ol>
-      <p class="note">HTTP/HTTPS のモデル URL を使用できます。HTTPS では通常の SSL/TLS 証明書検証が行われます。</p>
     </section>
 
     <section class="card">
-      <h2>4. メイン画面</h2>
+      <h2>3. メイン画面の各機能</h2>
       <ul>
-        <li><strong>Enter Prompt</strong>: プロンプトを入力します。</li>
-        <li><strong>Send</strong>: 生成を開始します。モデル未ロード時は、現在の構成に対応するモデルのロードを自動で試みます。</li>
-        <li><strong>Settings</strong>: 推論中は無効化されます。設定パネルではなく別画面で詳細設定を行います。</li>
-        <li><strong>Re-init Model</strong>: 進行中の生成を停止し、現在のプロファイルを再初期化します。</li>
-        <li><strong>View Log / Hide Log</strong>: モデル出力欄にログファイルの最新 100 行を表示し、再度押すと通常の出力へ戻ります。</li>
-        <li><strong>Update</strong>: ログ表示中の内容を再読み込みします。</li>
-        <li><strong>Clear Log</strong>: ログファイルを空にします。</li>
-        <li><strong>Start/Stop API Server</strong>: 内蔵 API サーバーを起動または停止します。</li>
-        <li><strong>Copy / Save</strong>: モデル出力またはログ表示内容をコピー・保存します。</li>
-        <li><strong>Processing Status / Logs</strong>: タイムスタンプ付きの処理ログを表示します。</li>
+        <li><strong>プロンプト入力:</strong> プロンプトを入力します。</li>
+        <li><strong>送信:</strong> 生成を開始します。モデル未ロード時は自動でロードを試みます。</li>
+        <li><strong>設定:</strong> 推論中（Busy）は自動的に無効化され、処理完了後に再び有効になります。</li>
+        <li><strong>モデル再初期化:</strong> 実行中でも押せます。進行中の生成を停止して現在のプロファイルを即座に再初期化します。失敗した場合はログを確認するか、設定から再度モデルを読み込んでください。</li>
+        <li><strong>ログ表示 / ログを隠す:</strong> モデル出力欄にログファイルの最新100行を表示し、もう一度押すと通常の出力表示へ戻ります。</li>
+        <li><strong>更新:</strong> ログ表示中の内容を最新100行で再読み込みします。</li>
+        <li><strong>ログ消去:</strong> ログファイルを空にします。</li>
+        <li><strong>API/WebUI開始 / API/WebUI停止:</strong> APIサーバーとWebUIを同時に起動または停止します。</li>
+        <li><strong>モデル出力:</strong> モデル応答を表示します。ログ表示中はログ本文を表示します。</li>
+        <li><strong>コピー（モデル出力）:</strong> モデル出力欄の内容をクリップボードへコピーします。</li>
+        <li><strong>保存:</strong> 通常時は表示中の応答を保存し、ログ表示中はログ全文を保存します。応答が空の場合はログ全文を保存します。</li>
+        <li><strong>処理状況/ログ:</strong> タイムスタンプ付きの処理ログを表示します。</li>
+        <li><strong>コピー（処理状況/ログ）:</strong> 処理状況/ログ欄の内容をクリップボードへコピーします。</li>
       </ul>
     </section>
 
     <section class="card">
-      <h2>5. 設定画面</h2>
+      <h2>4. 設定画面の操作</h2>
       <ul>
-        <li><strong>Configuration Management</strong>: 設定の保存・読み込み・削除を行います。既定の <code>default</code> 構成が自動生成されます。</li>
-        <li><strong>Model Selection</strong>: URL からの取得に加えて、ローカル端末の <code>.gguf</code> を取り込めます。取り込んだファイルはアプリ保存領域へコピーされ、設定欄にはファイル名のみが保存されます。</li>
-        <li><strong>Model Parameters</strong>: 基本パラメータ、Penalty、Mirostat、追加サンプリング、DRY、GPU Offload Layers を設定できます。</li>
-        <li><strong>Prompt Template</strong>: System Prompt、Think 有効/無効、custom chat template を設定できます。未指定時はモデルファミリーから自動選択されます。</li>
-        <li><strong>Llama API Server</strong>: API の待受ポートを設定できます。起動/停止は起動時ポップアップまたはメイン画面から行います。</li>
-        <li><strong>Display Language</strong>: 日本語 / English を切り替えられます。初回は端末言語をもとに決まり、選択内容は保存されます。</li>
-        <li><strong>Log Settings / Show License / Documents</strong>: ログレベル、ライセンス表示、文書画面への移動を行います。</li>
-        <li><strong>SAVE &amp; CLOSE / CLOSE</strong>: 保存して即時適用するか、保存せず閉じるかを選べます。</li>
+        <li><strong>設定管理:</strong> 設定の保存/削除/読み込みを行います。</li>
+        <li><strong>モデル選択:</strong> モデルURLでの読み込みに加え、ローカル端末から <code>.gguf</code> ファイルを取り込めます。ファイル選択は Downloads フォルダを既定で開き、必要に応じて端末内の他の場所へ移動できます。取り込んだファイルはアプリ内モデル保存先へコピーされ、設定欄にはファイル名のみを表示します。HTTP/HTTPS URL利用時はHTTPSで通常のSSL/TLS証明書検証を行います。</li>
+        <li><strong>モデルパラメータ:</strong> 生成パラメータを設定します（GPUオフロード層を含む）。</li>
+        <li><strong>出力設定:</strong> ストリーミング出力の有効/無効を切り替えます。</li>
+        <li><strong>プロンプトテンプレート:</strong> システムプロンプト、Think有効/無効（chat-template-kwargs.enable_thinking）、カスタムテンプレートを設定できます。カスタム未設定時はGGUFのchat_templateメタデータを優先し、必要に応じてモデルファミリーから自動選択されます。Bonsai系の既定テンプレートにも対応しています。</li>
+        <li><strong>Llama APIサーバー:</strong> サーバーポートを指定します。起動時ポップアップまたはメイン画面で有効化すると、APIとWebUIが同じポートで利用可能になります。</li>
+        <li><strong>表示言語:</strong> 日本語/English の表示言語を切り替えます。初回は端末設定から自動選択され、次回以降は選択が保存されます。</li>
+        <li><strong>ログ設定:</strong> ログレベルを選択します（初回起動時の既定値: INFO）。</li>
+        <li><strong>ライセンス表示:</strong> ライセンス文面を表示します。</li>
+        <li><strong>ドキュメント:</strong> 操作マニュアルとプライバシーポリシーを確認できます。</li>
+        <li><strong>保存して閉じる:</strong> 現在の入力値を保存し、モデルに即時適用してメイン画面に戻ります。</li>
+        <li><strong>閉じる:</strong> 何も保存せずメイン画面に戻ります。</li>
       </ul>
     </section>
 
     <section class="card">
-      <h2>6. パラメータ群の見どころ</h2>
-      <table>
-        <thead>
-          <tr>
-            <th>項目群</th>
-            <th>主な項目</th>
-            <th>用途</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td>基本</td>
-            <td><code>n_ctx</code>, <code>n_threads</code>, <code>n_batch</code>, GPU Offload Layers, <code>temp</code>, <code>top_p</code>, <code>top_k</code></td>
-            <td>速度、メモリ使用量、応答の多様性や安定性を調整します。</td>
-          </tr>
-          <tr>
-            <td>Penalty</td>
-            <td><code>penalty_last_n</code>, <code>penalty_repeat</code>, <code>penalty_freq</code>, <code>penalty_present</code></td>
-            <td>同じ語句の繰り返しや、出現済みトークンの扱いを調整します。</td>
-          </tr>
-          <tr>
-            <td>Mirostat</td>
-            <td><code>mirostat</code>, <code>mirostat_tau</code>, <code>mirostat_eta</code></td>
-            <td>出力の一貫性を自動調整するサンプリング手法を切り替えます。</td>
-          </tr>
-          <tr>
-            <td>追加サンプリング</td>
-            <td><code>min_p</code>, <code>typical_p</code>, <code>dynatemp_range</code>, <code>dynatemp_exponent</code>, <code>xtc_probability</code>, <code>xtc_threshold</code>, <code>top_n_sigma</code></td>
-            <td>モデルの出力傾向をさらに細かく追い込みたいときに使います。</td>
-          </tr>
-          <tr>
-            <td>DRY</td>
-            <td><code>dry_multiplier</code>, <code>dry_base</code>, <code>dry_allowed_length</code>, <code>dry_penalty_last_n</code>, <code>dry_sequence_breakers</code></td>
-            <td>長文生成での単調な繰り返しを抑えたいときに有効です。</td>
-          </tr>
-          <tr>
-            <td>出力 / Think</td>
-            <td><code>streaming</code>, <code>enableThinking</code>, <code>systemPrompt</code>, <code>customChatTemplate</code></td>
-            <td>ストリーミング表示、思考出力の扱い、テンプレート差分の検証に使います。</td>
-          </tr>
-        </tbody>
-      </table>
-    </section>
-
-    <section class="card">
-      <h2>7. プロンプトテンプレート</h2>
-      <p>custom chat template が空の場合、アプリはモデルファイル名からファミリーを推定し、適切なテンプレートを自動選択します。</p>
+      <h2>5. モデルパラメータの詳細説明</h2>
+      
+      <h3>基本パラメータ</h3>
       <ul>
-        <li>対応ファミリー: Gemma, Qwen, Mistral, LLaMA, Phi, Zephyr, Hermes</li>
-        <li>未判定時のフォールバック: ChatML</li>
-        <li>Gemma 系では system / user / model の並びを維持します。</li>
-        <li>選択結果は Processing Status / Logs と INFO レベルログに記録されます。</li>
+        <li><strong>コンテキストサイズ (n_ctx):</strong> モデルが一度に処理できるトークン数です。大きいほど長い文脈を扱えますが、メモリ消費が増加します。</li>
+        <li><strong>スレッド数 (n_threads):</strong> 推論に使用するCPUスレッド数です。端末のコア数に合わせて調整してください。</li>
+        <li><strong>バッチサイズ (n_batch):</strong> 一度に処理するトークン数です。大きくすると高速ですがメモリを多く使用します。</li>
+        <li><strong>GPUオフロード層:</strong> GPUへオフロードする層数です。0は無効、1〜39は指定層数、-1は利用可能な全層を対象にします。</li>
+        <li><strong>温度 (temp):</strong> 出力のランダム性を制御します。0に近いほど決定的、高いほど多様な出力になります。</li>
+        <li><strong>Top-p:</strong> 累積確率がこの値に達するまでのトークンから選択します（nucleus sampling）。</li>
+        <li><strong>Top-k:</strong> 確率上位k個のトークンから選択します。</li>
+      </ul>
+
+      <h3>ペナルティパラメータ</h3>
+      <ul>
+        <li><strong>Penalty Last N:</strong> ペナルティを適用する直近のトークン数です。</li>
+        <li><strong>Penalty Repeat:</strong> 繰り返しトークンへのペナルティ倍率です。1.0で無効、高いほど繰り返しを抑制します。</li>
+        <li><strong>Penalty Frequency:</strong> 出現頻度に応じたペナルティです。</li>
+        <li><strong>Penalty Presence:</strong> 一度出現したトークンへのペナルティです。</li>
+      </ul>
+
+      <h3>Mirostatパラメータ</h3>
+      <ul>
+        <li><strong>Mirostat:</strong> 0=無効、1=Mirostat v1、2=Mirostat v2。出力の一貫性を自動調整するサンプリング手法です。</li>
+        <li><strong>Mirostat Tau:</strong> 目標のサプライズ値（perplexity）です。低いとより一貫性のある出力になります。</li>
+        <li><strong>Mirostat Eta:</strong> 学習率です。Mirostatのフィードバック速度を制御します。</li>
+      </ul>
+
+      <h3>追加サンプリングパラメータ</h3>
+      <ul>
+        <li><strong>Min-p:</strong> 最低確率閾値です。これ以下の確率のトークンを除外します。</li>
+        <li><strong>Typical P:</strong> 典型的なサンプリングのパラメータです。</li>
+        <li><strong>Dynamic Temperature Range:</strong> 動的温度調整の範囲です。0で無効になります。</li>
+        <li><strong>Dynamic Temperature Exponent:</strong> 動的温度の指数です。</li>
+        <li><strong>XTC Probability:</strong> XTCサンプリングの確率です。</li>
+        <li><strong>XTC Threshold:</strong> XTCサンプリングの閾値です。</li>
+        <li><strong>Top-N-Sigma:</strong> シグマベースのサンプリングです。-1で無効になります。</li>
+      </ul>
+
+      <h3>DRYパラメータ</h3>
+      <ul>
+        <li><strong>DRY Multiplier:</strong> Don't Repeat Yourself 繰り返し抑制の強度です。0で無効になります。</li>
+        <li><strong>DRY Base:</strong> DRYペナルティの基数です。</li>
+        <li><strong>DRY Allowed Length:</strong> 繰り返しを許容する最小長です。</li>
+        <li><strong>DRY Penalty Last N:</strong> DRYペナルティを適用するトークン数です。-1で全体に適用します。</li>
+        <li><strong>DRY Sequence Breakers:</strong> DRYの区切り文字です。</li>
+      </ul>
+
+      <h3>出力設定</h3>
+      <ul>
+        <li><strong>ストリーミングを有効化:</strong> 有効にするとトークンが生成されるたびに出力が更新されます。無効にすると生成完了後に一括表示されます。</li>
+      </ul>
+
+      <h3>Think設定</h3>
+      <ul>
+        <li><strong>Thinkを有効化 (chat-template-kwargs.enable_thinking):</strong> chat-template-kwargs の enable_thinking を切り替えます。無効時はモデルの思考出力を抑制する形式でプロンプトを生成します。</li>
       </ul>
     </section>
 
     <section class="card">
-      <h2>8. 内蔵 API サーバー</h2>
+      <h2>6. プロンプトテンプレートの自動選択</h2>
+      <p>カスタムテンプレートが設定されていない場合、まずGGUFのchat_templateメタデータからファミリーを推定し、利用できない場合はモデルファイル名から自動選択します。</p>
       <ul>
-        <li>提供エンドポイント: <code>/api/chat</code>, <code>/api/generate</code>, <code>/api/tags</code></li>
-        <li>同時生成は 1 件のみです。ビジー時は最大 10 件までキューに入り、最大 60 秒待機します。</li>
-        <li>キュー満杯または待機超過時は <code>503</code> を返します。</li>
-        <li>Android 13 以上では通知権限が必要になる場合があります。</li>
+        <li><strong>対応ファミリー:</strong> Gemma, Qwen, Mistral, LLaMA, Phi, Bonsai, Zephyr, Hermes</li>
+        <li><strong>該当なしの場合:</strong> ChatMLをフォールバックとして使用します</li>
+        <li><strong>Gemma系:</strong> system / user / model の順序を維持します</li>
+        <li><strong>ログ記録:</strong> 選択結果は処理状況/ログおよびINFOレベルログに記録されます</li>
+        <li><strong>API履歴:</strong> /api/chatの会話履歴はモデルファミリー別のマルチターンテンプレートに従って構成されます</li>
       </ul>
     </section>
 
     <section class="card">
-      <h2>9. 補足</h2>
+      <h2>7. 停止シーケンス</h2>
+      <p>生成時に一般的なチャットテンプレートの区切り文字を検出すると自動的に生成を停止します。</p>
+    </section>
+
+    <section class="card">
+      <h2>8. API/WebUIサーバー（任意）</h2>
       <ul>
-        <li>大きなモデルの読み込みは、アドレス空間不足や中断操作で失敗する場合があります。その場合は小さいモデルを試すか、Settings から再度読み込んでください。</li>
-        <li>ログやクラッシュ情報は端末内に保持され、必要に応じて確認や削除ができます。</li>
+        <li>アプリ起動時にローカルAPI/WebUIサーバーを有効化するかどうか確認するポップアップが表示されます。</li>
+        <li>起動すると端末内で以下を提供します：
+          <ul>
+            <li><code>/api/chat</code>, <code>/api/generate</code>, <code>/api/tags</code></li>
+            <li><code>/v1/chat/completions</code>, <code>/v1/models</code></li>
+            <li><code>/props</code>, <code>/slots</code></li>
+            <li>WebUI の静的ファイル</li>
+          </ul>
+        </li>
+        <li>WebUIは同じポートの <code>http://&lt;端末IP&gt;:&lt;ポート&gt;/</code> で利用できます</li>
+        <li>同時生成は1件のみです。ビジー時は最大10件までキューに入り、最大60秒待機します。60秒超過またはキュー満杯時は503を返します。</li>
+        <li>Android 13以上では通知権限が必要な場合があります。</li>
       </ul>
+    </section>
+
+    <section class="card">
+      <h2>9. 🧭 GGUFファイルの探し方</h2>
+      
+      <h3>9-1. GGUF対応モデルを探す</h3>
+      <ul>
+        <li>Hugging Face のモデル検索で <strong>GGUF タグ</strong>を使う<br><a href="https://huggingface.co/models?library=gguf">https://huggingface.co/models?library=gguf</a></li>
+        <li>GGUFモデルはリポジトリ名に <code>-GGUF</code> が付いていることが多い<br>例：<code>TheBloke/Mixtral-8x7B-Instruct-v0.1-GGUF</code></li>
+        <li>モデルページの <strong>Files</strong> タブに <code>*.gguf</code> が並んでいる</li>
+      </ul>
+
+      <h3>9-2. 量子化バリエーションの選び方（概要）</h3>
+      <ul>
+        <li><code>Q2_K</code>：軽量・低メモリ</li>
+        <li><code>Q4_K_M</code>：バランス型（最初に試すならこれが無難）</li>
+        <li><code>Q8_0</code>：重いが精度高め</li>
+      </ul>
+    </section>
+
+    <section class="card">
+      <h2>10. 📥 ブラウザから直接ダウンロードする手順</h2>
+      
+      <h3>10-1. 手動ダウンロード</h3>
+      <ol>
+        <li>モデルページを開く<br>例：<code>https://huggingface.co/unsloth/Mistral-Small-3.1-24B-Instruct-2503-GGUF</code></li>
+        <li><strong>Files</strong> タブを開く</li>
+        <li>目的の <code>*.gguf</code> ファイルをクリック</li>
+        <li>右上の <strong>Download</strong> ボタンを押してダウンロード</li>
+      </ol>
+
+      <h3>10-2. GGUFファイルの直接URLを取得する</h3>
+      <ol>
+        <li>Files タブで目的の <code>*.gguf</code> をクリックしてファイルページを開く</li>
+        <li><strong>Download</strong> ボタンを右クリック → 「リンクのコピー」</li>
+        <li>これで <strong>直接アクセス可能なGGUFファイルURL</strong> を取得できる</li>
+      </ol>
+    </section>
+
+    <section class="card">
+      <h2>補足</h2>
+      <p>大きなモデルのロードは、アドレス空間の確保失敗またはユーザ操作により中断される場合があります。その場合は次回起動時に一時ファイルを削除して通知を表示します。必要に応じて、より小さいモデルを試すか、設定から再度モデルを読み込んでください。</p>
     </section>
   </main>
 </body>

@@ -16,6 +16,7 @@
     .card{background:var(--card);padding:20px;border-radius:14px;border:1px solid rgba(255,255,255,0.03);margin-bottom:18px}
     h1{margin:0 0 12px;font-size:32px}
     h2{margin:0 0 10px;font-size:23px}
+    h3{margin:18px 0 8px;font-size:18px}
     p{margin:0 0 12px}
     ul,ol{margin:0;padding-left:22px;color:var(--muted)}
     li+li{margin-top:8px}
@@ -27,11 +28,7 @@
     .lang-switch a[aria-current="page"]{color:#fff;font-weight:700}
     code{background:rgba(255,255,255,0.05);padding:2px 6px;border-radius:4px}
     .callout{background:linear-gradient(90deg,rgba(124,92,255,0.08),rgba(0,212,255,0.03));border:1px solid var(--line)}
-    table{width:100%;border-collapse:collapse;margin-top:12px}
-    th,td{padding:12px;border:1px solid var(--line);vertical-align:top;text-align:left}
-    th{color:#fff;background:rgba(255,255,255,0.03)}
-    td{color:var(--muted)}
-    @media (max-width:700px){main{padding:16px}h1{font-size:28px}table,thead,tbody,tr,th,td{display:block}th{border-bottom:none}td{border-top:none}}
+    @media (max-width:700px){main{padding:16px}h1{font-size:28px}}
   </style>
 </head>
 <body>
@@ -49,119 +46,108 @@
   <main>
     <section class="card callout">
       <h1>操作マニュアル</h1>
-      <p class="lead">このページは、現在の Android 実装に基づく Dual AI Chat の操作ガイドです。設定項目や通信挙動は、実際のアプリ挙動に合わせて記載しています。</p>
+      <p class="lead">このページは、Android アプリ実装に基づく Dual AI Chat の操作ガイドです。</p>
       <p class="note">関連文書: <a href="/llama-chat/privacy.html#ja">プライバシーポリシー</a></p>
     </section>
 
     <section class="card">
-      <h2>1. 概要</h2>
-      <p>Dual AI Chat は、ユーザーが指定した Ollama 互換サーバーと接続し、テキストチャット・音声入力・TTS・2 AI 掛け合い・Web Search を扱える Android アプリです。</p>
+      <h2>■ クイックスタート</h2>
       <ul>
-        <li>Normal モード: 1 つのモデルとの通常チャット</li>
-        <li>Chatter モード: Base と Chatter Partner が交互に会話</li>
-        <li>設定プロファイル、アバター、Debug Mode を端末内に保存</li>
+        <li>起動時に、次回から表示しないを選ぶまでクイックスタートを表示します。</li>
+        <li>チャットを使う前に、LLM Tester with llama.cppまたはOllamaをインストール/起動し、APIサーバを有効化してください。</li>
+        <li>設定画面では、API状態タイルの上にある「LLM APIを起動」からLLM Testerを開けます。未インストール時はGoogle Playを開きます。</li>
       </ul>
     </section>
 
     <section class="card">
-      <h2>2. クイックスタート</h2>
-      <ol>
-        <li>起動時に表示される Quick Start は、「次回以降は表示しない」を選ぶまで表示されます。</li>
-        <li><a href="/llama-tester.html">LLM tester with llama.cpp</a> の API サーバー、または任意の Ollama 互換サーバーを用意します。</li>
-        <li>画面右上の <strong>⚙</strong> で設定を開き、<strong>Ollama URL</strong> に接続先を入力します。設定を閉じるときは同じボタンが <strong>💾</strong> に変わり、保存して閉じます。</li>
-        <li>起動時と設定画面を開いたときに <code>/api/tags</code> が呼ばれ、モデル一覧と接続状態タイルが更新されます。</li>
-        <li>必要なモデル、System Prompt、音声設定、Web Search 設定を入力したら保存してチャットに戻ります。</li>
-      </ol>
-    </section>
-
-    <section class="card">
-      <h2>3. メイン画面の使い方</h2>
+      <h2>■ 画面</h2>
       <ul>
-        <li><strong>入力欄 + Send</strong>: メッセージを送信します。</li>
-        <li><strong>入力欄が空のまま Send</strong>: Voice Input が有効なら音声認識を開始します。</li>
-        <li><strong>処理中の Send</strong>: ボタン表示が STOP に変わり、タップすると現在のリクエストを中止できます。</li>
-        <li><strong>チャットパネル</strong>: 会話ログとアバター表示を確認できます。</li>
-        <li><strong>ログエリア上部のハンドル</strong>: チャットエリアの拡大/縮小を切り替えます。</li>
+        <li>⚙️ で設定を開き、💾で保存して閉じます。</li>
+        <li>ログ上部のバーをタップするとチャットエリアが拡大/縮小します。</li>
       </ul>
     </section>
 
     <section class="card">
-      <h2>4. 設定の見どころ</h2>
-      <table>
-        <thead>
-          <tr>
-            <th>セクション</th>
-            <th>内容</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td>General</td>
-            <td>表示言語、Ollama URL、接続状態タイル、Streaming、TTS、Voice Input、Auto Voice Input、ユーザー名、Config Profile を設定します。</td>
-          </tr>
-          <tr>
-            <td>Chat</td>
-            <td>Normal / Chatter モード、History Limit、おしゃべり間隔、Base / Chatter Partner のモデル・名前・音声・System Prompt を設定します。</td>
-          </tr>
-          <tr>
-            <td>Expert</td>
-            <td>Web Search、検索 API URL / API Key、Web Search Model、Debug Mode を設定します。</td>
-          </tr>
-          <tr>
-            <td>Config Profile</td>
-            <td>設定プロファイルの保存、<strong>SELECT Template</strong> による読込、削除を行います。アバター画像もプロファイルと一緒に扱われます。</td>
-          </tr>
-        </tbody>
-      </table>
-    </section>
-
-    <section class="card">
-      <h2>5. モードと会話履歴</h2>
+      <h2>■ 設定</h2>
       <ul>
-        <li><strong>Normal</strong>: Base 側のモデルで通常の会話を行います。</li>
-        <li><strong>Chatter</strong>: Base と Chatter Partner が交互に応答します。間隔は <strong>Chatter Interval</strong> で設定します。</li>
-        <li><strong>History Limit</strong>: リクエスト時に送る過去メッセージ数を制御します。</li>
-        <li><strong>Reset Conversation Log</strong>: 現在セッション中の会話ログをリセットします。</li>
-        <li>現在の実装では会話履歴はメモリ上で保持され、アプリ再起動後に復元される永続保存は行われません。</li>
+        <li><strong>言語:</strong> プルダウンからEnglishまたは日本語を選択します。</li>
+        <li><strong>LLM APIを起動:</strong> API状態タイルの上にある「LLM APIを起動」からLLM Testerを起動できます。</li>
+        <li><strong>API状態:</strong> Ollama URLの下に/api/tagsの接続状態をタイル表示します。</li>
+        <li><strong>接続設定:</strong> 設定画面で接続設定やアバター画像を設定できます。</li>
+        <li><strong>テンプレート:</strong> Config Profileの下にある SELECT Template でテンプレートを読み込みます。</li>
+        <li><strong>更新:</strong> 起動時と設定画面を開くたびに/api/tagsを再取得し、モデル一覧とAPI状態を更新します。</li>
       </ul>
     </section>
 
     <section class="card">
-      <h2>6. 音声機能</h2>
+      <h2>■ 送信</h2>
       <ul>
-        <li><strong>Voice Input</strong>: 音声認識を使って入力できます。アプリはまずオフライン認識を優先し、必要に応じてオンライン認識へフォールバックします。</li>
-        <li><strong>Text-to-Speech</strong>: 応答を文単位で読み上げます。</li>
-        <li><strong>Auto Voice Input</strong>: 応答完了後、条件が整えば次の音声入力を自動で開始します。</li>
-        <li><strong>Speech Language / Rate / Pitch</strong>: Base と Chatter Partner それぞれで独立して設定できます。</li>
+        <li>メッセージ入力後にSendで送信します。</li>
+        <li>Voice Inputを有効にすると、未入力のままSendで音声入力を開始します。</li>
+        <li>処理中はボタンがSTOPになり、タップで中止できます。</li>
+        <li><strong>注記:</strong> 初回のメッセージ送信時には約1GB程度の通信が発生します。これはLLM API側でモデルのダウンロードが行われることによるもので、反応まで時間がかかる場合があります。</li>
       </ul>
     </section>
 
     <section class="card">
-      <h2>7. Web Search と Debug Mode</h2>
+      <h2>■ リセット</h2>
       <ul>
-        <li>Web Search を有効にし、API Key を設定すると、検索クエリを指定 API に送信して結果を会話コンテキストへ追加できます。</li>
-        <li>Brave Search API 形式の URL を設定した場合は Brave 向けの処理を使います。</li>
-        <li><strong>Web Search Model</strong> は <code>/api/tags</code> で取得したモデル一覧から選択します。</li>
-        <li><strong>Debug Mode</strong> を有効にすると、API リクエスト / レスポンスの詳細ログを画面上で確認できます。</li>
+        <li>会話をリセットしたい場合は、設定画面のReset Conversation Logを押してください。</li>
       </ul>
     </section>
 
     <section class="card">
-      <h2>8. アバターと設定プロファイル</h2>
+      <h2>■ モード</h2>
       <ul>
-        <li>アバターは c0（背景）/ c1（基本）/ c2（まばたき）/ c3（会話中）の 4 スロット構成です。</li>
-        <li>Base と Chatter Partner で別々の画像を設定できます。</li>
-        <li><strong>Clear</strong> を押すと既定状態に戻せます。</li>
-        <li>設定プロファイルを保存すると、設定値と対応するアバター画像バックアップをまとめて再利用できます。</li>
+        <li><strong>Normal:</strong> 1つのモデルでチャットします。</li>
+        <li><strong>おしゃべり:</strong> Baseとおしゃべり相手が交互に会話します。</li>
+        <li><strong>おしゃべり間隔:</strong> 発話間隔（秒）を設定します。</li>
       </ul>
     </section>
 
     <section class="card">
-      <h2>9. 補足</h2>
+      <h2>■ 設定タブ</h2>
       <ul>
-        <li>接続エラー時は、Ollama URL の状態タイルと <code>/api/tags</code> の取得結果を確認してください。</li>
-        <li>音声認識が動かない場合は、マイク権限と端末の音声認識サービスの利用可否を確認してください。</li>
-        <li>検索 API やリモートサーバーを使う場合、送信データはそれぞれの提供者側ポリシーに従って処理されます。</li>
+        <li>Base/おしゃべり相手のタブで各モデル設定を切り替えます。</li>
+        <li>Model/Name/System Prompt/Speech Language/Rate/Pitchを設定できます。</li>
+      </ul>
+    </section>
+
+    <section class="card">
+      <h2>■ 応答</h2>
+      <ul>
+        <li><strong>Streaming:</strong> 応答をリアルタイム表示します。</li>
+        <li><strong>Text-to-Speech:</strong> 応答を音声で読み上げます。</li>
+        <li><strong>History Limit:</strong> 送信する履歴数を調整します。</li>
+      </ul>
+    </section>
+
+    <section class="card">
+      <h2>■ エキスパート設定</h2>
+      <ul>
+        <li><strong>Web Search:</strong> 有効にすると検索APIを使います。</li>
+        <li><strong>Web Search Model:</strong> /api/tagsの一覧から選択できます（初期値: default）。</li>
+        <li><strong>Brave URL:</strong> Brave URLの場合はBrave向けに最適化した検索処理を使います。</li>
+        <li><strong>Debug Mode:</strong> 通信ログを表示します。</li>
+      </ul>
+    </section>
+
+    <section class="card">
+      <h2>■ アバター</h2>
+      <ul>
+        <li><strong>c0:</strong> 背景</li>
+        <li><strong>c1:</strong> 基本表情</li>
+        <li><strong>c2:</strong> まばたき</li>
+        <li><strong>c3:</strong> 会話中</li>
+        <li>Baseとおしゃべり相手で別々に設定できます。</li>
+        <li>Clearでデフォルトに戻します。</li>
+      </ul>
+    </section>
+
+    <section class="card">
+      <h2>■ その他</h2>
+      <ul>
+        <li>設定、テンプレート、ポップアップ表示設定、画像は端末内に保存されます。</li>
       </ul>
     </section>
   </main>
