@@ -1,0 +1,419 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>技術仕様 — LLM tester with llama.cpp — Mick Lab</title>
+  <link rel="alternate" hreflang="ja" href="/llama-tester/technical-spec.html">
+  <link rel="alternate" hreflang="en" href="/llama-tester/technical-spec-en.html">
+  <style>
+    :root{--bg:#08080a;--card:#0f1114;--muted:#9aa3b2;--accent:#7c5cff;--line:rgba(255,255,255,0.08)}
+    *{box-sizing:border-box}
+    body{margin:0;background:var(--bg);color:#e6eef8;font-family:Inter,system-ui,Segoe UI,Roboto,Arial;line-height:1.72}
+    header{padding:18px 24px;border-bottom:1px solid rgba(255,255,255,0.03);display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap}
+    a{color:var(--accent);text-decoration:none}
+    main{max-width:1120px;margin:28px auto;padding:20px}
+    .card{background:var(--card);padding:20px;border-radius:14px;border:1px solid rgba(255,255,255,0.03);margin-bottom:18px}
+    h1{margin:0 0 12px;font-size:32px}
+    h2{margin:0 0 12px;font-size:24px}
+    h3{margin:18px 0 8px;font-size:18px}
+    p{margin:0 0 12px}
+    ul,ol{margin:0;padding-left:22px;color:var(--muted)}
+    li+li{margin-top:8px}
+    table{width:100%;border-collapse:collapse;margin-top:12px}
+    th,td{padding:12px;border:1px solid var(--line);vertical-align:top;text-align:left}
+    th{color:#fff;background:rgba(255,255,255,0.03)}
+    td{color:var(--muted)}
+    code{background:rgba(255,255,255,0.05);padding:2px 6px;border-radius:4px}
+    pre{margin:12px 0 0;background:#090b10;border:1px solid var(--line);border-radius:10px;padding:14px;overflow:auto;color:#dbe7ff;font-family:ui-monospace,SFMono-Regular,Consolas,monospace;font-size:13px;line-height:1.6}
+    .lead{color:#eef4ff}
+    .note{color:var(--muted);font-size:14px}
+    .callout{background:linear-gradient(90deg,rgba(124,92,255,0.08),rgba(0,212,255,0.03));border:1px solid var(--line)}
+    .nav-links,.lang-switch{display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+    .back{font-size:14px}
+    .lang-switch{color:var(--muted);font-size:14px}
+    .lang-switch a[aria-current="page"]{color:#fff;font-weight:700}
+    .toc{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px}
+    .toc a{display:block;padding:12px 14px;border:1px solid var(--line);border-radius:10px;background:rgba(255,255,255,0.02)}
+    .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:14px}
+    .mono{font-family:ui-monospace,SFMono-Regular,Consolas,monospace}
+    .pill{display:inline-block;margin:0 8px 8px 0;padding:4px 10px;border-radius:999px;background:rgba(124,92,255,0.14);color:#d9d0ff;font-size:12px;font-weight:700}
+    @media (max-width:700px){main{padding:16px}h1{font-size:28px}table,thead,tbody,tr,th,td{display:block}th{border-bottom:none}td{border-top:none}}
+  </style>
+</head>
+<body>
+  <header>
+    <div class="nav-links">
+      <a class="back" href="/">← ホームへ戻る</a>
+      <a class="back" href="/llama-tester.html">← LLM tester with llama.cpp</a>
+    </div>
+    <nav class="lang-switch" aria-label="Language switch">
+      <a href="/llama-tester/technical-spec.html" aria-current="page">日本語</a>
+      <span>|</span>
+      <a href="/llama-tester/technical-spec-en.html">English</a>
+    </nav>
+  </header>
+  <main>
+    <section class="card callout">
+      <h1>技術仕様</h1>
+      <p class="lead">このページは、現行 Android 実装をもとに、LLM tester with llama.cpp のフロントアプリ、設定保存、JNI ブリッジ、CMake/NDK ビルド、llama.cpp/ggml、API サーバー、WebUI 配信までの連携を技術仕様として整理したものです。</p>
+      <p class="note">関連文書: <a href="/llama-tester/manual.html">操作マニュアル</a> | <a href="/llama-tester/privacy.html#ja">プライバシーポリシー</a></p>
+      <div>
+        <span class="pill">Android Activity UI</span>
+        <span class="pill">Configuration JSON</span>
+        <span class="pill">ModelManager</span>
+        <span class="pill">JNI / C++</span>
+        <span class="pill">llama.cpp + ggml + mtmd</span>
+        <span class="pill">Ollama / OpenAI 互換 API</span>
+        <span class="pill">Bundled WebUI</span>
+      </div>
+    </section>
+
+    <section class="card">
+      <h2>目次</h2>
+      <div class="toc">
+        <a href="#overview">1. 全体像</a>
+        <a href="#frontend">2. フロントアプリ層</a>
+        <a href="#config">3. 設定・モデルファイル管理</a>
+        <a href="#model-manager">4. ModelManager の責務</a>
+        <a href="#jni">5. JNI / C++ 層</a>
+        <a href="#cmake">6. CMake / NDK ビルド</a>
+        <a href="#api">7. API サーバー仕様</a>
+        <a href="#webui">8. WebUI と配信方式</a>
+        <a href="#site">9. 公開 Web ページとの関係</a>
+      </div>
+    </section>
+
+    <section class="card" id="overview">
+      <h2>1. 全体像</h2>
+      <p>このアプリは「UI から直接ネイティブ推論を叩く経路」と「端末内 HTTP サーバー経由で推論を叩く経路」の 2 本を持っています。どちらの経路でも、モデルロード・ビジー制御・パラメータ適用・再初期化は <code>ModelManager</code> に集約され、最終的な推論実体は <code>llama_jni</code> 共有ライブラリ内の llama.cpp / ggml / mtmd に到達します。</p>
+      <pre>MainActivity / SettingsActivity
+        ↓
+ConfigurationManager / ModelFileHelper
+        ↓
+ModelManager
+        ↓
+LlamaNative (Java native wrapper)
+        ↓ JNI
+llama_jni (jni_llama.cpp)
+        ↓
+llama.cpp + ggml + mtmd + libcurl + mbedTLS
+
+別経路:
+OllamaForegroundService
+        ↓
+OllamaApiServer (HTTP, same-device / LAN)
+        ↓
+ModelManager → LlamaNative → JNI → llama.cpp</pre>
+      <table>
+        <thead>
+          <tr><th>レイヤ</th><th>主担当</th><th>役割</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>UI</td><td>MainActivity / SettingsActivity / DocumentsActivity</td><td>入力、状態表示、ログ表示、設定編集、API/WebUI 起動停止</td></tr>
+          <tr><td>設定</td><td>ConfigurationManager</td><td>プロファイル JSON の保存・読込、既定値提供</td></tr>
+          <tr><td>モデル資産</td><td>ModelFileHelper</td><td>GGUF / mmproj のファイル名解決、保存場所、モダリティ推定</td></tr>
+          <tr><td>実行制御</td><td>ModelManager</td><td>ロード、再初期化、排他制御、ネイティブ呼び出し集約</td></tr>
+          <tr><td>Java ↔ Native</td><td>LlamaNative</td><td>native メソッド公開、トークン進捗コールバック登録</td></tr>
+          <tr><td>Native 実装</td><td>jni_llama.cpp</td><td>グローバル状態、初期化、サンプリング、停止シーケンス、ログ、クラッシュ記録</td></tr>
+          <tr><td>HTTP</td><td>OllamaApiServer / OllamaForegroundService</td><td>Ollama 互換 API、OpenAI 互換 API、WebUI 静的配信、待機キュー</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section class="card" id="frontend">
+      <h2>2. フロントアプリ層</h2>
+      <h3>2-1. MainActivity の役割</h3>
+      <ul>
+        <li>メイン画面は、プロンプト入力、モデル出力、処理ログ、ログファイル表示、API/WebUI 起動ボタンをまとめた運用 UI です。</li>
+        <li><code>sendButton</code> 押下時は、選択中プロファイルに対応するモデルが未ロードまたは不一致なら先に <code>ModelManager.loadConfiguration()</code> を実行し、その後 <code>processGeneration()</code> で推論します。</li>
+        <li>直接入力の推論では <code>PromptTemplateManager.buildPromptForDirectInputWithSelection()</code> を使い、GGUF メタデータ、カスタムテンプレート、Settings の system prompt、Think 設定を統合した最終プロンプトを生成します。</li>
+        <li>ストリーミング有効時は <code>LlamaNative.TokenListener</code> を登録し、受信トークンを <code>StreamOutputFilter</code> で整形して UI に逐次反映します。非ストリーミング時は <code>generate()</code> の戻り値を一括表示します。</li>
+        <li>「モデル再初期化」は現在処理を中断し、必要なら API クライアント接続も切った上で <code>forceReinitializeConfiguration()</code> を呼びます。</li>
+      </ul>
+
+      <h3>2-2. SettingsActivity の役割</h3>
+      <ul>
+        <li>プロファイル名、モデル URL / ローカル GGUF、<code>n_ctx</code>、<code>n_threads</code>、<code>top_p</code>、DRY、Mirostat、Think、GPU Offload Layers、API ポート、表示言語、ログレベルを編集します。</li>
+        <li>ローカル GGUF 取り込みでは SAF のファイルピッカーを開き、選択ファイルをアプリのモデル保存先へコピーします。URL 指定時は後段でネイティブ download が使われます。</li>
+        <li>ダウンロード進捗は <code>LlamaNative.DownloadProgressListener</code> で受け取り、ProgressBar とファイル情報表示に反映します。</li>
+        <li>GPU Offload Layers はシークバーで 0〜40 を扱い、40 超相当は <code>-1</code> に変換して「全層オフロード」扱いにしています。</li>
+        <li>Documents ボタンからはアプリ内ドキュメント画面へ遷移し、マニュアルとプライバシーポリシーを表示します。</li>
+      </ul>
+
+      <h3>2-3. 起動時 / バックグラウンド連携</h3>
+      <ul>
+        <li>アプリケーションクラス <code>LlamaApplication</code> は起動時にネイティブログ出力先を設定し、Java の未処理例外を <code>last_crash.txt</code> に保存します。</li>
+        <li>API/WebUI を常駐させるときは <code>OllamaForegroundService</code> が Foreground Service として動作し、通知から Stop / Exit を行えます。</li>
+        <li>MainActivity は Service からのブロードキャストを受け、サーバー状態と処理ログをリアルタイム更新します。</li>
+      </ul>
+    </section>
+
+    <section class="card" id="config">
+      <h2>3. 設定・モデルファイル管理</h2>
+      <h3>3-1. ConfigurationManager</h3>
+      <p>各プロファイルは外部ファイル領域の <code>configs/*.json</code> として保存されます。既定プロファイルは初回起動時に自動生成され、モデル URL、生成パラメータ、Think、GPU Offload、カスタムテンプレート、system prompt、mmproj 参照などを保持します。</p>
+      <table>
+        <thead>
+          <tr><th>カテゴリ</th><th>主な項目</th><th>用途</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>モデル</td><td><code>modelUrl</code>, <code>multimodalProjectorUrl</code></td><td>GGUF と任意の mmproj 参照</td></tr>
+          <tr><td>ロード系</td><td><code>nCtx</code>, <code>nThreads</code>, <code>nBatch</code>, <code>gpuOffloadLayers</code></td><td>コンテキスト、CPU、GPU オフロード設定</td></tr>
+          <tr><td>サンプリング</td><td><code>temp</code>, <code>topP</code>, <code>topK</code>, Penalty, Mirostat, DRY, XTC</td><td>サンプラー構築にそのまま反映</td></tr>
+          <tr><td>テンプレート</td><td><code>systemPrompt</code>, <code>customChatTemplate</code>, <code>enableThinking</code></td><td>プロンプト生成の最終形を制御</td></tr>
+          <tr><td>UI / 挙動</td><td><code>streaming</code></td><td>画面・API のストリーミング出力既定値</td></tr>
+        </tbody>
+      </table>
+
+      <h3>3-2. ModelFileHelper</h3>
+      <ul>
+        <li>モデル保存先は <code>getExternalFilesDir(null)</code> 優先、取れない場合は内部 files です。</li>
+        <li>URL / ローカル参照からファイル名を抽出して保存先ファイルパスへ変換します。</li>
+        <li><code>.gguf</code> 以外はモデル候補として扱いません。</li>
+        <li>mmproj / projector / gemma4v / gemma4a などの名前規則からプロジェクタ候補を自動検出し、ファイル名トークン一致度で最良候補を選びます。</li>
+        <li>同じ仕組みで vision / audio モダリティも推定し、未ロード状態でも <code>/v1/models</code> や <code>/props</code> に反映します。</li>
+      </ul>
+
+      <h3>3-3. 分割 GGUF と HTTPS ダウンロード</h3>
+      <ul>
+        <li>分割 GGUF は <code>name-00001-of-00005.gguf</code> 形式を検出し、欠けている shard がないかを Java 側・Native 側の両方で確認します。</li>
+        <li>HTTPS ダウンロード前には Android CA Store を PEM 束へ書き出し、ネイティブの libcurl に CA bundle パスを渡します。</li>
+        <li>このため Android 側の証明書ストアに沿った通常の TLS 検証を Native download でも維持できます。</li>
+      </ul>
+    </section>
+
+    <section class="card" id="model-manager">
+      <h2>4. ModelManager の責務</h2>
+      <p><code>ModelManager</code> は UI と HTTP サーバーの共通実行基盤です。排他制御、モデルロード、再ロード、パラメータ適用、ネイティブログ設定、ダウンロード前の trust store 準備まで集約しています。</p>
+
+      <h3>4-1. 排他と再初期化</h3>
+      <ul>
+        <li><code>busy</code>, <code>resetPending</code>, <code>reinitializing</code> を持ち、UI 直入力と API 呼び出しが同じモデル状態を同時に壊さないようにしています。</li>
+        <li><code>tryAcquire()</code> に成功した経路だけがロード / 生成を実行し、完了時に <code>release()</code> します。</li>
+        <li>強制再初期化は、必要なら <code>cancelGeneration()</code> を投げ、現在処理の解放を待ってから <code>reinitializeConfiguration()</code> に入ります。</li>
+      </ul>
+
+      <h3>4-2. ロード手順</h3>
+      <ol>
+        <li>プロファイルを読み込む。</li>
+        <li>モデルファイル名を決定し、保存先パスを作る。</li>
+        <li>必要なら mmproj を自動検出またはダウンロードする。</li>
+        <li>モデルファイルが無ければ Native download を実行する。</li>
+        <li>同一モデル再利用でなければ既存 model/context/mmproj を解放する。</li>
+        <li><strong>PRELOAD</strong>: <code>n_ctx=64</code> で一度 <code>initWithMmproj()</code> を呼び、ロード可否を早めに判定する。</li>
+        <li><strong>本初期化</strong>: 本来の <code>n_ctx</code> に戻して再度 <code>initWithMmproj()</code> を呼ぶ。</li>
+        <li><code>applyConfiguration()</code> でサンプリング系パラメータを Native 側へ反映する。</li>
+      </ol>
+      <p class="note">この 2 段ロードにより、巨大コンテキストでいきなり失敗する前に、最小限コンテキストでモデルファイル自体のロードを先に確認する構成になっています。</p>
+
+      <h3>4-3. 推論時の扱い</h3>
+      <ul>
+        <li>ModelManager 自体はプロンプト文字列の構築を行わず、PromptTemplateManager が作った完成済み prompt を <code>llama.generate()</code> または <code>llama.generateWithMedia()</code> に流します。</li>
+        <li>Vision / Audio は Native 初期化済みのモダリティフラグ <code>supportsVision()</code> / <code>supportsAudio()</code> を通して公開します。</li>
+        <li>ログレベルとログパスは singleton 初期化時に一度適用され、ネイティブログと Java ログの両方で追跡しやすくしています。</li>
+      </ul>
+    </section>
+
+    <section class="card" id="jni">
+      <h2>5. JNI / C++ 層</h2>
+      <h3>5-1. Java 側の公開 API</h3>
+      <p><code>LlamaNative</code> は <code>System.loadLibrary("llama_jni")</code> で共有ライブラリをロードし、以下を公開します。</p>
+      <table>
+        <thead>
+          <tr><th>メソッド</th><th>用途</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><code>download(url, path)</code></td><td>libcurl によるモデル / mmproj ダウンロード</td></tr>
+          <tr><td><code>initWithMmproj(modelPath, mmprojPath)</code></td><td>モデルと任意の multimodal projector 初期化</td></tr>
+          <tr><td><code>setLoadParameters(...)</code></td><td>ロード前に必要な n_ctx / n_threads / n_batch / GPU 層数を設定</td></tr>
+          <tr><td><code>setParameters(...)</code></td><td>Penalty / DRY / Mirostat / XTC などサンプラー関連を設定</td></tr>
+          <tr><td><code>generate(prompt)</code>, <code>generateWithMedia(prompt, media)</code></td><td>テキスト / マルチモーダル生成</td></tr>
+          <tr><td><code>setTokenListener(listener)</code></td><td>ストリーミングトークン、完了、エラーのコールバック登録</td></tr>
+          <tr><td><code>cancelGeneration()</code></td><td>ネイティブ生成ループへ停止要求</td></tr>
+          <tr><td><code>getChatTemplate()</code></td><td>GGUF メタデータから chat template を取り出す</td></tr>
+          <tr><td><code>supportsVision()</code>, <code>supportsAudio()</code></td><td>現在ロード済みモデルのモダリティを返す</td></tr>
+        </tbody>
+      </table>
+
+      <h3>5-2. Native 側のグローバル状態</h3>
+      <ul>
+        <li><code>g_model</code>, <code>g_ctx</code>, <code>g_mtmd</code> によりモデル・推論コンテキスト・マルチモーダルコンテキストを保持します。</li>
+        <li><code>g_current_model_path</code> / <code>g_current_mmproj_path</code> で同一モデル再初期化を回避します。</li>
+        <li><code>g_supports_vision</code> / <code>g_supports_audio</code> でロード済み能力を保持します。</li>
+        <li><code>g_token_listener</code> と <code>JavaVM</code> を使い、Native スレッドから Java callback を安全に呼び戻します。</li>
+        <li><code>g_cancel_generation</code> は UI / API どちらからでも共有される停止フラグです。</li>
+      </ul>
+
+      <h3>5-3. initWithMmproj の流れ</h3>
+      <ol>
+        <li>fatal signal handler を一度だけインストールし、ネイティブクラッシュ時に <code>native_crash.txt</code> へ痕跡を残せるようにします。</li>
+        <li>llama.cpp と mtmd のログコールバックを登録します。</li>
+        <li>モデルファイル、mmproj ファイル、split GGUF の欠落を検査します。</li>
+        <li>既存 model / context / mtmd を必要に応じて解放します。</li>
+        <li><code>llama_backend_init()</code> を呼び、登録済み ggml backend 数を確認します。</li>
+        <li><code>llama_model_default_params()</code> に <code>n_gpu_layers</code> を反映して <code>llama_model_load_from_file()</code> を実行します。</li>
+        <li><code>llama_context_default_params()</code> に <code>n_ctx</code>, <code>n_threads</code>, <code>n_batch</code>, <code>n_threads_batch</code> を入れて <code>llama_init_from_model()</code> を実行します。</li>
+        <li>必要なら <code>initialize_optional_multimodal_support_locked()</code> で mtmd を初期化し、vision/audio サポートを確定します。</li>
+      </ol>
+
+      <h3>5-4. generate の流れ</h3>
+      <ol>
+        <li>現在の memory をクリアし、prompt prefill に備えます。</li>
+        <li>テキストのみなら <code>prefill_text_prompt_locked()</code>、画像 / 音声付きなら <code>prefill_multimodal_prompt_locked()</code> を使います。</li>
+        <li>prefill 成功後に sampler chain を構築します。</li>
+        <li>最大 <code>1024</code> トークンまでループし、毎ステップ <code>llama_sampler_sample()</code> → <code>llama_sampler_accept()</code> → <code>llama_decode()</code> を実行します。</li>
+        <li>stop sequence 検出、EOG、context safety limit、cancel flag のいずれかで終了します。</li>
+        <li>差分トークンは <code>notify_token_delta()</code> で Java へ渡し、完了時は <code>notify_token_complete()</code> を送ります。</li>
+      </ol>
+
+      <h3>5-5. サンプラー構成</h3>
+      <p>Native 側は Java の設定値を直接 sampler chain に変換します。順序は概ね以下です。</p>
+      <pre>penalties
+→ DRY
+→ top_n_sigma
+→ top_k
+→ typical
+→ top_p
+→ min_p
+→ XTC
+→ temperature / dynamic temperature
+→ mirostat v1 or v2 / fallback dist</pre>
+      <p>DRY の sequence breakers は Java の既定値 <code>\n,:,",*</code> と同期されており、JNI 側でエスケープ展開して <code>llama_sampler_init_dry()</code> に渡されます。</p>
+
+      <h3>5-6. 停止条件と出力整形</h3>
+      <ul>
+        <li>共通 stop sequences として <code>&lt;|end|&gt;</code>, <code>&lt;/s&gt;</code>, <code>&lt;|im_end|&gt;</code>, <code>&lt;end_of_turn&gt;</code> など複数テンプレート系の区切りを監視します。</li>
+        <li>UTF-8 の妥当性確認を入れ、不完全な末尾バイト列は切り詰めます。</li>
+        <li>Java 側ではさらに <code>ResponseMarkerSanitizer</code> が出力上の余計な response marker を除去します。</li>
+      </ul>
+
+      <h3>5-7. ダウンロード・ログ・クラッシュ</h3>
+      <ul>
+        <li>download は libcurl を使い、CA bundle が設定されていればそれを優先して TLS 検証します。</li>
+        <li>split GGUF を検出すると primary shard 以外の shard URL も派生させて取得します。</li>
+        <li>ログファイルは <code>ollama.log</code>、Java のクラッシュは <code>last_crash.txt</code>、Native の fatal signal は <code>native_crash.txt</code> へ出力されます。</li>
+      </ul>
+    </section>
+
+    <section class="card" id="cmake">
+      <h2>6. CMake / NDK ビルド</h2>
+      <h3>6-1. Gradle / NDK 側の特徴</h3>
+      <ul>
+        <li><code>compileSdk 35</code>, <code>targetSdk 35</code>, <code>minSdk 24</code> です。</li>
+        <li>ABI は <code>arm64-v8a</code> のみに絞られています。</li>
+        <li>Native build は <code>src/main/cpp/CMakeLists.txt</code> を使い、<code>-DANDROID_SUPPORT_FLEXIBLE_PAGE_SIZES=ON</code> を渡しています。</li>
+        <li>NDK は <code>27.2.12479018</code> を固定し、Android 15 系で重要な 16KB page size 対応に合わせています。</li>
+      </ul>
+
+      <h3>6-2. CMake 側の構成</h3>
+      <ul>
+        <li>プロジェクト名は <code>llama_android</code>、C++17 / C11 を使用します。</li>
+        <li>llama.cpp 本体は Git submodule 的な別ビルドではなく、<code>app/src/main/cpp/llama</code> 配下の source を直接 GLOB して <code>llama_jni</code> に静的に取り込んでいます。</li>
+        <li>ggml は CPU backend を中心に必要 source を直接列挙し、ARM 向け実装も含めています。</li>
+        <li>mtmd 系 source もリンクしているため、画像 / 音声 projector を伴うモデルを同じ <code>llama_jni</code> で扱えます。</li>
+        <li><code>libcurl.a</code> と mbedTLS 3 本の static library を IMPORTED 扱いでリンクしています。</li>
+      </ul>
+
+      <h3>6-3. Android 向けリンク上の注意</h3>
+      <ul>
+        <li>リンクオプションに <code>-Wl,-z,max-page-size=16384</code> と <code>-Wl,-z,common-page-size=16384</code> を付け、16KB ページ環境に合わせています。</li>
+        <li><code>-align-segments</code> は Android NDK の <code>ld.lld</code> で非対応のため明示的に避けています。</li>
+        <li><code>GGML_USE_CPU</code> と <code>GGML_USE_K_QUANTS</code> を compile definition で有効化しています。</li>
+      </ul>
+
+      <h3>6-4. この構成の意味</h3>
+      <p>つまりこのアプリは「Java から JNI で共有ライブラリを呼ぶ」だけでなく、<strong>llama.cpp / ggml / mtmd / curl / TLS を Android 向けに一体ビルドした専用ランタイム</strong>を APK 内に持つ設計です。フロントアプリのボタン操作は、そのまま自前ビルドのローカル推論エンジンを制御する操作になっています。</p>
+    </section>
+
+    <section class="card" id="api">
+      <h2>7. API サーバー仕様</h2>
+      <p><code>OllamaApiServer</code> は軽量な独自 HTTP サーバーです。Foreground Service の中で待受し、<strong>同じ port 上で API と WebUI を同居</strong>させます。既定ポートは <code>11434</code> です。</p>
+
+      <h3>7-1. 提供エンドポイント</h3>
+      <table>
+        <thead>
+          <tr><th>経路</th><th>主用途</th><th>備考</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><code>POST /api/generate</code></td><td>単一 prompt 生成</td><td>Ollama 風 NDJSON streaming / 非 streaming 両対応</td></tr>
+          <tr><td><code>POST /api/chat</code></td><td>messages 配列による会話生成</td><td>モデル family に応じて multi-turn prompt 化</td></tr>
+          <tr><td><code>GET/POST /api/tags</code></td><td>モデル一覧</td><td>プロファイル一覧をモデル名として返す</td></tr>
+          <tr><td><code>POST /v1/chat/completions</code></td><td>OpenAI 互換 chat completions</td><td>SSE streaming 対応</td></tr>
+          <tr><td><code>GET /v1/models</code>, <code>/models</code></td><td>モデル一覧 + 状態</td><td>loaded/unloaded, modalities, path などを返す</td></tr>
+          <tr><td><code>GET /props</code></td><td>llama.cpp WebUI 向け model props</td><td>default_generation_settings, chat_template, webui_settings</td></tr>
+          <tr><td><code>GET /slots</code></td><td>slot 情報</td><td>総 slot 数は 1 固定</td></tr>
+          <tr><td><code>GET /health</code>, <code>/v1/health</code></td><td>ヘルスチェック</td><td><code>role</code> と <code>webui=true</code> を返す</td></tr>
+          <tr><td><code>/</code>, <code>/index.html</code> ほか</td><td>Bundled WebUI 配信</td><td>asset cache 付き</td></tr>
+        </tbody>
+      </table>
+
+      <h3>7-2. 同時実行と待機キュー</h3>
+      <ul>
+        <li>推論 slot は 1 つだけです。実質 single-model / single-generation サーバーです。</li>
+        <li>すでに使用中なら最大 <code>10</code> 件まで待機キューに入り、最大 <code>60</code> 秒待ちます。</li>
+        <li>キュー超過または待機タイムアウトでは <code>503</code> を返します。</li>
+        <li>モデル再初期化要求が入ると、新規要求は拒否され、待機中要求も reset in progress として打ち切られます。</li>
+      </ul>
+
+      <h3>7-3. /api/generate と /api/chat の内部処理</h3>
+      <ol>
+        <li>リクエスト JSON を読む。</li>
+        <li><code>acquireGenerationSlot()</code> で排他を取る。</li>
+        <li>要求モデル名に対応する configuration をロードする。</li>
+        <li>GGUF chat_template、custom template、system prompt、Think 設定を使って最終 prompt を組み立てる。</li>
+        <li>streaming 時は token queue + writer thread を立て、ネイティブ生成スレッドをネットワーク I/O で止めない。</li>
+        <li>client disconnect や end marker 検出時は <code>cancelGeneration()</code> を発行する。</li>
+      </ol>
+
+      <h3>7-4. マルチモーダル入力の扱い</h3>
+      <ul>
+        <li><code>/api/chat</code> と <code>/v1/chat/completions</code> は <code>content[]</code> 配列の中で <code>text</code>, <code>input_text</code>, <code>image_url</code>, <code>input_audio</code> を扱えます。</li>
+        <li><code>image_url</code> は HTTP/HTTPS の画像 URL または base64 data URL を受けられます。リモート取得は 10MB 上限です。</li>
+        <li><code>input_audio</code> は base64 本体を持つ <code>wav</code> / <code>mp3</code> のみ受け付けます。</li>
+        <li>画像・音声部分は内部で <code>&lt;__media__&gt;</code> marker に置き換えられ、実データは <code>byte[][]</code> として JNI へ渡されます。</li>
+        <li>現在ロード済みモデルが vision/audio 非対応なら <code>400</code> で弾きます。</li>
+      </ul>
+
+      <h3>7-5. OpenAI 互換層の特徴</h3>
+      <ul>
+        <li><code>/v1/chat/completions</code> は streaming 時に SSE を返します。</li>
+        <li>内部的には Ollama 互換経路と同じ prompt builder・ModelManager・JNI を使い、出力形式だけ OpenAI 互換 JSON / SSE へ変換しています。</li>
+        <li><code>n_predict=0</code> が付いた場合は pre-encode only として空応答で早期復帰する分岐があります。</li>
+        <li>一部 sampling 値は request override として configuration に上書き適用され、そのまま Native sampler へ入ります。</li>
+      </ul>
+    </section>
+
+    <section class="card" id="webui">
+      <h2>8. WebUI と配信方式</h2>
+      <h3>8-1. WebUI の正体</h3>
+      <ul>
+        <li>アプリは assets 配下に <code>webui/index.html</code>, <code>bundle.js</code>, <code>bundle.css</code>, <code>loading.html</code> を同梱しています。</li>
+        <li><code>GET /</code> または静的資産パスに対して <code>handleWebUi()</code> がそれらを返します。</li>
+        <li>asset は一度読み込むと <code>webUiAssetCache</code> に保持され、以後はメモリキャッシュから返します。</li>
+      </ul>
+
+      <h3>8-2. WebUI と API の結合</h3>
+      <ul>
+        <li>WebUI は別サーバーではなく、同じ <code>OllamaApiServer</code> のルーティング内にあります。</li>
+        <li><code>/props</code> と <code>/slots</code> が llama.cpp 風の WebUI 初期化に必要な設定を返し、<code>webui_settings</code> には system message や Think 表示設定が入ります。</li>
+        <li>ルート以外の未知パスは WebUI 資産名へ正規化され、既知 asset でなければ <code>index.html</code> にフォールバックします。</li>
+      </ul>
+
+      <h3>8-3. 運用上の意味</h3>
+      <p>つまり Android アプリは「ネイティブ推論エンジン + Ollama/OpenAI 互換 API + その API を使う WebUI」を 1 台の端末上に同梱した構成です。ローカルブラウザや LAN 内クライアントから同じ端末へアクセスするだけで、外部サーバーを置かずに一式を試せます。</p>
+    </section>
+
+    <section class="card" id="site">
+      <h2>9. 公開 Web ページとの関係</h2>
+      <ul>
+        <li>この Mick Lab サイト自体は Firebase Hosting 上の静的サイトで、<code>public/</code> 配下を配信しています。</li>
+        <li>Hosting 側では <code>/api/**</code> を <code>api-fallback.json</code> に rewrite し、それ以外は <code>/index.html</code> に fallback します。</li>
+        <li>したがって、この公開ページ群は<strong>アプリ内のローカル API サーバーそのもの</strong>ではなく、端末内で動く API/WebUI 実装を説明するための静的ドキュメントです。</li>
+        <li>本ページの API / WebUI 記述は Android アプリ内部の <code>OllamaApiServer</code> と <code>OllamaForegroundService</code> の仕様であり、Firebase Hosting 上の Web API 仕様ではありません。</li>
+      </ul>
+    </section>
+  </main>
+  <script defer src="/browser-api-register.js"></script>
+</body>
+</html>

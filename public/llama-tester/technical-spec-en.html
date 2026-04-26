@@ -1,0 +1,417 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Technical Specification — LLM tester with llama.cpp — Mick Lab</title>
+  <link rel="alternate" hreflang="ja" href="/llama-tester/technical-spec.html">
+  <link rel="alternate" hreflang="en" href="/llama-tester/technical-spec-en.html">
+  <style>
+    :root{--bg:#08080a;--card:#0f1114;--muted:#9aa3b2;--accent:#7c5cff;--line:rgba(255,255,255,0.08)}
+    *{box-sizing:border-box}
+    body{margin:0;background:var(--bg);color:#e6eef8;font-family:Inter,system-ui,Segoe UI,Roboto,Arial;line-height:1.72}
+    header{padding:18px 24px;border-bottom:1px solid rgba(255,255,255,0.03);display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap}
+    a{color:var(--accent);text-decoration:none}
+    main{max-width:1120px;margin:28px auto;padding:20px}
+    .card{background:var(--card);padding:20px;border-radius:14px;border:1px solid rgba(255,255,255,0.03);margin-bottom:18px}
+    h1{margin:0 0 12px;font-size:32px}
+    h2{margin:0 0 12px;font-size:24px}
+    h3{margin:18px 0 8px;font-size:18px}
+    p{margin:0 0 12px}
+    ul,ol{margin:0;padding-left:22px;color:var(--muted)}
+    li+li{margin-top:8px}
+    table{width:100%;border-collapse:collapse;margin-top:12px}
+    th,td{padding:12px;border:1px solid var(--line);vertical-align:top;text-align:left}
+    th{color:#fff;background:rgba(255,255,255,0.03)}
+    td{color:var(--muted)}
+    code{background:rgba(255,255,255,0.05);padding:2px 6px;border-radius:4px}
+    pre{margin:12px 0 0;background:#090b10;border:1px solid var(--line);border-radius:10px;padding:14px;overflow:auto;color:#dbe7ff;font-family:ui-monospace,SFMono-Regular,Consolas,monospace;font-size:13px;line-height:1.6}
+    .lead{color:#eef4ff}
+    .note{color:var(--muted);font-size:14px}
+    .callout{background:linear-gradient(90deg,rgba(124,92,255,0.08),rgba(0,212,255,0.03));border:1px solid var(--line)}
+    .nav-links,.lang-switch{display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+    .back{font-size:14px}
+    .lang-switch{color:var(--muted);font-size:14px}
+    .lang-switch a[aria-current="page"]{color:#fff;font-weight:700}
+    .toc{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px}
+    .toc a{display:block;padding:12px 14px;border:1px solid var(--line);border-radius:10px;background:rgba(255,255,255,0.02)}
+    .pill{display:inline-block;margin:0 8px 8px 0;padding:4px 10px;border-radius:999px;background:rgba(124,92,255,0.14);color:#d9d0ff;font-size:12px;font-weight:700}
+    @media (max-width:700px){main{padding:16px}h1{font-size:28px}table,thead,tbody,tr,th,td{display:block}th{border-bottom:none}td{border-top:none}}
+  </style>
+</head>
+<body>
+  <header>
+    <div class="nav-links">
+      <a class="back" href="/index-en.html">← Home</a>
+      <a class="back" href="/llama-tester-en.html">← LLM tester with llama.cpp</a>
+    </div>
+    <nav class="lang-switch" aria-label="Language switch">
+      <a href="/llama-tester/technical-spec.html">日本語</a>
+      <span>|</span>
+      <a href="/llama-tester/technical-spec-en.html" aria-current="page">English</a>
+    </nav>
+  </header>
+  <main>
+    <section class="card callout">
+      <h1>Technical Specification</h1>
+      <p class="lead">This page documents the current Android implementation of LLM tester with llama.cpp, focusing on the full path from the front app to configuration storage, JNI, CMake/NDK build, llama.cpp/ggml, the on-device API server, and bundled WebUI delivery.</p>
+      <p class="note">Related docs: <a href="/llama-tester/manual-en.html">User Manual</a> | <a href="/llama-tester/privacy.html#en">Privacy Policy</a></p>
+      <div>
+        <span class="pill">Android Activity UI</span>
+        <span class="pill">Configuration JSON</span>
+        <span class="pill">ModelManager</span>
+        <span class="pill">JNI / C++</span>
+        <span class="pill">llama.cpp + ggml + mtmd</span>
+        <span class="pill">Ollama / OpenAI compatible API</span>
+        <span class="pill">Bundled WebUI</span>
+      </div>
+    </section>
+
+    <section class="card">
+      <h2>Contents</h2>
+      <div class="toc">
+        <a href="#overview">1. System overview</a>
+        <a href="#frontend">2. Front app layer</a>
+        <a href="#config">3. Configuration and model files</a>
+        <a href="#model-manager">4. ModelManager responsibilities</a>
+        <a href="#jni">5. JNI / C++ layer</a>
+        <a href="#cmake">6. CMake / NDK build</a>
+        <a href="#api">7. API server design</a>
+        <a href="#webui">8. WebUI delivery</a>
+        <a href="#site">9. Relationship to the public website</a>
+      </div>
+    </section>
+
+    <section class="card" id="overview">
+      <h2>1. System overview</h2>
+      <p>The app has two main execution paths: a direct UI-to-native inference path, and an on-device HTTP path used by the Ollama-compatible / OpenAI-compatible server. In both cases, model loading, busy-state control, parameter application, and reinitialization are centralized in <code>ModelManager</code>, and actual inference ends inside the <code>llama_jni</code> shared library that embeds llama.cpp, ggml, and mtmd.</p>
+      <pre>MainActivity / SettingsActivity
+        ↓
+ConfigurationManager / ModelFileHelper
+        ↓
+ModelManager
+        ↓
+LlamaNative (Java native wrapper)
+        ↓ JNI
+llama_jni (jni_llama.cpp)
+        ↓
+llama.cpp + ggml + mtmd + libcurl + mbedTLS
+
+Separate path:
+OllamaForegroundService
+        ↓
+OllamaApiServer (HTTP, same-device / LAN)
+        ↓
+ModelManager → LlamaNative → JNI → llama.cpp</pre>
+      <table>
+        <thead>
+          <tr><th>Layer</th><th>Main classes</th><th>Role</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>UI</td><td>MainActivity / SettingsActivity / DocumentsActivity</td><td>Input, output display, log viewing, settings editing, API/WebUI control</td></tr>
+          <tr><td>Configuration</td><td>ConfigurationManager</td><td>Profile JSON persistence and defaults</td></tr>
+          <tr><td>Model assets</td><td>ModelFileHelper</td><td>GGUF/mmproj path resolution, storage directory, modality inference</td></tr>
+          <tr><td>Execution control</td><td>ModelManager</td><td>Loading, reloading, locking, native invocation coordination</td></tr>
+          <tr><td>Java ↔ Native</td><td>LlamaNative</td><td>Exports native methods and registers token callbacks</td></tr>
+          <tr><td>Native runtime</td><td>jni_llama.cpp</td><td>Global state, init, sampling, stop sequences, logging, crash markers</td></tr>
+          <tr><td>HTTP</td><td>OllamaApiServer / OllamaForegroundService</td><td>Ollama API, OpenAI API, WebUI delivery, queue control</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section class="card" id="frontend">
+      <h2>2. Front app layer</h2>
+      <h3>2-1. MainActivity</h3>
+      <ul>
+        <li>The main screen combines prompt input, model output, processing logs, log-file inspection, and API/WebUI controls.</li>
+        <li>When <code>Send</code> is pressed, the activity first checks whether the selected profile's model is already loaded. If not, it calls <code>ModelManager.loadConfiguration()</code> and only then enters <code>processGeneration()</code>.</li>
+        <li>Direct prompt input uses <code>PromptTemplateManager.buildPromptForDirectInputWithSelection()</code> so GGUF metadata, custom templates, Settings system prompt, and Think behavior are resolved into one final prompt.</li>
+        <li>When streaming is enabled, the activity registers a <code>LlamaNative.TokenListener</code> and incrementally appends filtered tokens to the UI. Otherwise it waits for the full <code>generate()</code> result.</li>
+        <li>The reinitialize action can interrupt current work, disconnect API clients if needed, and force a clean reload through <code>forceReinitializeConfiguration()</code>.</li>
+      </ul>
+
+      <h3>2-2. SettingsActivity</h3>
+      <ul>
+        <li>Edits profile name, model URL / local GGUF import, <code>n_ctx</code>, <code>n_threads</code>, <code>top_p</code>, DRY, Mirostat, Think, GPU offload layers, API port, display language, and log level.</li>
+        <li>Local GGUF import uses the Android document picker and copies the selected file into the app's model storage directory.</li>
+        <li>Download progress is delivered through <code>LlamaNative.DownloadProgressListener</code> and reflected in the progress bar and model file status text.</li>
+        <li>GPU offload uses a seek bar and converts the top range into <code>-1</code>, meaning "all available layers".</li>
+        <li>The Documents button opens the in-app document viewer for the manual and privacy policy.</li>
+      </ul>
+
+      <h3>2-3. Startup and background integration</h3>
+      <ul>
+        <li><code>LlamaApplication</code> configures native logging early and writes uncaught Java exceptions to <code>last_crash.txt</code>.</li>
+        <li><code>OllamaForegroundService</code> keeps the API/WebUI stack alive in the background using a persistent notification.</li>
+        <li>MainActivity listens for service broadcasts to update server status and append processing logs in real time.</li>
+      </ul>
+    </section>
+
+    <section class="card" id="config">
+      <h2>3. Configuration and model files</h2>
+      <h3>3-1. ConfigurationManager</h3>
+      <p>Each profile is stored as <code>configs/*.json</code> in the app's external files area. A default profile is generated automatically and includes model reference, generation parameters, Think state, GPU offload, custom template, system prompt, and optional mmproj reference.</p>
+      <table>
+        <thead>
+          <tr><th>Category</th><th>Main fields</th><th>Purpose</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Model</td><td><code>modelUrl</code>, <code>multimodalProjectorUrl</code></td><td>GGUF and optional mmproj references</td></tr>
+          <tr><td>Load-time</td><td><code>nCtx</code>, <code>nThreads</code>, <code>nBatch</code>, <code>gpuOffloadLayers</code></td><td>Context, CPU, and GPU-loading behavior</td></tr>
+          <tr><td>Sampling</td><td><code>temp</code>, <code>topP</code>, <code>topK</code>, penalties, Mirostat, DRY, XTC</td><td>Mapped directly into the native sampler chain</td></tr>
+          <tr><td>Prompt construction</td><td><code>systemPrompt</code>, <code>customChatTemplate</code>, <code>enableThinking</code></td><td>Controls the final prompt format</td></tr>
+          <tr><td>UI/runtime</td><td><code>streaming</code></td><td>Default streaming behavior for UI and API</td></tr>
+        </tbody>
+      </table>
+
+      <h3>3-2. ModelFileHelper</h3>
+      <ul>
+        <li>The model storage directory is <code>getExternalFilesDir(null)</code> when available, otherwise internal files.</li>
+        <li>It extracts filenames from URLs or local references and resolves them into app-local storage paths.</li>
+        <li>Only <code>.gguf</code> files are treated as model candidates.</li>
+        <li>mmproj/projector filenames are auto-detected from naming patterns such as <code>mmproj</code>, <code>projector</code>, <code>gemma4v</code>, and <code>gemma4a</code>, then scored against the base model filename.</li>
+        <li>The same helper infers vision/audio support so API metadata can expose capabilities even before a model is loaded.</li>
+      </ul>
+
+      <h3>3-3. Split GGUF and HTTPS downloads</h3>
+      <ul>
+        <li>Split GGUF files using names like <code>name-00001-of-00005.gguf</code> are detected, and missing shards are checked in both Java and native code.</li>
+        <li>Before native HTTPS downloads, the Android CA store is exported into a PEM bundle and passed to libcurl.</li>
+        <li>This keeps native downloads aligned with Android's certificate trust behavior instead of relying on a hardcoded custom certificate set.</li>
+      </ul>
+    </section>
+
+    <section class="card" id="model-manager">
+      <h2>4. ModelManager responsibilities</h2>
+      <p><code>ModelManager</code> is the shared execution coordinator for both the UI and the HTTP server. It owns locking, model initialization, reinitialization, parameter application, native logging setup, and HTTPS trust-store preparation.</p>
+
+      <h3>4-1. Locking and reinitialization</h3>
+      <ul>
+        <li>It tracks <code>busy</code>, <code>resetPending</code>, and <code>reinitializing</code> so direct UI generation and HTTP requests cannot mutate the same native model state concurrently.</li>
+        <li>Only callers that succeed in <code>tryAcquire()</code> are allowed to load or generate, and all flows must call <code>release()</code> when done.</li>
+        <li>Forced reinitialization can cancel active generation, wait for the active lock to drain, and then fully reload the requested configuration.</li>
+      </ul>
+
+      <h3>4-2. Load sequence</h3>
+      <ol>
+        <li>Load the configuration profile.</li>
+        <li>Resolve the model filename and destination path.</li>
+        <li>Resolve or auto-detect an mmproj file if multimodal support is needed.</li>
+        <li>Download the model if it is not present locally.</li>
+        <li>Unload existing model/context/mmproj if a different model is required.</li>
+        <li><strong>Preload</strong>: call <code>initWithMmproj()</code> once with <code>n_ctx=64</code>.</li>
+        <li><strong>Full init</strong>: restore the requested <code>n_ctx</code> and call <code>initWithMmproj()</code> again.</li>
+        <li>Apply sampling parameters with <code>applyConfiguration()</code>.</li>
+      </ol>
+      <p class="note">That two-stage init helps surface file/load failures early before committing to the full requested context size.</p>
+
+      <h3>4-3. Generation behavior</h3>
+      <ul>
+        <li>ModelManager does not build prompts itself; it receives already-built prompts from <code>PromptTemplateManager</code> and forwards them to <code>generate()</code> or <code>generateWithMedia()</code>.</li>
+        <li>Vision/audio support is surfaced through <code>supportsVision()</code> and <code>supportsAudio()</code>, which reflect the currently loaded native state.</li>
+        <li>Log path and log level are applied once during singleton initialization and shared by both UI and server-driven inference.</li>
+      </ul>
+    </section>
+
+    <section class="card" id="jni">
+      <h2>5. JNI / C++ layer</h2>
+      <h3>5-1. Java-side native interface</h3>
+      <p><code>LlamaNative</code> loads <code>llama_jni</code> and exposes the following operations.</p>
+      <table>
+        <thead>
+          <tr><th>Method</th><th>Purpose</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><code>download(url, path)</code></td><td>Downloads models/mmproj files with libcurl</td></tr>
+          <tr><td><code>initWithMmproj(modelPath, mmprojPath)</code></td><td>Initializes the model and optional multimodal projector</td></tr>
+          <tr><td><code>setLoadParameters(...)</code></td><td>Sets n_ctx / n_threads / n_batch / GPU load parameters before init</td></tr>
+          <tr><td><code>setParameters(...)</code></td><td>Sets penalties, DRY, Mirostat, XTC, and related sampler settings</td></tr>
+          <tr><td><code>generate(prompt)</code>, <code>generateWithMedia(prompt, media)</code></td><td>Runs text-only or multimodal generation</td></tr>
+          <tr><td><code>setTokenListener(listener)</code></td><td>Registers token, completion, and error callbacks for streaming</td></tr>
+          <tr><td><code>cancelGeneration()</code></td><td>Requests cancellation from native generation loops</td></tr>
+          <tr><td><code>getChatTemplate()</code></td><td>Reads GGUF chat-template metadata from the loaded model</td></tr>
+          <tr><td><code>supportsVision()</code>, <code>supportsAudio()</code></td><td>Reports current loaded-model modality support</td></tr>
+        </tbody>
+      </table>
+
+      <h3>5-2. Native global state</h3>
+      <ul>
+        <li><code>g_model</code>, <code>g_ctx</code>, and <code>g_mtmd</code> hold the loaded model, inference context, and multimodal context.</li>
+        <li><code>g_current_model_path</code> and <code>g_current_mmproj_path</code> are used to avoid redundant initialization.</li>
+        <li><code>g_supports_vision</code> and <code>g_supports_audio</code> expose modality capabilities back to Java.</li>
+        <li><code>g_token_listener</code> plus <code>JavaVM</code> let native worker threads invoke Java callbacks safely.</li>
+        <li><code>g_cancel_generation</code> is the shared cancellation flag used by both UI and HTTP flows.</li>
+      </ul>
+
+      <h3>5-3. initWithMmproj flow</h3>
+      <ol>
+        <li>Install fatal signal handlers so native crashes leave markers in <code>native_crash.txt</code>.</li>
+        <li>Register llama.cpp and mtmd log callbacks.</li>
+        <li>Verify model file, mmproj file, and split GGUF completeness.</li>
+        <li>Free existing model/context/mtmd state when required.</li>
+        <li>Call <code>llama_backend_init()</code> and verify registered ggml backends.</li>
+        <li>Load the model with <code>llama_model_load_from_file()</code> after applying <code>n_gpu_layers</code>.</li>
+        <li>Create the inference context via <code>llama_init_from_model()</code> with the selected context/thread/batch settings.</li>
+        <li>If needed, initialize multimodal support and record detected vision/audio capabilities.</li>
+      </ol>
+
+      <h3>5-4. generate flow</h3>
+      <ol>
+        <li>Clear existing model memory for a fresh prompt prefill.</li>
+        <li>Use <code>prefill_text_prompt_locked()</code> for text-only prompts or <code>prefill_multimodal_prompt_locked()</code> for prompts with image/audio inputs.</li>
+        <li>Construct a sampler chain from the current Java-provided settings.</li>
+        <li>Run up to <code>1024</code> generated tokens using <code>llama_sampler_sample()</code>, <code>llama_sampler_accept()</code>, and <code>llama_decode()</code>.</li>
+        <li>Stop on EOG, stop-sequence detection, context safety limit, or cancellation.</li>
+        <li>Emit delta tokens through <code>notify_token_delta()</code> and completion through <code>notify_token_complete()</code>.</li>
+      </ol>
+
+      <h3>5-5. Sampler chain composition</h3>
+      <p>The native layer maps Java config fields directly into llama.cpp sampler components in roughly this order.</p>
+      <pre>penalties
+→ DRY
+→ top_n_sigma
+→ top_k
+→ typical
+→ top_p
+→ min_p
+→ XTC
+→ temperature / dynamic temperature
+→ mirostat v1 or v2 / fallback dist</pre>
+      <p>DRY sequence breakers default to <code>\n,:,",*</code>, matching the Java configuration default and being unescaped natively before calling <code>llama_sampler_init_dry()</code>.</p>
+
+      <h3>5-6. Stop conditions and output cleanup</h3>
+      <ul>
+        <li>The native runtime watches common chat-template delimiters such as <code>&lt;|end|&gt;</code>, <code>&lt;/s&gt;</code>, <code>&lt;|im_end|&gt;</code>, and <code>&lt;end_of_turn&gt;</code>.</li>
+        <li>UTF-8 safety checks trim incomplete byte sequences before returning output to Java.</li>
+        <li>Java then performs an additional response-marker cleanup step before displaying or serving text.</li>
+      </ul>
+
+      <h3>5-7. Downloading, logging, and crash traces</h3>
+      <ul>
+        <li>Native downloads use libcurl and optionally a CA bundle exported from Android's trust store.</li>
+        <li>Split GGUF handling can derive and fetch sibling shard URLs automatically.</li>
+        <li>Logs are written to <code>ollama.log</code>; Java crashes go to <code>last_crash.txt</code>; fatal native signals leave markers in <code>native_crash.txt</code>.</li>
+      </ul>
+    </section>
+
+    <section class="card" id="cmake">
+      <h2>6. CMake / NDK build</h2>
+      <h3>6-1. Gradle / NDK characteristics</h3>
+      <ul>
+        <li><code>compileSdk 35</code>, <code>targetSdk 35</code>, and <code>minSdk 24</code>.</li>
+        <li>The app builds only for <code>arm64-v8a</code>.</li>
+        <li>Native build uses <code>src/main/cpp/CMakeLists.txt</code> with <code>-DANDROID_SUPPORT_FLEXIBLE_PAGE_SIZES=ON</code>.</li>
+        <li>NDK version is fixed to <code>27.2.12479018</code> for current Android compatibility, including 16 KB page-size support.</li>
+      </ul>
+
+      <h3>6-2. CMake structure</h3>
+      <ul>
+        <li>The project builds a single shared library named <code>llama_jni</code>.</li>
+        <li>llama.cpp sources are vendored directly under <code>app/src/main/cpp/llama</code> and compiled into the shared library instead of being consumed as a prebuilt binary.</li>
+        <li>ggml CPU sources and ARM-specific implementations are compiled into the same target.</li>
+        <li>mtmd sources are also included, enabling multimodal projector-backed models in the same runtime.</li>
+        <li>Static <code>libcurl</code> and three static mbedTLS libraries are imported and linked explicitly.</li>
+      </ul>
+
+      <h3>6-3. Android-specific linker behavior</h3>
+      <ul>
+        <li>Linker options include <code>-Wl,-z,max-page-size=16384</code> and <code>-Wl,-z,common-page-size=16384</code>.</li>
+        <li><code>-align-segments</code> is intentionally avoided because Android's NDK linker does not support it.</li>
+        <li><code>GGML_USE_CPU</code> and <code>GGML_USE_K_QUANTS</code> are defined at compile time.</li>
+      </ul>
+
+      <h3>6-4. Why this matters</h3>
+      <p>This means the app is not merely "calling an external engine". It ships a custom Android-native runtime that directly embeds llama.cpp, ggml, mtmd, curl, and TLS support. UI actions therefore control a locally compiled inference stack inside the APK itself.</p>
+    </section>
+
+    <section class="card" id="api">
+      <h2>7. API server design</h2>
+      <p><code>OllamaApiServer</code> is a lightweight custom HTTP server running inside a foreground service. API routes and the WebUI share the same port; the default port is <code>11434</code>.</p>
+
+      <h3>7-1. Exposed endpoints</h3>
+      <table>
+        <thead>
+          <tr><th>Route</th><th>Main purpose</th><th>Notes</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><code>POST /api/generate</code></td><td>Single-prompt generation</td><td>Ollama-style NDJSON streaming or non-streaming</td></tr>
+          <tr><td><code>POST /api/chat</code></td><td>Conversation generation from messages</td><td>Builds model-family-specific multi-turn prompts</td></tr>
+          <tr><td><code>GET/POST /api/tags</code></td><td>Model list</td><td>Treats saved configurations as model names</td></tr>
+          <tr><td><code>POST /v1/chat/completions</code></td><td>OpenAI-compatible chat endpoint</td><td>SSE streaming supported</td></tr>
+          <tr><td><code>GET /v1/models</code>, <code>/models</code></td><td>Model inventory and status</td><td>Reports loaded state, modalities, file path, etc.</td></tr>
+          <tr><td><code>GET /props</code></td><td>llama.cpp WebUI model props</td><td>Includes generation defaults, chat template, and WebUI settings</td></tr>
+          <tr><td><code>GET /slots</code></td><td>Slot state</td><td>Total slot count is fixed at 1</td></tr>
+          <tr><td><code>GET /health</code>, <code>/v1/health</code></td><td>Health check</td><td>Returns <code>role</code> and <code>webui=true</code></td></tr>
+          <tr><td><code>/</code>, <code>/index.html</code>, static assets</td><td>Bundled WebUI</td><td>Served from app assets with in-memory cache</td></tr>
+        </tbody>
+      </table>
+
+      <h3>7-2. Concurrency and queue behavior</h3>
+      <ul>
+        <li>Only one generation slot exists. The server is effectively single-generation at a time.</li>
+        <li>If the model is busy, up to <code>10</code> waiting requests are queued.</li>
+        <li>Queued requests can wait up to <code>60</code> seconds before receiving a <code>503</code>.</li>
+        <li>If a model reset is pending, new requests are rejected and queued requests are aborted as unavailable.</li>
+      </ul>
+
+      <h3>7-3. Internal processing for /api/generate and /api/chat</h3>
+      <ol>
+        <li>Parse the request JSON.</li>
+        <li>Acquire the generation slot through <code>acquireGenerationSlot()</code>.</li>
+        <li>Load the requested configuration and model if needed.</li>
+        <li>Use GGUF chat-template metadata, custom template, system prompt, and Think settings to build the final prompt.</li>
+        <li>When streaming, start a queue and writer thread so the native generation thread is not blocked by network writes.</li>
+        <li>If the client disconnects or an end marker is detected, call <code>cancelGeneration()</code>.</li>
+      </ol>
+
+      <h3>7-4. Multimodal request handling</h3>
+      <ul>
+        <li><code>/api/chat</code> and <code>/v1/chat/completions</code> can accept <code>content[]</code> parts such as <code>text</code>, <code>input_text</code>, <code>image_url</code>, and <code>input_audio</code>.</li>
+        <li><code>image_url</code> supports HTTP/HTTPS images or base64 data URLs. Remote downloads are capped at 10 MB.</li>
+        <li><code>input_audio</code> accepts only base64-encoded <code>wav</code> or <code>mp3</code>.</li>
+        <li>Media parts are replaced by an internal <code>&lt;__media__&gt;</code> marker in text, while raw bytes are forwarded to JNI as <code>byte[][]</code>.</li>
+        <li>If the currently loaded model does not support the requested modality, the server returns <code>400</code>.</li>
+      </ul>
+
+      <h3>7-5. OpenAI compatibility layer</h3>
+      <ul>
+        <li><code>/v1/chat/completions</code> returns SSE when streaming is enabled.</li>
+        <li>Internally it still uses the same prompt builder, ModelManager, and JNI runtime as the Ollama-compatible routes; only the response envelope differs.</li>
+        <li>If <code>n_predict=0</code> is present, the server follows a pre-encode-only branch and returns early.</li>
+        <li>Some request-level generation overrides are applied onto the configuration before the native sampler settings are re-applied.</li>
+      </ul>
+    </section>
+
+    <section class="card" id="webui">
+      <h2>8. WebUI delivery</h2>
+      <h3>8-1. What the bundled WebUI is</h3>
+      <ul>
+        <li>The APK bundles <code>webui/index.html</code>, <code>bundle.js</code>, <code>bundle.css</code>, and <code>loading.html</code> under app assets.</li>
+        <li><code>handleWebUi()</code> serves these files for <code>/</code> and related asset paths.</li>
+        <li>Assets are cached in memory through <code>webUiAssetCache</code> after first load.</li>
+      </ul>
+
+      <h3>8-2. How WebUI and API fit together</h3>
+      <ul>
+        <li>The WebUI is not a separate server; it is routed by the same <code>OllamaApiServer</code>.</li>
+        <li><code>/props</code> and <code>/slots</code> provide llama.cpp-style metadata used by the WebUI, including generation defaults and <code>webui_settings</code>.</li>
+        <li>Unknown client-side routes are normalized back to <code>index.html</code>, making the bundled WebUI behave like a small SPA served from the same port.</li>
+      </ul>
+
+      <h3>8-3. Operational meaning</h3>
+      <p>The Android app effectively bundles three things together on one device: a native local inference runtime, an Ollama/OpenAI-compatible HTTP surface, and a browser-facing WebUI that consumes that local API. No external server is required for this stack to function.</p>
+    </section>
+
+    <section class="card" id="site">
+      <h2>9. Relationship to the public website</h2>
+      <ul>
+        <li>The Mick Lab website itself is a Firebase Hosting static site served from <code>public/</code>.</li>
+        <li>On Hosting, <code>/api/**</code> is rewritten to <code>api-fallback.json</code>, while other routes fall back to <code>/index.html</code>.</li>
+        <li>That means these public pages are static documentation about the Android app's local API/WebUI implementation; they are not the live API server running inside the app.</li>
+        <li>All API and WebUI behavior described on this page refers to the in-app <code>OllamaApiServer</code> and <code>OllamaForegroundService</code>, not Firebase Hosting.</li>
+      </ul>
+    </section>
+  </main>
+  <script defer src="/browser-api-register.js"></script>
+</body>
+</html>
