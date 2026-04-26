@@ -55,7 +55,7 @@
     <section class="card callout">
       <h1>Technical Specification</h1>
       <p class="lead">This page documents the current Android implementation of LLM tester with llama.cpp, focusing on the full path from the front app to configuration storage, JNI, CMake/NDK build, llama.cpp/ggml, the on-device API server, and bundled WebUI delivery.</p>
-      <p class="note">Related docs: <a href="/llama-tester/manual-en.html">User Manual</a> | <a href="/llama-tester/privacy.html#en">Privacy Policy</a></p>
+      <p class="note">Related docs: <a href="/llama-tester/manual-en.html">User Manual</a> | <a href="/llama-tester/technical-spec-llama-jni-cmake-en.html">llama.cpp / JNI / CMake Deep Dive</a> | <a href="/llama-tester/privacy.html#en">Privacy Policy</a></p>
       <div>
         <span class="pill">Android Activity UI</span>
         <span class="pill">Configuration JSON</span>
@@ -79,6 +79,7 @@
         <a href="#api">7. API server design</a>
         <a href="#webui">8. WebUI delivery</a>
         <a href="#site">9. Relationship to the public website</a>
+        <a href="/llama-tester/technical-spec-llama-jni-cmake-en.html">Supplement. llama.cpp / JNI / CMake Deep Dive</a>
       </div>
     </section>
 
@@ -296,6 +297,7 @@ ModelManager → LlamaNative → JNI → llama.cpp</pre>
 
     <section class="card" id="cmake">
       <h2>6. CMake / NDK build</h2>
+      <p class="note">For a deeper explanation of the JNI boundary and CMake structure from a general llama.cpp-integration perspective, see <a href="/llama-tester/technical-spec-llama-jni-cmake-en.html">llama.cpp / JNI / CMake Deep Dive</a>.</p>
       <h3>6-1. Gradle / NDK characteristics</h3>
       <ul>
         <li><code>compileSdk 35</code>, <code>targetSdk 35</code>, and <code>minSdk 24</code>.</li>

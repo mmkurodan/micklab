@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>llama.cpp / JNI / CMake Deep Dive — LLM tester with llama.cpp — Mick Lab</title>
+  <link rel="alternate" hreflang="ja" href="/llama-tester/technical-spec-llama-jni-cmake.html">
+  <link rel="alternate" hreflang="en" href="/llama-tester/technical-spec-llama-jni-cmake-en.html">
+  <style>
+    :root{--bg:#08080a;--card:#0f1114;--muted:#9aa3b2;--accent:#7c5cff;--line:rgba(255,255,255,0.08)}
+    *{box-sizing:border-box}
+    body{margin:0;background:var(--bg);color:#e6eef8;font-family:Inter,system-ui,Segoe UI,Roboto,Arial;line-height:1.72}
+    header{padding:18px 24px;border-bottom:1px solid rgba(255,255,255,0.03);display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap}
+    a{color:var(--accent);text-decoration:none}
+    main{max-width:1120px;margin:28px auto;padding:20px}
+    .card{background:var(--card);padding:20px;border-radius:14px;border:1px solid rgba(255,255,255,0.03);margin-bottom:18px}
+    h1{margin:0 0 12px;font-size:32px}
+    h2{margin:0 0 12px;font-size:24px}
+    h3{margin:18px 0 8px;font-size:18px}
+    p{margin:0 0 12px}
+    ul,ol{margin:0;padding-left:22px;color:var(--muted)}
+    li+li{margin-top:8px}
+    table{width:100%;border-collapse:collapse;margin-top:12px}
+    th,td{padding:12px;border:1px solid var(--line);vertical-align:top;text-align:left}
+    th{color:#fff;background:rgba(255,255,255,0.03)}
+    td{color:var(--muted)}
+    code{background:rgba(255,255,255,0.05);padding:2px 6px;border-radius:4px}
+    pre{margin:12px 0 0;background:#090b10;border:1px solid var(--line);border-radius:10px;padding:14px;overflow:auto;color:#dbe7ff;font-family:ui-monospace,SFMono-Regular,Consolas,monospace;font-size:13px;line-height:1.6}
+    .lead{color:#eef4ff}
+    .note{color:var(--muted);font-size:14px}
+    .callout{background:linear-gradient(90deg,rgba(124,92,255,0.08),rgba(0,212,255,0.03));border:1px solid var(--line)}
+    .nav-links,.lang-switch{display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+    .back{font-size:14px}
+    .lang-switch{color:var(--muted);font-size:14px}
+    .lang-switch a[aria-current="page"]{color:#fff;font-weight:700}
+    .toc{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px}
+    .toc a{display:block;padding:12px 14px;border:1px solid var(--line);border-radius:10px;background:rgba(255,255,255,0.02)}
+    .pill{display:inline-block;margin:0 8px 8px 0;padding:4px 10px;border-radius:999px;background:rgba(124,92,255,0.14);color:#d9d0ff;font-size:12px;font-weight:700}
+    @media (max-width:700px){main{padding:16px}h1{font-size:28px}table,thead,tbody,tr,th,td{display:block}th{border-bottom:none}td{border-top:none}}
+  </style>
+</head>
+<body>
+  <header>
+    <div class="nav-links">
+      <a class="back" href="/index-en.html">← Home</a>
+      <a class="back" href="/llama-tester-en.html">← LLM tester with llama.cpp</a>
+      <a class="back" href="/llama-tester/technical-spec-en.html">← Technical Specification</a>
+    </div>
+    <nav class="lang-switch" aria-label="Language switch">
+      <a href="/llama-tester/technical-spec-llama-jni-cmake.html">日本語</a>
+      <span>|</span>
+      <a href="/llama-tester/technical-spec-llama-jni-cmake-en.html" aria-current="page">English</a>
+    </nav>
+  </header>
+  <main>
+    <section class="card callout">
+      <h1>llama.cpp / JNI / CMake Deep Dive</h1>
+      <p class="lead">This page uses the current Android implementation as the concrete example, but reframes it around the broader question of <strong>how to integrate llama.cpp into an Android app</strong>: JNI boundaries, native state ownership, CMake layout, and the way llama.cpp / ggml are embedded into one runtime.</p>
+      <p class="note">Related docs: <a href="/llama-tester/technical-spec-en.html">Technical Specification</a> | <a href="/llama-tester/manual-en.html">User Manual</a> | <a href="/llama-tester/privacy.html#en">Privacy Policy</a></p>
+      <div>
+        <span class="pill">Android NDK</span>
+        <span class="pill">JNI boundary design</span>
+        <span class="pill">llama.cpp integration pattern</span>
+        <span class="pill">ggml CPU backend</span>
+        <span class="pill">mtmd extension</span>
+        <span class="pill">Single-target CMake layout</span>
+      </div>
+    </section>
+
+    <section class="card">
+      <h2>Contents</h2>
+      <div class="toc">
+        <a href="#overview">1. What this page is for</a>
+        <a href="#architecture">2. Why wrap llama.cpp with JNI + CMake</a>
+        <a href="#flow">3. End-to-end flow</a>
+        <a href="#jni">4. JNI design essentials</a>
+        <a href="#runtime">5. Reading the llama.cpp runtime</a>
+        <a href="#cmake">6. How to read the CMake design</a>
+        <a href="#checklist">7. General integration checklist</a>
+        <a href="#pitfalls">8. Common pitfalls</a>
+      </div>
+    </section>
+
+    <section class="card" id="overview">
+      <h2>1. What this page is for</h2>
+      <p>The existing Technical Specification page gives the full application-level picture. This page goes narrower and deeper: it explains <strong>how llama.cpp is embedded into Android</strong>, with special focus on <code>LlamaNative</code>, <code>jni_llama.cpp</code>, and <code>CMakeLists.txt</code>.</p>
+      <p>In this implementation, both the UI path and the local API server path eventually call one shared library, <code>llama_jni</code>. That split—Java/Kotlin for app control, C/C++ for the inference runtime—is the most common architectural shape for Android apps using llama.cpp.</p>
+      <table>
+        <thead>
+          <tr><th>Perspective</th><th>Mainly covered here</th><th>More app-specific</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Reusable design</td><td>JNI surface, shared-library packaging, model init, generation loop, CMake target design</td><td>None</td></tr>
+          <tr><td>Notable choices in this implementation</td><td><code>arm64-v8a</code> only, 16 KB page-size support, split between <code>setLoadParameters()</code> and <code>setParameters()</code>, two-stage init</td><td>Android UI, foreground service, custom HTTP server</td></tr>
+          <tr><td>Optional extensions</td><td>mtmd for image/audio projectors, libcurl + mbedTLS downloads</td><td>Bundled WebUI, Ollama/OpenAI compatibility layer</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section class="card" id="architecture">
+      <h2>2. Why wrap llama.cpp with JNI + CMake</h2>
+      <p>On Android, there are three broad ways to use llama.cpp: 1) ship a prebuilt native library, 2) consume upstream CMake almost as-is, or 3) assemble one app-specific shared library from the sources you actually need. This implementation leans strongly toward option 3.</p>
+      <table>
+        <thead>
+          <tr><th>Approach</th><th>Strength</th><th>Caution</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Ship prebuilt binaries</td><td>Fastest initial setup</td><td>Weak control over ABI, flags, dependencies, and update timing</td></tr>
+          <tr><td>Use upstream via <code>add_subdirectory()</code></td><td>Easier to stay close to upstream</td><td>Can drag in CLI/tooling structure an Android app does not want</td></tr>
+          <tr><td>Compile required sources into one app target</td><td>Clear control over what the APK ships and how JNI is shaped</td><td>Source lists and build defines must be reviewed on upstream updates</td></tr>
+        </tbody>
+      </table>
+      <p>In practice, Android integrations stay saner when you treat <strong>Java/Kotlin as app control</strong> and <strong>C/C++ as the inference runtime</strong>. llama.cpp is deeply native in how it handles contexts, samplers, backends, and quantized model formats, so packaging it as one controlled native target usually leads to a cleaner app boundary.</p>
+    </section>
+
+    <section class="card" id="flow">
+      <h2>3. End-to-end flow</h2>
+      <pre>Gradle (externalNativeBuild)
+  ↓
+CMakeLists.txt
+  ↓
+llama_jni.so
+  ↓
+System.loadLibrary("llama_jni")
+  ↓
+LlamaNative native methods
+  ↓ JNI
+jni_llama.cpp
+  ↓
+llama.cpp / ggml / optional mtmd / curl / TLS</pre>
+      <p>The key idea is that Java does not “use llama.cpp directly”. Instead, <strong>Java talks to a very small JNI facade</strong>, and that native facade owns the long-lived inference state.</p>
+      <table>
+        <thead>
+          <tr><th>Layer</th><th>Responsibility</th><th>Concrete example here</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Gradle</td><td>Declares ABI, NDK, and CMake arguments</td><td><code>arm64-v8a</code>, <code>ndkVersion 27.2.12479018</code>, <code>-DANDROID_SUPPORT_FLEXIBLE_PAGE_SIZES=ON</code></td></tr>
+          <tr><td>CMake</td><td>Collects sources, include paths, link options, and static deps</td><td>Builds <code>llama_jni</code> from llama.cpp, ggml, mtmd, curl, and mbedTLS</td></tr>
+          <tr><td>JNI wrapper</td><td>Maps Java calls into native state transitions</td><td><code>LlamaNative</code> and <code>jni_llama.cpp</code></td></tr>
+          <tr><td>llama.cpp runtime</td><td>Loads models, tokenizes, decodes, samples, and stops</td><td><code>llama_model_load_from_file()</code>, <code>llama_init_from_model()</code>, <code>llama_sampler_*</code></td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section class="card" id="jni">
+      <h2>4. JNI design essentials</h2>
+      <h3>4-1. Keep the Java API thin</h3>
+      <p><code>LlamaNative</code> exposes three practical groups: load operations, generate operations, and helper operations. For most Android integrations, this is a good default cut.</p>
+      <pre>load:
+  setLoadParameters(...)
+  initWithMmproj(modelPath, mmprojPath)
+  free()
+
+generate:
+  setParameters(...)
+  generate(prompt)
+  generateWithMedia(prompt, media)
+  cancelGeneration()
+
+helpers:
+  setTokenListener(listener)
+  getChatTemplate()
+  supportsVision()
+  supportsAudio()</pre>
+      <p>In this implementation, <code>temp</code>, <code>top_p</code>, and <code>top_k</code> are stored through <code>setLoadParameters()</code>, while more advanced sampler features sit behind <code>setParameters()</code>. The general design lesson is the split itself: avoid exposing every llama.cpp detail directly to Java.</p>
+
+      <h3>4-2. Centralize state ownership</h3>
+      <p><code>jni_llama.cpp</code> holds <code>g_model</code>, <code>g_ctx</code>, <code>g_mtmd</code>, <code>g_cancel_generation</code>, and <code>g_jvm</code> as global state guarded by <code>g_mutex</code>. That is a very practical Android pattern because the most important rule is that <strong>multiple Java entry points must not race the same native model state</strong>.</p>
+      <p>On the Java side, <code>ModelManager</code> adds busy-state and reinitialization control. So the implementation uses a double layer of safety: app-level exclusivity in Java plus native-level locking in C++.</p>
+
+      <h3>4-3. Callbacks must return through JavaVM</h3>
+      <p>Streaming uses a global-ref listener and stores <code>JavaVM</code>, then attaches worker threads with <code>AttachCurrentThread()</code> when needed. This matters in any JNI integration because the thread running the native generation loop is not guaranteed to be the same thread that entered from Java.</p>
+
+      <h3>4-4. Two-stage init is a production-oriented pattern</h3>
+      <p><code>ModelManager</code> first preloads with <code>n_ctx=64</code>, then frees and performs full initialization with the requested context size. That is a useful general pattern for llama.cpp apps: it surfaces file/load problems early before committing to a much larger memory footprint.</p>
+    </section>
+
+    <section class="card" id="runtime">
+      <h2>5. Reading the llama.cpp runtime</h2>
+      <h3>5-1. Initialization phase</h3>
+      <ol>
+        <li>Validate model and optional mmproj files.</li>
+        <li>Check split GGUF completeness.</li>
+        <li>Call <code>llama_backend_init()</code> and inspect available backends.</li>
+        <li>Load the model with <code>llama_model_load_from_file()</code>.</li>
+        <li>Create the inference context with <code>llama_init_from_model()</code>.</li>
+        <li>Optionally initialize mtmd and record vision/audio capability.</li>
+      </ol>
+      <p>That core sequence is broadly reusable. What is more application-specific here is the operational support around it: crash markers, log files, split-GGUF handling, and TLS trust-store export for native downloads.</p>
+
+      <h3>5-2. Generation phase</h3>
+      <ol>
+        <li>Clear runtime memory and prefill the prompt.</li>
+        <li>For text-only prompts, tokenize and decode in batches.</li>
+        <li>For multimodal prompts, let mtmd chunk and prefill into the same <code>g_ctx</code>.</li>
+        <li>Build a sampler chain and iterate <code>llama_sampler_sample()</code> → <code>llama_sampler_accept()</code> → <code>llama_decode()</code>.</li>
+        <li>Stop on EOG, stop sequences, context safety limits, or cancellation.</li>
+      </ol>
+      <p>The main JNI job is therefore not merely “call one C API”. It is to <strong>reshape llama.cpp state and control flow into an Android-friendly runtime API</strong>.</p>
+
+      <h3>5-3. The sampler chain is the translation layer from UI to runtime</h3>
+      <p>This implementation maps penalties, DRY, top-n-sigma, top-k, typical, top-p, min-p, XTC, temperature, and Mirostat into a native sampler chain. Any serious Android integration needs some equivalent translation layer between app-facing settings and llama.cpp’s native sampling pieces.</p>
+      <p>Whether that chain is rebuilt on every generation or cached on config changes is a design choice. For maintainability, rebuilding it per request is often the clearer first implementation.</p>
+
+      <h3>5-4. Keep text-only and multimodal separate in your head</h3>
+      <p>The minimum viable integration is text-only. This implementation includes mtmd in the same target because it wants one <code>llama_jni</code> runtime that can also serve image/audio projector-backed models. For many projects, it is wiser to ship a stable text-only path first and add multimodal support later.</p>
+    </section>
+
+    <section class="card" id="cmake">
+      <h2>6. How to read the CMake design</h2>
+      <h3>6-1. What this CMakeLists.txt is really doing</h3>
+      <pre>add_library(llama_jni SHARED
+  jni/jni_llama.cpp
+  ${LLAMA_SOURCES}
+  ${GGML_SOURCES}
+)
+
+target_compile_definitions(llama_jni PRIVATE
+  GGML_USE_CPU
+  GGML_USE_K_QUANTS
+)
+
+target_link_libraries(llama_jni PRIVATE
+  curl mbedtls mbedcrypto mbedx509
+  log android jnigraphics m dl atomic
+)</pre>
+      <p>The best mental model is: <strong>the final Android-native product is one shared object, <code>llama_jni.so</code></strong>. llama.cpp, ggml, mtmd, downloading, and TLS support all collapse into that one target.</p>
+
+      <h3>6-2. Why the source grouping matters</h3>
+      <ul>
+        <li><code>LLAMA_SOURCES</code>: the main llama.cpp sources, common helpers, model sources, and generated <code>build-info.cpp</code>.</li>
+        <li><code>GGML_SOURCES</code>: ggml core, backend registration, CPU implementation, and ARM-specific files.</li>
+        <li><code>MTMD_SOURCES</code>: projector-related image/audio helpers.</li>
+      </ul>
+      <p>One subtle but important choice here is that some source groups are gathered broadly, while backend-sensitive ggml files are listed explicitly. That is a useful pattern for Android integrations: let fast-moving upstream areas stay flexible, but pin the backend-critical pieces you do not want silently changing.</p>
+
+      <h3>6-3. build-info and compile definitions</h3>
+      <p><code>configure_file()</code> generates <code>build-info.cpp</code> so llama.cpp gets the build number, commit, compiler, and target metadata it expects. Likewise, compile definitions such as <code>GGML_USE_CPU</code> and <code>GGML_USE_K_QUANTS</code> lock in which backend and quantization paths are compiled.</p>
+      <p>Because llama.cpp evolves quickly, Android consumers benefit from making this relationship explicit: <strong>which macros are enabled, and which sources must therefore exist in the target?</strong></p>
+
+      <h3>6-4. Android-specific knobs</h3>
+      <table>
+        <thead>
+          <tr><th>Item</th><th>This implementation</th><th>Meaning</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>ABI</td><td><code>arm64-v8a</code> only</td><td>Reduces native size and the testing matrix</td></tr>
+          <tr><td>Flexible page sizes</td><td><code>-DANDROID_SUPPORT_FLEXIBLE_PAGE_SIZES=ON</code></td><td>Targets newer Android devices, including 16 KB page-size environments</td></tr>
+          <tr><td>Link options</td><td><code>-Wl,-z,max-page-size=16384</code> and <code>-Wl,-z,common-page-size=16384</code></td><td>Improves compatibility with 16 KB page-size systems</td></tr>
+          <tr><td>NDK</td><td><code>27.2.12479018</code></td><td>Locks the native toolchain for current Android compatibility</td></tr>
+        </tbody>
+      </table>
+
+      <h3>6-5. libcurl and TLS integration</h3>
+      <p>The CMake design imports static <code>libcurl</code> and mbedTLS archives into the same target. That choice reflects a runtime goal: model downloads should happen inside the same native runtime that owns split-GGUF logic and native logging. For some apps, Java-side HTTP is enough; for others, keeping downloads native simplifies the overall flow.</p>
+    </section>
+
+    <section class="card" id="checklist">
+      <h2>7. General integration checklist</h2>
+      <ol>
+        <li><strong>Choose the ABI first</strong>: starting with <code>arm64-v8a</code> only is usually the simplest path.</li>
+        <li><strong>Start with text-only</strong>: make <code>generate(prompt)</code> stable before adding multimodal complexity.</li>
+        <li><strong>Keep the JNI surface small</strong>: load, generate, cancel, free, and callbacks are often enough.</li>
+        <li><strong>Centralize state management</strong>: combine a Java-side manager with a native mutex.</li>
+        <li><strong>Separate load-time and sampler settings</strong>: do not let <code>n_ctx</code>, threads, GPU layers, penalties, and Mirostat blur together conceptually.</li>
+        <li><strong>Add cancellation early</strong>: both UI flows and HTTP flows will need it.</li>
+        <li><strong>Leave logs and crash traces</strong>: native model-load failures are otherwise hard to reproduce.</li>
+        <li><strong>Define an upstream-update checklist</strong>: source lists, build-info, macros, and optional mtmd additions should be reviewed together.</li>
+      </ol>
+    </section>
+
+    <section class="card" id="pitfalls">
+      <h2>8. Common pitfalls</h2>
+      <table>
+        <thead>
+          <tr><th>Pitfall</th><th>Why it happens</th><th>Direction for mitigation</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Upstream updates suddenly break the build</td><td>llama.cpp / ggml source layout and macro assumptions change</td><td>Review source lists and compile definitions as part of every upstream bump</td></tr>
+          <tr><td>Java callbacks crash or do nothing</td><td>A native thread uses a stale or unrelated <code>JNIEnv*</code></td><td>Store <code>JavaVM</code> and attach/detach threads when invoking callbacks</td></tr>
+          <tr><td>Long prompts fail immediately</td><td>Prefill token count exceeds <code>n_ctx</code></td><td>Check token counts after tokenization and return clear errors</td></tr>
+          <tr><td>Split GGUF models fail in surprising ways</td><td>The primary shard exists but sibling shards are missing</td><td>Validate shard completeness before and after download</td></tr>
+          <tr><td>HTTPS downloads behave differently from Java networking</td><td>Native code is not using Android’s trust-store assumptions</td><td>Export Android CA Store to PEM and pass it into libcurl</td></tr>
+          <tr><td><code>generate()</code> grows into a giant function</td><td>Prefill, sampling, callbacks, stop detection, and UTF-8 cleanup all accumulate there</td><td>Factor out helpers for prefill, callbacks, and stop handling</td></tr>
+        </tbody>
+      </table>
+      <p>The main lesson is that successful llama.cpp integration on Android is less about “making one model run once” and more about <strong>wrapping a native inference runtime so it fits Android’s lifecycle, threading, ABI, and maintenance reality</strong>. JNI and CMake are the tools that make that wrapping explicit.</p>
+    </section>
+  </main>
+  <script defer src="/browser-api-register.js"></script>
+</body>
+</html>

@@ -57,7 +57,7 @@
     <section class="card callout">
       <h1>技術仕様</h1>
       <p class="lead">このページは、現行 Android 実装をもとに、LLM tester with llama.cpp のフロントアプリ、設定保存、JNI ブリッジ、CMake/NDK ビルド、llama.cpp/ggml、API サーバー、WebUI 配信までの連携を技術仕様として整理したものです。</p>
-      <p class="note">関連文書: <a href="/llama-tester/manual.html">操作マニュアル</a> | <a href="/llama-tester/privacy.html#ja">プライバシーポリシー</a></p>
+      <p class="note">関連文書: <a href="/llama-tester/manual.html">操作マニュアル</a> | <a href="/llama-tester/technical-spec-llama-jni-cmake.html">llama.cpp / JNI / CMake 深掘り</a> | <a href="/llama-tester/privacy.html#ja">プライバシーポリシー</a></p>
       <div>
         <span class="pill">Android Activity UI</span>
         <span class="pill">Configuration JSON</span>
@@ -81,6 +81,7 @@
         <a href="#api">7. API サーバー仕様</a>
         <a href="#webui">8. WebUI と配信方式</a>
         <a href="#site">9. 公開 Web ページとの関係</a>
+        <a href="/llama-tester/technical-spec-llama-jni-cmake.html">補足. llama.cpp / JNI / CMake 深掘り</a>
       </div>
     </section>
 
@@ -298,6 +299,7 @@ ModelManager → LlamaNative → JNI → llama.cpp</pre>
 
     <section class="card" id="cmake">
       <h2>6. CMake / NDK ビルド</h2>
+      <p class="note">一般的な llama.cpp 導入の観点から JNI 境界や CMake 構成をさらに詳しく見る場合は、<a href="/llama-tester/technical-spec-llama-jni-cmake.html">llama.cpp / JNI / CMake 深掘り</a> を参照してください。</p>
       <h3>6-1. Gradle / NDK 側の特徴</h3>
       <ul>
         <li><code>compileSdk 35</code>, <code>targetSdk 35</code>, <code>minSdk 24</code> です。</li>
