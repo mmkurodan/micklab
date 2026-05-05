@@ -99,12 +99,14 @@
     <section class="card">
       <h2>4. Settings Screen</h2>
       <ul>
+        <li><strong>Settings screen:</strong> Controls are grouped into collapsible sections. Tap a section title to expand or collapse it. The MCP Settings section is collapsed by default.</li>
         <li><strong>Configuration Management:</strong> Save/delete/load configurations.</li>
         <li><strong>Model Selection:</strong> Load models from a URL or import .gguf files from the local device. The picker opens in Downloads by default, and you can navigate elsewhere on the device as needed. Imported files are copied into the app model storage directory and only the filename is shown in Settings. Reachable HTTP/HTTPS URLs can be used, and HTTPS uses normal SSL/TLS certificate verification.</li>
         <li><strong>Model Parameters:</strong> Set generation parameters (including GPU Offload Layers).</li>
         <li><strong>Output Settings:</strong> Toggle streaming output on/off.</li>
         <li><strong>Prompt Template:</strong> Set System Prompt, Think on/off (chat-template-kwargs.enable_thinking), and custom chat template. When no custom template is set, the app first uses GGUF chat_template metadata and otherwise auto-selects by model family. A Bonsai fallback template is included.</li>
-        <li><strong>Llama API Server:</strong> Set the server port. Enabling it from the startup popup or the main screen makes both the API and WebUI available on that port.</li>
+        <li><strong>Llama API Server:</strong> Set the server port. The Local URL is shown as <code>http://localhost:&lt;port&gt;</code>, and while connected to Wi-Fi the LAN URL is also shown and can be tapped to copy. Enabling it from the startup popup or the main screen makes both the API and WebUI available on that port.</li>
+        <li><strong>MCP Settings:</strong> Save MCP config JSON and Function Definitions JSON as app-wide shared settings separate from model profiles. When the switches are off, they are available only in the WebUI and are treated as absent everywhere else. When enabled, they are also used as shared MCP and function-calling settings for the main prompt input, <code>/api/chat</code>, <code>/api/generate</code>, and <code>/v1/chat/completions</code>.</li>
         <li><strong>Display Language:</strong> Switch UI language between Japanese and English. On first launch it follows your device locale, and your choice is saved for later launches.</li>
         <li><strong>Log Settings:</strong> Select log level (default on first launch: INFO).</li>
         <li><strong>Show License:</strong> Display license text.</li>
@@ -204,6 +206,9 @@
           </ul>
         </li>
         <li>The WebUI is available at <code>http://&lt;device-ip&gt;:&lt;port&gt;/</code> on the same port</li>
+        <li>MCP config JSON saved in the app settings is exposed to the WebUI through <code>/props</code> as a shared setting and is used together with the WebUI's local MCP settings.</li>
+        <li>When MCP outside WebUI is enabled, shared MCP settings are also used by the main prompt input, <code>/api/chat</code>, <code>/api/generate</code>, and <code>/v1/chat/completions</code> for internal tool execution. When disabled, they remain WebUI-only.</li>
+        <li>When Function Calling outside WebUI is enabled, Function Definitions JSON is automatically added as shared function-calling definitions for the main prompt input, <code>/api/chat</code>, <code>/api/generate</code>, and <code>/v1/chat/completions</code>. When disabled, it remains WebUI-only.</li>
         <li>Only one generation runs at a time. When busy, requests are queued (up to 10) and wait up to 60 seconds; queue overflow or timeout returns 503.</li>
         <li>Android 13+ may require notification permission.</li>
       </ul>

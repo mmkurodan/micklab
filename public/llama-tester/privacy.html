@@ -40,44 +40,44 @@
   <main>
     <div class="card">
       <h1>プライバシーポリシー / Privacy Policy</h1>
-      <p class="updated">最終更新日 / Last updated: 2026-04-14</p>
+      <p class="updated">最終更新日 / Last updated: 2026-05-05</p>
       <p class="lead">このページには日本語版と英語版を掲載しています。 / This page includes both Japanese and English versions.</p>
 
       <section id="ja">
         <h2>日本語</h2>
 
-        <h3>1. 適用範囲</h3>
-        <p>本ポリシーは、Mick Lab が提供する Android アプリ「LLM tester with llama.cpp」に適用されます。</p>
-
-        <h3>2. 端末内に保存される情報</h3>
-        <p>本アプリは、以下の情報をユーザーの端末内に保存します。</p>
+        <h3>1. 収集する情報</h3>
+        <p>本アプリは、個人情報を外部サーバーへ送信しません。以下の情報を端末内に保存します。</p>
         <ul>
-          <li>設定情報（モデル URL、各種推論パラメータ、API ポート、ログレベル、表示言語など）</li>
+          <li>設定情報（モデル URL、各種パラメータ、API ポート、ログレベル、MCPコンフィグJSON、Function Definitions JSON）</li>
           <li>構成ファイル（<code>configs/*.json</code>）</li>
           <li>ダウンロードまたは取り込んだモデルファイル</li>
-          <li>ログファイルおよびクラッシュ関連ファイル（<code>ollama.log</code>、<code>last_crash.txt</code>、<code>native_crash.txt</code>）</li>
+          <li>ログファイル（<code>ollama.log</code>、Javaクラッシュ時は <code>last_crash.txt</code>、ネイティブクラッシュ時は <code>native_crash.txt</code>）</li>
         </ul>
+        <p>また、アプリの生成機能、API連携、WebUIを利用する際、ユーザーが入力したテキスト（会話内容）は、端末内または同一ローカルネットワーク内で動作するローカル API に送信されます。MCPサーバーを設定して利用しない限り、このデータが外部サーバーへ送信されることはなく、保存も行いません。</p>
 
-        <h3>3. ネットワーク通信</h3>
+        <h3>2. 通信</h3>
         <ul>
-          <li>モデルを URL から取得する場合、アプリはユーザーが指定した URL に通信します。</li>
-          <li>ローカル <code>.gguf</code> ファイルを取り込む場合、選択ファイルはアプリ保存領域へコピーされ、外部サーバー通信は行いません。</li>
-          <li>アプリ内の通常のプロンプト生成は端末内で処理され、開発者へ送信されません。</li>
-          <li>内蔵の Ollama 互換 API サーバーを有効にした場合、アプリは <code>0.0.0.0</code> で待機し、同一端末またはローカルネットワーク内からのリクエストを受け付けます。</li>
-          <li>この API に送られたプロンプトやメッセージ本文は、端末内またはローカルネットワーク内で処理され、開発者へ送信されません。</li>
-          <li>HTTPS URL を使用する場合、通常の SSL/TLS 証明書検証が行われます。ローカル API を HTTP で利用する場合、通信は暗号化されないことがあります。</li>
+          <li>モデルのダウンロード時に、ユーザーが入力した URL へ通信します。</li>
+          <li>ローカル <code>.gguf</code> ファイルの取り込み時は、端末内の選択ファイルをアプリ保存領域へコピーします。外部サーバー通信は行いません。</li>
+          <li>HTTPS URL を使用する場合は、通常のSSL/TLS証明書検証を行います。</li>
+          <li>API/WebUI サーバーを有効にした場合、端末内またはローカルネットワーク内のポート（<code>0.0.0.0</code>）でAPIとWebUIのリクエストを受け付けます。</li>
+          <li>ユーザーの入力内容（会話全文）はローカル API に送信されますが、インターネットを経由して外部サーバーへ送信されることはありません。</li>
+          <li>MCPサーバーを設定してメイン画面、API連携、またはWebUIから利用した場合、会話内容やツール入力の一部が設定先のMCPサーバーへ送信されることがあります。送信先や取扱いは各MCPサーバーの設定・運用に依存します。</li>
+          <li>ローカルネットワーク内からアクセス可能ですが、外部ネットワークからのアクセスは意図されておらず、アプリは外部公開を行いません。</li>
+          <li>ローカル通信は暗号化されていない場合がありますが、通信は端末内または同一ネットワーク内に限定されます。</li>
         </ul>
 
-        <h3>4. 利用目的</h3>
-        <p>上記データは、モデルの読み込み、推論の実行、設定の再利用、ログ表示、API 提供など、アプリ機能を実現するためにのみ使用されます。</p>
+        <h3>3. 利用目的</h3>
+        <p>上記データは、アプリの動作、生成機能、表示のために使用します。ユーザーの入力内容は生成処理のためにのみ利用され、外部送信・第三者提供・保存は行いません。</p>
 
-        <h3>5. ログと保持期間</h3>
-        <p>ログにはアプリの動作状況や、機能利用に応じた API 関連情報が含まれる場合があります。これらは端末内にのみ保持され、ユーザーが削除するかアプリデータを消去するまで保存されます。ログはメイン画面の <strong>Clear Log</strong> から削除できます。</p>
+        <h3>4. ログ</h3>
+        <p>ログにはアプリの動作状況や API リクエスト情報が記録される場合があります。ログは端末内にのみ保存され、外部へ送信されません。</p>
 
-        <h3>6. 開発者による取得について</h3>
-        <p>開発者は、ユーザーのプロンプト、モデル出力、ログ、モデルファイルを受信しません。本アプリは広告 SDK や解析 SDK を利用してこれらの情報を開発者へ送信する実装にはなっていません。</p>
+        <h3>5. 保存期間</h3>
+        <p>設定・モデル・ログは、ユーザーが削除するかアプリのデータを消去するまで保持されます。ログはメイン画面の「ログ消去」で削除できます。</p>
 
-        <h3>7. お問い合わせ</h3>
+        <h3>6. お問い合わせ</h3>
         <p>ご不明点がある場合は、以下までお問い合わせください。<br>micklab2026@gmail.com</p>
       </section>
 
@@ -86,38 +86,38 @@
       <section id="en">
         <h2>English</h2>
 
-        <h3>1. Scope</h3>
-        <p>This policy applies to the Android application “LLM tester with llama.cpp” provided by Mick Lab.</p>
-
-        <h3>2. Data Stored on Your Device</h3>
-        <p>The app stores the following information locally on the user’s device:</p>
+        <h3>1. Information Collected</h3>
+        <p>This application does not transmit any personal information to external servers. The following data is stored locally on the device:</p>
         <ul>
-          <li>Configuration data, such as model URLs, inference parameters, API port, log level, and display language</li>
+          <li>Configuration data (model URL, parameters, API port, log level, MCP config JSON, Function Definitions JSON)</li>
           <li>Configuration files (<code>configs/*.json</code>)</li>
           <li>Downloaded or imported model files</li>
-          <li>Log and crash-related files (<code>ollama.log</code>, <code>last_crash.txt</code>, and <code>native_crash.txt</code>)</li>
+          <li>Log files (<code>ollama.log</code>, <code>last_crash.txt</code> for Java crashes, and <code>native_crash.txt</code> for native crashes)</li>
         </ul>
+        <p>When using the generation features, API integrations, or the WebUI, the text entered by the user (conversation content) is sent to a local API running on the device or within the same local network. Unless you configure and use MCP servers, this data is not transmitted to external servers and is not stored.</p>
 
-        <h3>3. Network Communication</h3>
+        <h3>2. Communication</h3>
         <ul>
-          <li>When you download a model from a URL, the app connects only to the URL you specify.</li>
-          <li>When you import a local <code>.gguf</code> file, the selected file is copied into app storage and no external server communication occurs.</li>
-          <li>Normal prompt generation inside the app is processed on-device and is not sent to the developer.</li>
-          <li>If you enable the built-in Ollama-compatible API server, the app listens on <code>0.0.0.0</code> and accepts requests from the same device or the local network.</li>
-          <li>Prompts and message bodies sent to that API are processed on-device or within the local network and are not transmitted to the developer.</li>
-          <li>For HTTPS model URLs, standard SSL/TLS certificate verification is used. If you use the local API over HTTP, that traffic may be unencrypted.</li>
+          <li>When downloading models, the application communicates with the URL entered by the user.</li>
+          <li>When importing a local <code>.gguf</code> file, the app copies the selected file into the app storage area and does not communicate with any external server.</li>
+          <li>For HTTPS URLs, standard SSL/TLS certificate verification is used.</li>
+          <li>When the API/WebUI server is enabled, it listens on a port (<code>0.0.0.0</code>) accessible within the device or the local network.</li>
+          <li>User input (full conversation text) is sent to the local API, but it is never transmitted over the internet or to any external server.</li>
+          <li>If you configure and use MCP servers from the main prompt input, API integrations, or the WebUI, parts of conversation content or tool inputs may be sent to those configured MCP servers. The destination and handling depend on each MCP server's own configuration and operation.</li>
+          <li>The API may be accessible from devices within the same local network, but it is not intended for external network access, and the application does not expose the API to the internet.</li>
+          <li>Local communication may be unencrypted, but all communication is restricted to the device or the same local network.</li>
         </ul>
 
-        <h3>4. Purpose of Use</h3>
-        <p>The data above is used only to provide app functionality such as model loading, inference, saved configurations, log display, and the built-in API.</p>
+        <h3>3. Purpose of Use</h3>
+        <p>The collected data is used solely for application functionality, generation processing, and display. User input is used only for generation and is not transmitted externally, shared with third parties, or stored.</p>
 
-        <h3>5. Logs and Retention</h3>
-        <p>Logs may contain operational information and, depending on the feature used, API-related details. They remain on the device only and are retained until the user deletes them or clears the app data. Logs can be removed with <strong>Clear Log</strong> on the main screen.</p>
+        <h3>4. Logs</h3>
+        <p>Logs may contain operational information or API request details. Logs are stored only on the device and are not transmitted externally.</p>
 
-        <h3>6. What the Developer Receives</h3>
-        <p>The developer does not receive your prompts, model outputs, logs, or model files. The current app implementation does not send this information to the developer through advertising or analytics SDKs.</p>
+        <h3>5. Retention Period</h3>
+        <p>Settings, models, and logs are retained until the user deletes them or clears the application data. Logs can be deleted using the "Clear Log" option on the main screen.</p>
 
-        <h3>7. Contact</h3>
+        <h3>6. Contact</h3>
         <p>If you have any questions, please contact:<br>micklab2026@gmail.com</p>
       </section>
     </div>

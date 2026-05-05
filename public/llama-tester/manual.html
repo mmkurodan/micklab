@@ -103,12 +103,14 @@
     <section class="card">
       <h2>4. 設定画面の操作</h2>
       <ul>
+        <li><strong>設定画面:</strong> 各項目は種別ごとのセクションに分かれており、見出しをタップすると開閉できます。MCP設定セクションは初期状態で閉じています。</li>
         <li><strong>設定管理:</strong> 設定の保存/削除/読み込みを行います。</li>
         <li><strong>モデル選択:</strong> モデルURLでの読み込みに加え、ローカル端末から <code>.gguf</code> ファイルを取り込めます。ファイル選択は Downloads フォルダを既定で開き、必要に応じて端末内の他の場所へ移動できます。取り込んだファイルはアプリ内モデル保存先へコピーされ、設定欄にはファイル名のみを表示します。HTTP/HTTPS URL利用時はHTTPSで通常のSSL/TLS証明書検証を行います。</li>
         <li><strong>モデルパラメータ:</strong> 生成パラメータを設定します（GPUオフロード層を含む）。</li>
         <li><strong>出力設定:</strong> ストリーミング出力の有効/無効を切り替えます。</li>
         <li><strong>プロンプトテンプレート:</strong> システムプロンプト、Think有効/無効（chat-template-kwargs.enable_thinking）、カスタムテンプレートを設定できます。カスタム未設定時はGGUFのchat_templateメタデータを優先し、必要に応じてモデルファミリーから自動選択されます。Bonsai系の既定テンプレートにも対応しています。</li>
-        <li><strong>Llama APIサーバー:</strong> サーバーポートを指定します。起動時ポップアップまたはメイン画面で有効化すると、APIとWebUIが同じポートで利用可能になります。</li>
+        <li><strong>Llama APIサーバー:</strong> サーバーポートを指定します。ローカルURLは <code>http://localhost:&lt;port&gt;</code> で表示され、Wi-Fi接続中はLAN URLも表示してタップでコピーできます。起動時ポップアップまたはメイン画面で有効化すると、APIとWebUIが同じポートで利用可能になります。</li>
+        <li><strong>MCP設定:</strong> モデル設定とは別のアプリ共通設定としてMCPコンフィグJSONとFunction Definitions JSONを保存できます。各スイッチをオフにした場合は WebUI でのみ利用され、メイン画面のプロンプト入力や <code>/api/chat</code>、<code>/api/generate</code>、<code>/v1/chat/completions</code> では未設定として扱われます。オンにした場合のみ、それぞれ共有MCP設定と共有 function calling 定義として利用されます。</li>
         <li><strong>表示言語:</strong> 日本語/English の表示言語を切り替えます。初回は端末設定から自動選択され、次回以降は選択が保存されます。</li>
         <li><strong>ログ設定:</strong> ログレベルを選択します（初回起動時の既定値: INFO）。</li>
         <li><strong>ライセンス表示:</strong> ライセンス文面を表示します。</li>
@@ -208,6 +210,9 @@
           </ul>
         </li>
         <li>WebUIは同じポートの <code>http://&lt;端末IP&gt;:&lt;ポート&gt;/</code> で利用できます</li>
+        <li>アプリ設定で保存したMCPコンフィグJSONは共通設定として <code>/props</code> 経由でWebUIにも渡され、WebUIのローカルMCP設定と合わせて利用されます。</li>
+        <li>MCP の外部利用スイッチをオンにすると、共有MCP設定は WebUI に加えて、メイン画面のプロンプト入力、<code>/api/chat</code>、<code>/api/generate</code>、<code>/v1/chat/completions</code> の内部ツール実行にも利用されます。オフでは WebUI のみで利用されます。</li>
+        <li>Function Calling の外部利用スイッチをオンにすると、Function Definitions JSON は共通の function calling 定義としてメイン画面のプロンプト入力、<code>/api/chat</code>、<code>/api/generate</code>、<code>/v1/chat/completions</code> に自動で追加されます。オフでは WebUI のみで利用されます。</li>
         <li>同時生成は1件のみです。ビジー時は最大10件までキューに入り、最大60秒待機します。60秒超過またはキュー満杯時は503を返します。</li>
         <li>Android 13以上では通知権限が必要な場合があります。</li>
       </ul>

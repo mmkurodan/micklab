@@ -166,6 +166,11 @@ ModelManager → LlamaNative → JNI → llama.cpp</pre>
           <tr><td>UI / 挙動</td><td><code>streaming</code></td><td>画面・API のストリーミング出力既定値</td></tr>
         </tbody>
       </table>
+      <ul>
+        <li>これとは別に、共有 MCP 設定と共有 Function Definitions は <code>SharedPreferences</code> 側へ保存され、モデル別プロファイルとは分離されています。</li>
+        <li>保存キーは <code>shared_mcp_servers_json</code>、<code>shared_function_definitions_json</code> と各有効化スイッチで、WebUI 外で使うかどうかを個別に切り替えます。</li>
+        <li><code>/props</code> の <code>webui_settings</code> には <code>sharedMcpServers</code> と <code>sharedFunctionDefinitions</code> が入り、WebUI はこれをローカル設定と合わせて利用します。</li>
+      </ul>
 
       <h3>3-2. ModelFileHelper</h3>
       <ul>
@@ -364,6 +369,7 @@ ModelManager → LlamaNative → JNI → llama.cpp</pre>
         <li><code>acquireGenerationSlot()</code> で排他を取る。</li>
         <li>要求モデル名に対応する configuration をロードする。</li>
         <li>GGUF chat_template、custom template、system prompt、Think 設定を使って最終 prompt を組み立てる。</li>
+        <li>request の <code>tools</code> か共有ツール設定がある場合は <code>SharedToolManager.generateWithTools()</code> に切り替わり、最大 10 ターンまで自動ツール実行を継続できます。</li>
         <li>streaming 時は token queue + writer thread を立て、ネイティブ生成スレッドをネットワーク I/O で止めない。</li>
         <li>client disconnect や end marker 検出時は <code>cancelGeneration()</code> を発行する。</li>
       </ol>
@@ -383,6 +389,8 @@ ModelManager → LlamaNative → JNI → llama.cpp</pre>
         <li>内部的には Ollama 互換経路と同じ prompt builder・ModelManager・JNI を使い、出力形式だけ OpenAI 互換 JSON / SSE へ変換しています。</li>
         <li><code>n_predict=0</code> が付いた場合は pre-encode only として空応答で早期復帰する分岐があります。</li>
         <li>一部 sampling 値は request override として configuration に上書き適用され、そのまま Native sampler へ入ります。</li>
+        <li><code>tool_calls</code> が直接返らない場合でも、<code>reasoning_content</code> や本文中の tool call marker から抽出を試みます。</li>
+        <li><code>tool_choice</code> と <code>parallel_tool_calls</code> を受け取り、共有 MCP / Function Definitions 設定と組み合わせて内部ツール実行ループへ渡します。</li>
       </ul>
     </section>
 
@@ -398,7 +406,7 @@ ModelManager → LlamaNative → JNI → llama.cpp</pre>
       <h3>8-2. WebUI と API の結合</h3>
       <ul>
         <li>WebUI は別サーバーではなく、同じ <code>OllamaApiServer</code> のルーティング内にあります。</li>
-        <li><code>/props</code> と <code>/slots</code> が llama.cpp 風の WebUI 初期化に必要な設定を返し、<code>webui_settings</code> には system message や Think 表示設定が入ります。</li>
+        <li><code>/props</code> と <code>/slots</code> が llama.cpp 風の WebUI 初期化に必要な設定を返し、<code>webui_settings</code> には system message、Think 表示設定、共有 MCP / Function Definitions 設定が入ります。</li>
         <li>ルート以外の未知パスは WebUI 資産名へ正規化され、既知 asset でなければ <code>index.html</code> にフォールバックします。</li>
       </ul>
 

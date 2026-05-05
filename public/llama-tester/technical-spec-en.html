@@ -164,6 +164,11 @@ ModelManager → LlamaNative → JNI → llama.cpp</pre>
           <tr><td>UI/runtime</td><td><code>streaming</code></td><td>Default streaming behavior for UI and API</td></tr>
         </tbody>
       </table>
+      <ul>
+        <li>Shared MCP settings and shared Function Definitions are stored separately in <code>SharedPreferences</code>, outside the per-model profile JSON.</li>
+        <li>The persisted keys are <code>shared_mcp_servers_json</code>, <code>shared_function_definitions_json</code>, and their enable/disable switches for use outside the WebUI.</li>
+        <li><code>/props</code> exposes these values inside <code>webui_settings</code> as <code>sharedMcpServers</code> and <code>sharedFunctionDefinitions</code>, allowing the bundled WebUI to combine them with its own local settings.</li>
+      </ul>
 
       <h3>3-2. ModelFileHelper</h3>
       <ul>
@@ -362,6 +367,7 @@ ModelManager → LlamaNative → JNI → llama.cpp</pre>
         <li>Acquire the generation slot through <code>acquireGenerationSlot()</code>.</li>
         <li>Load the requested configuration and model if needed.</li>
         <li>Use GGUF chat-template metadata, custom template, system prompt, and Think settings to build the final prompt.</li>
+        <li>If the request includes <code>tools</code> or the app has shared tool configuration, execution switches into <code>SharedToolManager.generateWithTools()</code>, which can continue auto tool execution for up to 10 turns.</li>
         <li>When streaming, start a queue and writer thread so the native generation thread is not blocked by network writes.</li>
         <li>If the client disconnects or an end marker is detected, call <code>cancelGeneration()</code>.</li>
       </ol>
@@ -381,6 +387,8 @@ ModelManager → LlamaNative → JNI → llama.cpp</pre>
         <li>Internally it still uses the same prompt builder, ModelManager, and JNI runtime as the Ollama-compatible routes; only the response envelope differs.</li>
         <li>If <code>n_predict=0</code> is present, the server follows a pre-encode-only branch and returns early.</li>
         <li>Some request-level generation overrides are applied onto the configuration before the native sampler settings are re-applied.</li>
+        <li>If <code>tool_calls</code> is missing, the runtime also tries to extract tool-call markers from <code>reasoning_content</code> or the returned content body.</li>
+        <li>The server forwards <code>tool_choice</code> and <code>parallel_tool_calls</code>, combining request tools with shared MCP / Function Definitions settings for the internal tool-execution loop.</li>
       </ul>
     </section>
 
@@ -396,7 +404,7 @@ ModelManager → LlamaNative → JNI → llama.cpp</pre>
       <h3>8-2. How WebUI and API fit together</h3>
       <ul>
         <li>The WebUI is not a separate server; it is routed by the same <code>OllamaApiServer</code>.</li>
-        <li><code>/props</code> and <code>/slots</code> provide llama.cpp-style metadata used by the WebUI, including generation defaults and <code>webui_settings</code>.</li>
+        <li><code>/props</code> and <code>/slots</code> provide llama.cpp-style metadata used by the WebUI, including generation defaults plus <code>webui_settings</code> for the system message, Think display, and shared MCP / Function Definitions settings.</li>
         <li>Unknown client-side routes are normalized back to <code>index.html</code>, making the bundled WebUI behave like a small SPA served from the same port.</li>
       </ul>
 

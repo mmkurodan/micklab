@@ -51,13 +51,13 @@
     <section class="card">
       <p class="eyebrow">Android / llama.cpp / GGUF</p>
       <h1>LLM tester with llama.cpp</h1>
-      <p class="lead">LLM tester with llama.cpp は、Android 端末上で GGUF モデルを読み込み、推論設定・プロンプトテンプレート・ログ・Ollama 互換 API を一つのアプリで扱えるローカルLLM検証ツールです。</p>
+      <p class="lead">LLM tester with llama.cpp は、Android 端末上で GGUF モデルを読み込み、推論設定・プロンプトテンプレート・共有 MCP / Function Definitions 設定・ログ確認・Ollama/OpenAI 互換 API と同梱 WebUI の公開までを一つのアプリで扱えるローカル LLM 検証ツールです。</p>
       <p class="doc-links">文書: <a href="/llama-tester/manual.html">操作マニュアル</a> | <a href="/llama-tester/technical-spec.html">技術仕様</a> | <a href="/llama-tester/technical-spec-llama-jni-cmake.html">llama.cpp / JNI / CMake 深掘り</a> | <a href="/llama-tester/privacy.html#ja">プライバシーポリシー</a></p>
       <div class="highlight">
         <ul>
-          <li>モデル URL からのダウンロードと、端末内 <code>.gguf</code> ファイルの取り込みに対応。</li>
-          <li>生成パラメータ、Think 設定、カスタム chat template、表示言語をプロファイルとして保存・再利用できます。</li>
-          <li>必要に応じて端末内で Ollama 互換 API サーバーを起動し、他のクライアントから <code>/api/chat</code> などを利用できます。</li>
+            <li>モデル URL からのダウンロードと、端末内 <code>.gguf</code> ファイルの取り込みに対応します。</li>
+            <li>生成パラメータ、Think 設定、カスタム chat template、共有 MCP 設定、Function Definitions JSON を組み合わせて運用できます。</li>
+            <li>必要に応じて端末内で Ollama/OpenAI 互換 API と WebUI を同じポートで起動し、<code>/api/chat</code> や <code>/v1/chat/completions</code> を利用できます。</li>
         </ul>
       </div>
     </section>
@@ -84,11 +84,11 @@
       <h2>主な特徴</h2>
       <ul>
         <li><strong>端末内でのローカル推論</strong>: llama.cpp を使って Android 端末上で GGUF モデルを直接実行します。</li>
-        <li><strong>モデル導入の自由度</strong>: HTTP/HTTPS のモデル URL を指定した読み込みと、ローカル端末からの <code>.gguf</code> 取り込みの両方に対応しています。</li>
+        <li><strong>モデル導入の自由度</strong>: HTTP/HTTPS のモデル URL 指定と、ローカル端末からの <code>.gguf</code> 取り込みの両方に対応しています。</li>
         <li><strong>詳細な推論制御</strong>: <code>n_ctx</code>、<code>n_threads</code>、GPU Offload Layers、Top-p、Top-k、Penalty、Mirostat、DRY、Think、custom chat template まで調整できます。</li>
-        <li><strong>構成プロファイル管理</strong>: 設定の保存・読み込み・削除ができ、<code>SAVE &amp; CLOSE</code> で現在のモデルへ即時反映されます。</li>
-        <li><strong>ログと出力の扱いやすさ</strong>: 最新 100 行のログ表示、ログ更新、ログ消去、応答/ログのコピーと保存に対応しています。</li>
-        <li><strong>内蔵 Ollama 互換 API</strong>: <code>/api/chat</code>、<code>/api/generate</code>、<code>/api/tags</code> を提供し、同時生成は 1 件、待機キューは最大 10 件・最大 60 秒です。</li>
+        <li><strong>共有 MCP / Function Calling 設定</strong>: モデル別プロファイルとは別に MCP Config JSON と Function Definitions JSON を保存でき、外部利用スイッチを有効にするとメイン画面、<code>/api/chat</code>、<code>/api/generate</code>、<code>/v1/chat/completions</code> でも共通利用されます。</li>
+        <li><strong>内蔵 Ollama/OpenAI 互換 API と WebUI</strong>: <code>/api/chat</code>、<code>/api/generate</code>、<code>/api/tags</code>、<code>/v1/chat/completions</code>、<code>/v1/models</code>、<code>/props</code>、<code>/slots</code> を同じポートで提供し、同時生成は 1 件、待機キューは最大 10 件・最大 60 秒です。</li>
+        <li><strong>マルチモーダル API 入力</strong>: <code>/api/chat</code> と <code>/v1/chat/completions</code> では <code>image_url</code> と <code>input_audio</code> を扱え、ロード済みモデルの vision/audio 対応状況に応じて利用できます。</li>
       </ul>
     </section>
 
@@ -97,7 +97,7 @@
       <ul>
         <li>大きなモデルの取得には数 GB 単位の通信が必要になる場合があります。モデルのダウンロードは Wi-Fi 環境が推奨です。</li>
         <li>ローカル API サーバーは同一端末またはローカルネットワーク向けの利用を想定しています。Android 13 以降では通知権限が必要になる場合があります。</li>
-        <li>生成速度や安定性は、モデルサイズ・端末メモリ・スレッド設定・GPU オフロード設定に依存します。</li>
+        <li>MCP サーバーを設定してメイン画面、API、または WebUI から利用する場合、会話内容やツール入力の一部が設定先 MCP サーバーへ送信されることがあります。</li>
       </ul>
     </section>
   </main>

@@ -51,13 +51,13 @@
     <section class="card">
       <p class="eyebrow">Android / llama.cpp / GGUF</p>
       <h1>LLM tester with llama.cpp</h1>
-      <p class="lead">LLM tester with llama.cpp is a local LLM testing tool for Android that lets you load GGUF models, tune inference settings, inspect prompt templates and logs, and optionally expose an Ollama-compatible API from a single app.</p>
+      <p class="lead">LLM tester with llama.cpp is an Android local-LLM testing app that lets you load GGUF models, tune inference and prompt-template settings, manage shared MCP / Function Definitions settings, inspect logs, and expose an Ollama/OpenAI-compatible API plus the bundled WebUI from one app.</p>
       <p class="doc-links">Docs: <a href="/llama-tester/manual-en.html">User Manual</a> | <a href="/llama-tester/technical-spec-en.html">Technical Specification</a> | <a href="/llama-tester/technical-spec-llama-jni-cmake-en.html">llama.cpp / JNI / CMake Deep Dive</a> | <a href="/llama-tester/privacy.html#en">Privacy Policy</a></p>
       <div class="highlight">
         <ul>
-          <li>Supports both model downloads from a URL and importing local <code>.gguf</code> files from the device.</li>
-          <li>Lets you save and reuse profiles for generation settings, Think behavior, custom chat templates, and display language.</li>
-          <li>Can start an on-device Ollama-compatible API server so other clients can call endpoints such as <code>/api/chat</code>.</li>
+            <li>Supports both model downloads from a URL and importing local <code>.gguf</code> files from the device.</li>
+            <li>Lets you combine generation settings, Think behavior, custom chat templates, shared MCP settings, and Function Definitions JSON.</li>
+            <li>Can start an on-device Ollama/OpenAI-compatible API and WebUI on the same port, including endpoints such as <code>/api/chat</code> and <code>/v1/chat/completions</code>.</li>
         </ul>
       </div>
     </section>
@@ -86,9 +86,9 @@
         <li><strong>On-device local inference</strong>: Runs GGUF models directly on Android with llama.cpp.</li>
         <li><strong>Flexible model loading</strong>: Supports downloadable model URLs and local <code>.gguf</code> imports.</li>
         <li><strong>Deep inference controls</strong>: Adjust <code>n_ctx</code>, <code>n_threads</code>, GPU Offload Layers, Top-p, Top-k, penalties, Mirostat, DRY, Think behavior, and custom chat templates.</li>
-        <li><strong>Configuration profiles</strong>: Save, load, and delete profiles, then apply them immediately with <code>SAVE &amp; CLOSE</code>.</li>
-        <li><strong>Practical log/output workflow</strong>: View the latest 100 log lines, refresh logs, clear logs, copy results, and save responses or logs.</li>
-        <li><strong>Built-in Ollama-compatible API</strong>: Provides <code>/api/chat</code>, <code>/api/generate</code>, and <code>/api/tags</code>; only one generation runs at a time, with a queue of up to 10 requests for up to 60 seconds.</li>
+        <li><strong>Shared MCP / function-calling settings</strong>: Save MCP Config JSON and Function Definitions JSON separately from model profiles, then optionally enable them for the main prompt input, <code>/api/chat</code>, <code>/api/generate</code>, and <code>/v1/chat/completions</code>.</li>
+        <li><strong>Built-in Ollama/OpenAI-compatible API and WebUI</strong>: Provides <code>/api/chat</code>, <code>/api/generate</code>, <code>/api/tags</code>, <code>/v1/chat/completions</code>, <code>/v1/models</code>, <code>/props</code>, and <code>/slots</code> on the same port; only one generation runs at a time, with a queue of up to 10 requests for up to 60 seconds.</li>
+        <li><strong>Multimodal API inputs</strong>: <code>/api/chat</code> and <code>/v1/chat/completions</code> can accept <code>image_url</code> and <code>input_audio</code> when the loaded model supports vision/audio.</li>
       </ul>
     </section>
 
@@ -97,7 +97,7 @@
       <ul>
         <li>Model downloads can be several gigabytes. Wi‑Fi is strongly recommended.</li>
         <li>The local API server is intended for the same device or a local network. Android 13+ may require notification permission.</li>
-        <li>Generation speed and stability depend on model size, device memory, thread settings, and GPU offload configuration.</li>
+        <li>If you configure MCP servers for the main prompt input, API integrations, or the WebUI, parts of conversation content or tool inputs may be sent to those MCP servers.</li>
       </ul>
     </section>
   </main>
