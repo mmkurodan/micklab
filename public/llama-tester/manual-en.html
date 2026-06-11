@@ -79,20 +79,36 @@
 
     <section class="card">
       <h2>3. Main Screen Features</h2>
+      <h3>Status Header (top of screen)</h3>
       <ul>
+        <li><strong>API/WebUI status:</strong> Shows whether the API server is running and on which port.</li>
+        <li><strong>Speed, temperature, backend:</strong> Shows the last generation speed (tok/s), device temperature (°C), active compute backend (CPU / GPU / NPU), and the name of the loaded model.</li>
+      </ul>
+      <h3>Main Action Buttons</h3>
+      <ul>
+        <li><strong>Start API/WebUI / Stop API/WebUI:</strong> Toggle the API server and WebUI together.</li>
+        <li><strong>Reset:</strong> Available even while work is running. Stops the active generation and immediately reinitializes the current profile. If it fails, check the log or load the model again from Settings.</li>
+        <li><strong>Settings:</strong> Automatically disabled while inference is busy, and re-enabled when processing completes.</li>
+      </ul>
+      <h3>Web UI URL</h3>
+      <ul>
+        <li><strong>Web UI URL (tap to open / long-press to copy):</strong> Displays the WebUI URL once the API server is running. Tap to open in the browser, long-press to copy the URL to the clipboard.</li>
+      </ul>
+      <h3>Direct Run Section (tap to expand; collapsed by default)</h3>
+      <p class="note">This section is collapsed by default. Tap the section header to expand it.</p>
+      <ul>
+        <li><strong>Profile:</strong> Select the profile (configuration) to use from the spinner. Applied on the next prompt send.</li>
         <li><strong>Enter Prompt:</strong> Type your prompt.</li>
-        <li><strong>Send:</strong> Start generation. If the model is not loaded, it will be loaded automatically.</li>
-        <li><strong>Settings:</strong> Automatically disabled while inference is busy, and re-enabled when busy is cleared.</li>
-        <li><strong>Re-init Model:</strong> Available even while work is running. It stops the active generation and immediately reinitializes the current profile. If it fails, check the log or load the model again from Settings.</li>
-        <li><strong>View Log / Hide Log:</strong> Show the latest 100 lines from the log file in the Model Output area, and tap again to return to the normal response view.</li>
+        <li><strong>Send:</strong> Start generation. If the selected profile's model is not loaded, it will be loaded automatically first.</li>
+        <li><strong>Model Output:</strong> Shows model responses. Long-press to select and copy text.</li>
+      </ul>
+      <h3>Processing Status/Logs Section (tap to collapse; expanded by default)</h3>
+      <ul>
+        <li><strong>View Log / Show Status:</strong> Show the latest 100 lines from the log file in the status area. Tap again to return to the live processing status view.</li>
         <li><strong>Update:</strong> Reload the latest 100 log lines while View Log is active.</li>
-        <li><strong>Clear Log:</strong> Clear the log file.</li>
-        <li><strong>Start/Stop API/WebUI:</strong> Toggle the API server and WebUI together.</li>
-        <li><strong>Model Output:</strong> Shows model responses. When View Log is active, this area shows the log body instead.</li>
-        <li><strong>Copy (Model Output):</strong> Copy the content shown in the Model Output area to the clipboard.</li>
+        <li><strong>Clear:</strong> In normal view, clears the processing status area. While View Log is active, clears the log file.</li>
         <li><strong>Download:</strong> Save the current response in normal view, or save the full log while View Log is active. If the response area is empty, the full log is used instead.</li>
-        <li><strong>Processing Status/Logs:</strong> Shows timestamped processing logs.</li>
-        <li><strong>Copy (Processing Status/Logs):</strong> Copy the Processing Status/Logs area to the clipboard.</li>
+        <li><strong>Processing Status/Logs:</strong> Shows timestamped processing logs. Long-press to select and copy text.</li>
       </ul>
     </section>
 
@@ -100,14 +116,18 @@
       <h2>4. Settings Screen</h2>
       <ul>
         <li><strong>Settings screen:</strong> Controls are grouped into collapsible sections. Tap a section title to expand or collapse it. The MCP Settings section is collapsed by default.</li>
-        <li><strong>Configuration Management:</strong> Save/delete/load configurations.</li>
-        <li><strong>Model Selection:</strong> Load models from a URL or import .gguf files from the local device. The picker opens in Downloads by default, and you can navigate elsewhere on the device as needed. Imported files are copied into the app model storage directory and only the filename is shown in Settings. Reachable HTTP/HTTPS URLs can be used, and HTTPS uses normal SSL/TLS certificate verification.</li>
-        <li><strong>Model Parameters:</strong> Set generation parameters (including GPU Offload Layers).</li>
-        <li><strong>Output Settings:</strong> Toggle streaming output on/off.</li>
+        <li><strong>Configuration Management:</strong> Save/delete/load configurations. The Display Language switch is also in this section.</li>
+        <li><strong>Model Selection:</strong> Load models from a URL or import <code>.gguf</code> files from the local device. The picker opens in Downloads by default, and you can navigate elsewhere on the device as needed. Imported files are copied into the app model storage directory and only the filename is shown in Settings. Reachable HTTP/HTTPS URLs can be used, and HTTPS uses normal SSL/TLS certificate verification.</li>
+        <li><strong>Multimodal Projector (mmproj):</strong> Select or clear an mmproj (multimodal projector) file when using a multimodal model. Used based on the loaded model's vision/audio support.</li>
+        <li><strong>Model Maintenance (MAINTAIN MODEL):</strong> Lists model files stored in the app, with options to switch to a different stored model or delete a selected file.</li>
+        <li><strong>Search GGUF on Hugging Face:</strong> Opens the Hugging Face GGUF model search page in the browser.</li>
+        <li><strong>Compute Backend:</strong> Toggle GPU (OpenCL/Adreno) and NPU (Hexagon HTP) on or off independently. GPU and NPU are mutually exclusive — enabling one automatically disables the other. When both are off the model runs on CPU.</li>
+        <li><strong>Offload Layers (GPU/NPU):</strong> Set the number of layers to offload to the GPU or NPU using a slider. The maximum position means ALL available layers. The slider is disabled when both GPU and NPU are off (CPU mode).</li>
+        <li><strong>Model Parameters:</strong> Set generation parameters such as <code>n_ctx</code>, <code>n_threads</code>, <code>n_batch</code>, and temperature.</li>
+        <li><strong>Output Settings:</strong> Toggle streaming output on/off. Enable Show Performance Metrics to append token counts, processing time, and speed to the output area after generation completes.</li>
         <li><strong>Prompt Template:</strong> Set System Prompt, Think on/off (chat-template-kwargs.enable_thinking), and custom chat template. When no custom template is set, the app first uses GGUF chat_template metadata and otherwise auto-selects by model family. A Bonsai fallback template is included.</li>
         <li><strong>Llama API Server:</strong> Set the server port. The Local URL is shown as <code>http://localhost:&lt;port&gt;</code>, and while connected to Wi-Fi the LAN URL is also shown and can be tapped to copy. Enabling it from the startup popup or the main screen makes both the API and WebUI available on that port.</li>
         <li><strong>MCP Settings:</strong> Save MCP config JSON and Function Definitions JSON as app-wide shared settings separate from model profiles. When the switches are off, they are available only in the WebUI and are treated as absent everywhere else. When enabled, they are also used as shared MCP and function-calling settings for the main prompt input, <code>/api/chat</code>, <code>/api/generate</code>, and <code>/v1/chat/completions</code>.</li>
-        <li><strong>Display Language:</strong> Switch UI language between Japanese and English. On first launch it follows your device locale, and your choice is saved for later launches.</li>
         <li><strong>Log Settings:</strong> Select log level (default on first launch: INFO).</li>
         <li><strong>Show License:</strong> Display license text.</li>
         <li><strong>Documents:</strong> View the user manual and the privacy policy.</li>
@@ -124,7 +144,8 @@
         <li><strong>Context Size (n_ctx):</strong> Number of tokens the model can process at once. Larger values handle longer contexts but use more memory.</li>
         <li><strong>Threads (n_threads):</strong> Number of CPU threads for inference. Adjust based on your device's core count.</li>
         <li><strong>Batch Size (n_batch):</strong> Number of tokens processed at once. Larger is faster but uses more memory.</li>
-        <li><strong>GPU Offload Layers:</strong> Number of layers to offload to GPU. 0 disables offload, 1-39 offloads that many layers, and -1 targets all available layers.</li>
+        <li><strong>Compute Backend:</strong> Toggle GPU (OpenCL/Adreno) and NPU (Hexagon HTP) on or off. They are mutually exclusive. When both are off the model runs on CPU.</li>
+        <li><strong>Offload Layers (GPU/NPU):</strong> Set the number of layers to offload via a slider. The maximum position (ALL) targets all available layers. Disabled when both GPU and NPU are off.</li>
         <li><strong>Temperature (temp):</strong> Controls output randomness. Lower is more deterministic, higher is more diverse.</li>
         <li><strong>Top-p:</strong> Select from tokens until cumulative probability reaches this value (nucleus sampling).</li>
         <li><strong>Top-k:</strong> Select from top k probability tokens.</li>

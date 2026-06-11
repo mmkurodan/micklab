@@ -66,16 +66,16 @@
       <h2>Screenshots</h2>
       <div class="grid">
         <figure>
-          <img src="/llama-tester/sm101.png" alt="LLM tester with llama.cpp main screen">
-          <figcaption>Main screen with prompt input, model output, processing logs, and API server controls.</figcaption>
+          <img src="/llama-tester/sm101.jpg" alt="LLM tester with llama.cpp main screen">
+          <figcaption>Main screen with status header (speed, temperature, backend), API/WebUI controls, Direct Run section, and processing logs.</figcaption>
         </figure>
         <figure>
-          <img src="/llama-tester/sm102.png" alt="LLM tester with llama.cpp settings screen">
-          <figcaption>Settings screen for model URLs, local GGUF import, configuration management, and inference parameters.</figcaption>
+          <img src="/llama-tester/sm102.jpg" alt="LLM tester with llama.cpp settings screen">
+          <figcaption>Settings screen for model URLs, local GGUF import, GPU/NPU backend selection, mmproj settings, and inference parameters.</figcaption>
         </figure>
         <figure>
-          <img src="/llama-tester/sm103.png" alt="LLM tester with llama.cpp template settings">
-          <figcaption>Template, API, language, and log settings, including System Prompt and custom chat template fields.</figcaption>
+          <img src="/llama-tester/sm103.jpg" alt="LLM tester with llama.cpp template settings">
+          <figcaption>Template, API, MCP, language, and log settings, including System Prompt, custom chat template, and Function Definitions JSON fields.</figcaption>
         </figure>
       </div>
     </section>
@@ -85,7 +85,7 @@
       <ul>
         <li><strong>On-device local inference</strong>: Runs GGUF models directly on Android with llama.cpp.</li>
         <li><strong>Flexible model loading</strong>: Supports downloadable model URLs and local <code>.gguf</code> imports.</li>
-        <li><strong>Deep inference controls</strong>: Adjust <code>n_ctx</code>, <code>n_threads</code>, GPU Offload Layers, Top-p, Top-k, penalties, Mirostat, DRY, Think behavior, and custom chat templates.</li>
+        <li><strong>Deep inference controls</strong>: Adjust <code>n_ctx</code>, <code>n_threads</code>, compute backend (CPU / GPU / NPU), offload layer count, Top-p, Top-k, penalties, Mirostat, DRY, Think behavior, and custom chat templates.</li>
         <li><strong>Shared MCP / function-calling settings</strong>: Save MCP Config JSON and Function Definitions JSON separately from model profiles, then optionally enable them for the main prompt input, <code>/api/chat</code>, <code>/api/generate</code>, and <code>/v1/chat/completions</code>.</li>
         <li><strong>Built-in Ollama/OpenAI-compatible API and WebUI</strong>: Provides <code>/api/chat</code>, <code>/api/generate</code>, <code>/api/tags</code>, <code>/v1/chat/completions</code>, <code>/v1/models</code>, <code>/props</code>, and <code>/slots</code> on the same port; only one generation runs at a time, with a queue of up to 10 requests for up to 60 seconds.</li>
         <li><strong>Multimodal API inputs</strong>: <code>/api/chat</code> and <code>/v1/chat/completions</code> can accept <code>image_url</code> and <code>input_audio</code> when the loaded model supports vision/audio.</li>

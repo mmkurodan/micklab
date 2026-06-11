@@ -83,20 +83,36 @@
 
     <section class="card">
       <h2>3. メイン画面の各機能</h2>
+      <h3>ステータスヘッダー（画面最上部）</h3>
       <ul>
-        <li><strong>プロンプト入力:</strong> プロンプトを入力します。</li>
-        <li><strong>送信:</strong> 生成を開始します。モデル未ロード時は自動でロードを試みます。</li>
+        <li><strong>API/WebUI 状態:</strong> APIサーバーの動作状態（稼働中 / 停止中）とポート番号を表示します。</li>
+        <li><strong>速度・温度・バックエンド:</strong> 最後の生成の速度（tok/s）、デバイス温度（°C）、アクティブバックエンド（CPU / GPU / NPU）、ロード中のモデル名を表示します。</li>
+      </ul>
+      <h3>メイン操作ボタン</h3>
+      <ul>
+        <li><strong>API/WebUI 開始 / API/WebUI 停止:</strong> APIサーバーとWebUIを同時に起動または停止します。</li>
+        <li><strong>リセット:</strong> 実行中でも押せます。進行中の生成を停止して現在のプロファイルを即座に再初期化します。失敗した場合はログを確認するか、設定から再度モデルを読み込んでください。</li>
         <li><strong>設定:</strong> 推論中（Busy）は自動的に無効化され、処理完了後に再び有効になります。</li>
-        <li><strong>モデル再初期化:</strong> 実行中でも押せます。進行中の生成を停止して現在のプロファイルを即座に再初期化します。失敗した場合はログを確認するか、設定から再度モデルを読み込んでください。</li>
-        <li><strong>ログ表示 / ログを隠す:</strong> モデル出力欄にログファイルの最新100行を表示し、もう一度押すと通常の出力表示へ戻ります。</li>
+      </ul>
+      <h3>Web UI URL</h3>
+      <ul>
+        <li><strong>Web UI URL（タップで起動・長押しでコピー）:</strong> APIサーバー起動後にWebUIのURLを表示します。タップするとブラウザで開き、長押しするとURLをクリップボードへコピーします。</li>
+      </ul>
+      <h3>ダイレクト実行セクション（タップで展開、既定で折りたたみ）</h3>
+      <p class="note">このセクションはデフォルトで折りたたまれています。セクションヘッダーをタップして展開してください。</p>
+      <ul>
+        <li><strong>プロファイル:</strong> 使用するプロファイル（設定）をスピナーで選択します。次回プロンプト送信時から適用されます。</li>
+        <li><strong>プロンプト入力:</strong> プロンプトを入力します。</li>
+        <li><strong>送信:</strong> 生成を開始します。選択プロファイルのモデルが未ロードの場合は自動でロードしてから生成します。</li>
+        <li><strong>モデル出力:</strong> モデル応答を表示します。長押しでテキストを選択・コピーできます。</li>
+      </ul>
+      <h3>処理状況/ログセクション（タップで開閉、既定で展開）</h3>
+      <ul>
+        <li><strong>ログ表示 / 状況に戻る:</strong> ログファイルの最新100行を処理状況/ログ欄に表示します。もう一度押すと通常の処理状況表示へ戻ります。</li>
         <li><strong>更新:</strong> ログ表示中の内容を最新100行で再読み込みします。</li>
-        <li><strong>ログ消去:</strong> ログファイルを空にします。</li>
-        <li><strong>API/WebUI開始 / API/WebUI停止:</strong> APIサーバーとWebUIを同時に起動または停止します。</li>
-        <li><strong>モデル出力:</strong> モデル応答を表示します。ログ表示中はログ本文を表示します。</li>
-        <li><strong>コピー（モデル出力）:</strong> モデル出力欄の内容をクリップボードへコピーします。</li>
-        <li><strong>保存:</strong> 通常時は表示中の応答を保存し、ログ表示中はログ全文を保存します。応答が空の場合はログ全文を保存します。</li>
-        <li><strong>処理状況/ログ:</strong> タイムスタンプ付きの処理ログを表示します。</li>
-        <li><strong>コピー（処理状況/ログ）:</strong> 処理状況/ログ欄の内容をクリップボードへコピーします。</li>
+        <li><strong>消去:</strong> 通常時は処理状況/ログ欄の表示を空にします。ログ表示中はログファイルを空にします。</li>
+        <li><strong>保存:</strong> 通常時は表示中の応答をファイルに保存します。ログ表示中はログ全文を保存します。応答が空の場合はログ全文を保存します。</li>
+        <li><strong>処理状況/ログ:</strong> タイムスタンプ付きの処理ログを表示します。長押しでテキストを選択・コピーできます。</li>
       </ul>
     </section>
 
@@ -104,14 +120,18 @@
       <h2>4. 設定画面の操作</h2>
       <ul>
         <li><strong>設定画面:</strong> 各項目は種別ごとのセクションに分かれており、見出しをタップすると開閉できます。MCP設定セクションは初期状態で閉じています。</li>
-        <li><strong>設定管理:</strong> 設定の保存/削除/読み込みを行います。</li>
+        <li><strong>設定管理:</strong> 設定の保存/削除/読み込みを行います。表示言語の切り替えもこのセクションにあります。</li>
         <li><strong>モデル選択:</strong> モデルURLでの読み込みに加え、ローカル端末から <code>.gguf</code> ファイルを取り込めます。ファイル選択は Downloads フォルダを既定で開き、必要に応じて端末内の他の場所へ移動できます。取り込んだファイルはアプリ内モデル保存先へコピーされ、設定欄にはファイル名のみを表示します。HTTP/HTTPS URL利用時はHTTPSで通常のSSL/TLS証明書検証を行います。</li>
-        <li><strong>モデルパラメータ:</strong> 生成パラメータを設定します（GPUオフロード層を含む）。</li>
-        <li><strong>出力設定:</strong> ストリーミング出力の有効/無効を切り替えます。</li>
+        <li><strong>マルチモーダルプロジェクタ（mmproj）:</strong> マルチモーダルモデルを使用する場合にmmproj（マルチモーダルプロジェクタ）ファイルを選択または削除できます。モデルの vision/audio 対応状況に応じて利用します。</li>
+        <li><strong>モデル管理（MAINTAIN MODEL）:</strong> アプリ内に保存されたモデルファイルの一覧を表示し、別のモデルに切り替えるか選択したファイルを削除できます。</li>
+        <li><strong>Hugging Face GGUF 検索:</strong> ブラウザで Hugging Face の GGUF モデル検索ページを開きます。</li>
+        <li><strong>コンピュートバックエンド:</strong> GPU（OpenCL/Adreno）と NPU（Hexagon HTP）の有効/無効をそれぞれ切り替えます。GPU と NPU は排他で、どちらか一方のみ有効にできます。両方オフの場合は CPU で実行します。</li>
+        <li><strong>オフロード層（GPU/NPU）:</strong> GPU または NPU にオフロードする層数をスライダーで設定します。最大値は全層（ALL）を意味します。GPU/NPU がどちらも無効の場合（CPU 実行）はスライダーが無効化されます。</li>
+        <li><strong>モデルパラメータ:</strong> <code>n_ctx</code>、<code>n_threads</code>、<code>n_batch</code>、温度などの生成パラメータを設定します。</li>
+        <li><strong>出力設定:</strong> ストリーミング出力の有効/無効を切り替えます。パフォーマンス指標の表示を有効にすると生成完了後にトークン数・処理時間・速度を出力欄に付記します。</li>
         <li><strong>プロンプトテンプレート:</strong> システムプロンプト、Think有効/無効（chat-template-kwargs.enable_thinking）、カスタムテンプレートを設定できます。カスタム未設定時はGGUFのchat_templateメタデータを優先し、必要に応じてモデルファミリーから自動選択されます。Bonsai系の既定テンプレートにも対応しています。</li>
         <li><strong>Llama APIサーバー:</strong> サーバーポートを指定します。ローカルURLは <code>http://localhost:&lt;port&gt;</code> で表示され、Wi-Fi接続中はLAN URLも表示してタップでコピーできます。起動時ポップアップまたはメイン画面で有効化すると、APIとWebUIが同じポートで利用可能になります。</li>
         <li><strong>MCP設定:</strong> モデル設定とは別のアプリ共通設定としてMCPコンフィグJSONとFunction Definitions JSONを保存できます。各スイッチをオフにした場合は WebUI でのみ利用され、メイン画面のプロンプト入力や <code>/api/chat</code>、<code>/api/generate</code>、<code>/v1/chat/completions</code> では未設定として扱われます。オンにした場合のみ、それぞれ共有MCP設定と共有 function calling 定義として利用されます。</li>
-        <li><strong>表示言語:</strong> 日本語/English の表示言語を切り替えます。初回は端末設定から自動選択され、次回以降は選択が保存されます。</li>
         <li><strong>ログ設定:</strong> ログレベルを選択します（初回起動時の既定値: INFO）。</li>
         <li><strong>ライセンス表示:</strong> ライセンス文面を表示します。</li>
         <li><strong>ドキュメント:</strong> 操作マニュアルとプライバシーポリシーを確認できます。</li>
@@ -128,7 +148,8 @@
         <li><strong>コンテキストサイズ (n_ctx):</strong> モデルが一度に処理できるトークン数です。大きいほど長い文脈を扱えますが、メモリ消費が増加します。</li>
         <li><strong>スレッド数 (n_threads):</strong> 推論に使用するCPUスレッド数です。端末のコア数に合わせて調整してください。</li>
         <li><strong>バッチサイズ (n_batch):</strong> 一度に処理するトークン数です。大きくすると高速ですがメモリを多く使用します。</li>
-        <li><strong>GPUオフロード層:</strong> GPUへオフロードする層数です。0は無効、1〜39は指定層数、-1は利用可能な全層を対象にします。</li>
+        <li><strong>コンピュートバックエンド:</strong> GPU（OpenCL/Adreno）と NPU（Hexagon HTP）の有効/無効を切り替えます。GPU と NPU は排他です。両方オフの場合は CPU で実行します。</li>
+        <li><strong>オフロード層（GPU/NPU）:</strong> GPU または NPU にオフロードする層数をスライダーで設定します。最大値（ALL）は利用可能な全層を対象にします。GPU/NPU がどちらも無効（CPU 実行）の場合はスライダーが無効化されます。</li>
         <li><strong>温度 (temp):</strong> 出力のランダム性を制御します。0に近いほど決定的、高いほど多様な出力になります。</li>
         <li><strong>Top-p:</strong> 累積確率がこの値に達するまでのトークンから選択します（nucleus sampling）。</li>
         <li><strong>Top-k:</strong> 確率上位k個のトークンから選択します。</li>
