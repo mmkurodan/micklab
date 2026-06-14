@@ -82,7 +82,7 @@
       <h3>Status Header (top of screen)</h3>
       <ul>
         <li><strong>API/WebUI status:</strong> Shows whether the API server is running and on which port.</li>
-        <li><strong>Speed, temperature, backend:</strong> Shows the last generation speed (tok/s), device temperature (°C), active compute backend (CPU / GPU / NPU), and the name of the loaded model.</li>
+        <li><strong>Speed, temperature, backend:</strong> Shows the last generation speed (tok/s), device temperature (°C), active compute backend (CPU / GPU), and the name of the loaded model.</li>
       </ul>
       <h3>Main Action Buttons</h3>
       <ul>
@@ -121,8 +121,8 @@
         <li><strong>Multimodal Projector (mmproj):</strong> Select or clear an mmproj (multimodal projector) file when using a multimodal model. Used based on the loaded model's vision/audio support.</li>
         <li><strong>Model Maintenance (MAINTAIN MODEL):</strong> Lists model files stored in the app, with options to switch to a different stored model or delete a selected file.</li>
         <li><strong>Search GGUF on Hugging Face:</strong> Opens the Hugging Face GGUF model search page in the browser.</li>
-        <li><strong>Compute Backend:</strong> Toggle GPU (OpenCL/Adreno) and NPU (Hexagon HTP) on or off independently. GPU and NPU are mutually exclusive — enabling one automatically disables the other. When both are off the model runs on CPU.</li>
-        <li><strong>Offload Layers (GPU/NPU):</strong> Set the number of layers to offload to the GPU or NPU using a slider. The maximum position means ALL available layers. The slider is disabled when both GPU and NPU are off (CPU mode).</li>
+        <li><strong>Compute Backend:</strong> Toggle GPU (OpenCL/Adreno) on or off. When it is off the model runs on CPU.</li>
+        <li><strong>Offload Layers (GPU):</strong> Set the number of layers to offload to the GPU using a slider. The maximum position means ALL available layers. The slider is disabled when GPU is off (CPU mode).</li>
         <li><strong>Model Parameters:</strong> Set generation parameters such as <code>n_ctx</code>, <code>n_threads</code>, <code>n_batch</code>, and temperature.</li>
         <li><strong>Output Settings:</strong> Toggle streaming output on/off. Enable Show Performance Metrics to append token counts, processing time, and speed to the output area after generation completes.</li>
         <li><strong>Prompt Template:</strong> Set System Prompt, Think on/off (chat-template-kwargs.enable_thinking), and custom chat template. When no custom template is set, the app first uses GGUF chat_template metadata and otherwise auto-selects by model family. A Bonsai fallback template is included.</li>
@@ -144,8 +144,8 @@
         <li><strong>Context Size (n_ctx):</strong> Number of tokens the model can process at once. Larger values handle longer contexts but use more memory.</li>
         <li><strong>Threads (n_threads):</strong> Number of CPU threads for inference. Adjust based on your device's core count.</li>
         <li><strong>Batch Size (n_batch):</strong> Number of tokens processed at once. Larger is faster but uses more memory.</li>
-        <li><strong>Compute Backend:</strong> Toggle GPU (OpenCL/Adreno) and NPU (Hexagon HTP) on or off. They are mutually exclusive. When both are off the model runs on CPU.</li>
-        <li><strong>Offload Layers (GPU/NPU):</strong> Set the number of layers to offload via a slider. The maximum position (ALL) targets all available layers. Disabled when both GPU and NPU are off.</li>
+        <li><strong>Compute Backend:</strong> Toggle GPU (OpenCL/Adreno) on or off. When it is off the model runs on CPU.</li>
+        <li><strong>Offload Layers (GPU):</strong> Set the number of layers to offload via a slider. The maximum position (ALL) targets all available layers. Disabled when GPU is off.</li>
         <li><strong>Temperature (temp):</strong> Controls output randomness. Lower is more deterministic, higher is more diverse.</li>
         <li><strong>Top-p:</strong> Select from tokens until cumulative probability reaches this value (nucleus sampling).</li>
         <li><strong>Top-k:</strong> Select from top k probability tokens.</li>

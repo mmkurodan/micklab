@@ -72,7 +72,7 @@
         </figure>
         <figure>
           <img src="/llama-tester/sm102.jpg" alt="LLM AI Server with llama.cpp の設定画面">
-          <figcaption>設定画面。モデル URL / ローカル GGUF 取り込み、GPU/NPU バックエンド選択、mmproj 設定、推論パラメータを調整できます。</figcaption>
+          <figcaption>設定画面。モデル URL / ローカル GGUF 取り込み、GPU バックエンド選択、mmproj 設定、推論パラメータを調整できます。</figcaption>
         </figure>
         <figure>
           <img src="/llama-tester/sm103.jpg" alt="LLM AI Server with llama.cpp のテンプレート設定">
@@ -86,7 +86,7 @@
       <ul>
         <li><strong>端末内でのローカル推論</strong>: llama.cpp を使って Android 端末上で GGUF モデルを直接実行します。</li>
         <li><strong>モデル導入の自由度</strong>: HTTP/HTTPS のモデル URL 指定と、ローカル端末からの <code>.gguf</code> 取り込みの両方に対応しています。</li>
-        <li><strong>詳細な推論制御</strong>: <code>n_ctx</code>、<code>n_threads</code>、コンピュートバックエンド（CPU / GPU / NPU）、オフロード層数、Top-p、Top-k、Penalty、Mirostat、DRY、Think、custom chat template まで調整できます。</li>
+        <li><strong>詳細な推論制御</strong>: <code>n_ctx</code>、<code>n_threads</code>、コンピュートバックエンド（CPU / GPU）、オフロード層数、Top-p、Top-k、Penalty、Mirostat、DRY、Think、custom chat template まで調整できます。</li>
         <li><strong>共有 MCP / Function Calling 設定</strong>: モデル別プロファイルとは別に MCP Config JSON と Function Definitions JSON を保存でき、外部利用スイッチを有効にするとメイン画面、<code>/api/chat</code>、<code>/api/generate</code>、<code>/v1/chat/completions</code> でも共通利用されます。</li>
         <li><strong>内蔵 Ollama/OpenAI 互換 API と WebUI</strong>: <code>/api/chat</code>、<code>/api/generate</code>、<code>/api/tags</code>、<code>/v1/chat/completions</code>、<code>/v1/models</code>、<code>/props</code>、<code>/slots</code> を同じポートで提供し、同時生成は 1 件、待機キューは最大 10 件・最大 60 秒です。</li>
         <li><strong>マルチモーダル API 入力</strong>: <code>/api/chat</code> と <code>/v1/chat/completions</code> では <code>image_url</code> と <code>input_audio</code> を扱え、ロード済みモデルの vision/audio 対応状況に応じて利用できます。</li>
