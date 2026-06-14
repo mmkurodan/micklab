@@ -1,0 +1,490 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>API Reference — LLM AI Server with llama.cpp — Mick Lab</title>
+  <link rel="alternate" hreflang="ja" href="/llama-tester/api-reference.html">
+  <link rel="alternate" hreflang="en" href="/llama-tester/api-reference-en.html">
+  <link rel="icon" href="/llama-tester/ic_launcher.png" type="image/png">
+  <style>
+    :root{--bg:#08080a;--card:#0f1114;--muted:#9aa3b2;--accent:#7c5cff;--line:rgba(255,255,255,0.08)}
+    *{box-sizing:border-box}
+    body{margin:0;background:var(--bg);color:#e6eef8;font-family:Inter,system-ui,Segoe UI,Roboto,Arial;line-height:1.72}
+    header{padding:18px 24px;border-bottom:1px solid rgba(255,255,255,0.03);display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap}
+    a{color:var(--accent);text-decoration:none}
+    main{max-width:1120px;margin:28px auto;padding:20px}
+    .card{background:var(--card);padding:20px;border-radius:14px;border:1px solid rgba(255,255,255,0.03);margin-bottom:18px}
+    h1{margin:0 0 12px;font-size:32px}
+    h2{margin:0 0 12px;font-size:24px}
+    h3{margin:18px 0 8px;font-size:18px}
+    p{margin:0 0 12px}
+    ul,ol{margin:0;padding-left:22px;color:var(--muted)}
+    li+li{margin-top:8px}
+    table{width:100%;border-collapse:collapse;margin-top:12px}
+    th,td{padding:12px;border:1px solid var(--line);vertical-align:top;text-align:left}
+    th{color:#fff;background:rgba(255,255,255,0.03)}
+    td{color:var(--muted)}
+    code{background:rgba(255,255,255,0.05);padding:2px 6px;border-radius:4px}
+    pre{margin:12px 0 0;background:#090b10;border:1px solid var(--line);border-radius:10px;padding:14px;overflow:auto;color:#dbe7ff;font-family:ui-monospace,SFMono-Regular,Consolas,monospace;font-size:13px;line-height:1.6}
+    .lead{color:#eef4ff}
+    .note{color:var(--muted);font-size:14px}
+    .callout{background:linear-gradient(90deg,rgba(124,92,255,0.08),rgba(0,212,255,0.03));border:1px solid var(--line)}
+    .nav-links,.lang-switch{display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+    .back{font-size:14px}
+    .lang-switch{color:var(--muted);font-size:14px}
+    .lang-switch a[aria-current="page"]{color:#fff;font-weight:700}
+    .toc{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px}
+    .toc a{display:block;padding:12px 14px;border:1px solid var(--line);border-radius:10px;background:rgba(255,255,255,0.02)}
+    .mono{font-family:ui-monospace,SFMono-Regular,Consolas,monospace}
+    .pill{display:inline-block;margin:0 8px 8px 0;padding:4px 10px;border-radius:999px;background:rgba(124,92,255,0.14);color:#d9d0ff;font-size:12px;font-weight:700}
+    .method{display:inline-block;padding:2px 8px;border-radius:6px;font-size:12px;font-weight:700;margin-right:8px}
+    .post{background:rgba(0,212,255,0.16);color:#9be9ff}
+    .get{background:rgba(124,255,170,0.16);color:#a8f5c8}
+    @media (max-width:700px){main{padding:16px}h1{font-size:28px}table,thead,tbody,tr,th,td{display:block}th{border-bottom:none}td{border-top:none}}
+  </style>
+</head>
+<body>
+  <header>
+    <div class="nav-links">
+      <a class="back" href="/">← Back to Home</a>
+      <a class="back" href="/llama-tester-en.html">← LLM AI Server with llama.cpp</a>
+    </div>
+    <nav class="lang-switch" aria-label="Language switch">
+      <a href="/llama-tester/api-reference.html">日本語</a>
+      <span>|</span>
+      <a href="/llama-tester/api-reference-en.html" aria-current="page">English</a>
+    </nav>
+  </header>
+  <main>
+    <section class="card callout">
+      <h1>API Reference</h1>
+      <p class="lead">Specification and usage examples for the HTTP API that LLM AI Server with llama.cpp exposes on the device. It covers the Ollama-compatible endpoints (<code>/api/*</code>), the OpenAI-compatible endpoints (<code>/v1/*</code>), and the llama.cpp WebUI-compatible endpoints (<code>/props</code>, <code>/slots</code>, and more), based on the current <code>OllamaApiServer</code> implementation.</p>
+      <p class="note">Related docs: <a href="/llama-tester/manual-en.html">User Manual</a> | <a href="/llama-tester/technical-spec-en.html">Technical Specification</a> | <a href="/llama-tester/privacy.html#en">Privacy Policy</a></p>
+      <div>
+        <span class="pill">Ollama-compatible</span>
+        <span class="pill">OpenAI-compatible</span>
+        <span class="pill">SSE / NDJSON streaming</span>
+        <span class="pill">Multimodal</span>
+        <span class="pill">Tools / Function Calling</span>
+      </div>
+    </section>
+
+    <section class="card">
+      <h2>Contents</h2>
+      <div class="toc">
+        <a href="#basics">1. Basics</a>
+        <a href="#compat">2. Compatibility summary</a>
+        <a href="#common">3. Common behavior</a>
+        <a href="#generate">4. POST /api/generate</a>
+        <a href="#chat">5. POST /api/chat</a>
+        <a href="#tags">6. /api/tags</a>
+        <a href="#openai">7. POST /v1/chat/completions</a>
+        <a href="#models">8. /v1/models &amp; /models</a>
+        <a href="#props">9. /props, /slots, /health</a>
+        <a href="#params">10. Sampling parameters</a>
+        <a href="#multimodal">11. Multimodal inputs</a>
+        <a href="#tools">12. Tools / Function Calling</a>
+        <a href="#clients">13. Client examples</a>
+      </div>
+    </section>
+
+    <section class="card" id="basics">
+      <h2>1. Basics</h2>
+      <ul>
+        <li><strong>Base URL:</strong> <code>http://localhost:&lt;port&gt;</code> (default port <code>11434</code>). While on Wi-Fi, a LAN URL (<code>http://&lt;device-ip&gt;:&lt;port&gt;</code>) is also available on the same port.</li>
+        <li><strong>Shared port:</strong> The API and the WebUI are served on the same port. GET requests outside API paths fall through to the WebUI.</li>
+        <li><strong>Authentication:</strong> There is no API-key auth (the <code>Authorization</code> header is ignored). Intended for same-device or local-network use.</li>
+        <li><strong>CORS:</strong> All responses include <code>Access-Control-Allow-Origin: *</code>, and <code>OPTIONS</code> preflight returns <code>204</code>.</li>
+        <li><strong>Content types:</strong> Request bodies are JSON (<code>application/json</code>). Non-streaming responses are JSON; streaming responses use NDJSON (<code>application/x-ndjson</code>) for <code>/api/*</code> and SSE (<code>text/event-stream</code>) for <code>/v1/*</code>.</li>
+        <li><strong>Model selection:</strong> <code>model</code> is a configuration (profile) name. List profiles via <code>/api/tags</code> or <code>/v1/models</code>.</li>
+      </ul>
+    </section>
+
+    <section class="card" id="compat">
+      <h2>2. Compatibility summary</h2>
+      <p>For the range that typical chat / generation clients use, the API is compatible with both the Ollama and OpenAI specifications. Because the app is built around a single on-device model and a single generation slot, some management endpoints and statistics fields are not provided.</p>
+      <table>
+        <thead>
+          <tr><th>Category</th><th>Details</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Ollama-compatible (implemented)</td><td><code>POST /api/generate</code>, <code>POST /api/chat</code>, <code>GET/POST /api/tags</code>. Response shape is <code>{model, created_at, response|message, done}</code>. Tool paths add <code>done_reason</code>, <code>tool_calls</code>, and <code>reasoning_content</code>.</td></tr>
+          <tr><td>OpenAI-compatible (implemented)</td><td><code>POST /v1/chat/completions</code> (SSE streaming terminated by <code>data: [DONE]</code>), <code>GET /v1/models</code>. Returns <code>object</code>, <code>choices[].message</code>/<code>delta</code>, and <code>finish_reason</code>.</td></tr>
+          <tr><td>llama.cpp WebUI-compatible</td><td><code>GET /props</code>, <code>GET /slots</code>, <code>GET /health</code> (<code>/v1/health</code>), <code>GET /models</code>, and bundled WebUI serving.</td></tr>
+          <tr><td>Extensions (app-specific)</td><td>Multimodal inputs (<code>image_url</code> / <code>input_audio</code>), shared MCP / Function Definitions settings, <code>reasoning_content</code>, and an option to append performance metrics to the output text.</td></tr>
+          <tr><td>Not implemented (caveats)</td><td>OpenAI responses do <strong>not</strong> include <code>id</code> / <code>created</code> / <code>usage</code>. Ollama responses do <strong>not</strong> include statistics such as <code>total_duration</code> / <code>eval_count</code> / <code>prompt_eval_count</code> / <code>context</code>. Embeddings (<code>/api/embed</code>, <code>/v1/embeddings</code>), model management (<code>/api/show</code>, <code>/api/pull</code>, <code>/api/ps</code>, <code>/api/version</code>), and <code>/v1/completions</code> (legacy completions) are not provided.</td></tr>
+        </tbody>
+      </table>
+      <p class="note">If you need token-usage style statistics, enable "Show Performance Metrics" in Output Settings. Token counts, processing time, and speed are appended after generation (in the final delta for OpenAI, as an extra chunk for Ollama).</p>
+    </section>
+
+    <section class="card" id="common">
+      <h2>3. Common behavior</h2>
+      <h3>3-1. Concurrency and busy queue</h3>
+      <ul>
+        <li>There is a single inference slot (single generation). Additional requests during generation are queued (up to <code>10</code>) and wait up to <code>60</code> seconds.</li>
+        <li>Queue overflow or wait timeout returns <code>503</code>.</li>
+        <li>While a model reset is in progress, new requests are rejected and queued requests are aborted (<code>503</code>).</li>
+      </ul>
+      <h3>3-2. Error responses</h3>
+      <p><code>/api/*</code> endpoints return plain JSON / text errors, while <code>/v1/*</code> endpoints return an OpenAI-style error object.</p>
+      <pre><code>// /v1/* error shape
+{
+  "error": {
+    "message": "No messages provided",
+    "type": "invalid_request_error",
+    "code": 400
+  }
+}</code></pre>
+      <table>
+        <thead><tr><th>Status</th><th>Meaning</th></tr></thead>
+        <tbody>
+          <tr><td><code>400</code></td><td>Invalid JSON, missing required fields, unsupported <code>content[].type</code>, unsupported modality, etc.</td></tr>
+          <tr><td><code>404</code></td><td>Unknown route</td></tr>
+          <tr><td><code>405</code></td><td>Unsupported HTTP method</td></tr>
+          <tr><td><code>500</code></td><td>Configuration load failure, generation failure, etc.</td></tr>
+          <tr><td><code>503</code></td><td>Busy (queue full / wait timeout / reset in progress)</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section class="card" id="generate">
+      <h2>4. <span class="method post">POST</span>/api/generate</h2>
+      <p>Single-prompt generation (Ollama <code>generate</code> compatible). Streaming (NDJSON) by default.</p>
+      <h3>Request</h3>
+      <table>
+        <thead><tr><th>Field</th><th>Type</th><th>Description</th></tr></thead>
+        <tbody>
+          <tr><td><code>model</code></td><td>string</td><td>Profile name. Defaults to <code>"default"</code>.</td></tr>
+          <tr><td><code>prompt</code></td><td>string</td><td>User prompt.</td></tr>
+          <tr><td><code>system</code></td><td>string?</td><td>Optional system prompt (overrides the configured one).</td></tr>
+          <tr><td><code>stream</code></td><td>bool</td><td>Default <code>true</code>. Use <code>false</code> for a single response.</td></tr>
+          <tr><td><code>tools</code></td><td>array?</td><td>Optional. Switches to the internal tool-execution loop (<a href="#tools">section 12</a>).</td></tr>
+        </tbody>
+      </table>
+      <h3>Non-streaming response</h3>
+      <pre><code>curl http://localhost:11434/api/generate -d '{
+  "model": "my-profile",
+  "prompt": "What is the capital of Japan?",
+  "stream": false
+}'</code></pre>
+      <pre><code>{
+  "model": "my-profile",
+  "created_at": "2026-06-14T03:10:00Z",
+  "response": "The capital of Japan is Tokyo.",
+  "done": true
+}</code></pre>
+      <h3>Streaming response (NDJSON)</h3>
+      <p>One JSON object per line. Each chunk has <code>"done": false</code> with a partial <code>response</code>; a final chunk with <code>"done": true</code> closes the stream.</p>
+      <pre><code>{"model":"my-profile","created_at":"...","response":"The","done":false}
+{"model":"my-profile","created_at":"...","response":" capital is","done":false}
+{"model":"my-profile","created_at":"...","response":"","done":true}</code></pre>
+    </section>
+
+    <section class="card" id="chat">
+      <h2>5. <span class="method post">POST</span>/api/chat</h2>
+      <p>Conversation generation from a messages array (Ollama <code>chat</code> compatible). Streaming (NDJSON) by default.</p>
+      <h3>Request</h3>
+      <table>
+        <thead><tr><th>Field</th><th>Type</th><th>Description</th></tr></thead>
+        <tbody>
+          <tr><td><code>model</code></td><td>string</td><td>Profile name. Defaults to <code>"default"</code>.</td></tr>
+          <tr><td><code>messages</code></td><td>array</td><td>Required. Array of <code>{role, content}</code>. <code>role</code> is <code>system</code> / <code>user</code> / <code>assistant</code> / <code>tool</code>. <code>content</code> is a string, or an array for multimodal input (<a href="#multimodal">section 11</a>).</td></tr>
+          <tr><td><code>stream</code></td><td>bool</td><td>Default <code>true</code>.</td></tr>
+          <tr><td><code>tools</code></td><td>array?</td><td>Optional (<a href="#tools">section 12</a>).</td></tr>
+        </tbody>
+      </table>
+      <h3>Non-streaming response</h3>
+      <pre><code>curl http://localhost:11434/api/chat -d '{
+  "model": "my-profile",
+  "stream": false,
+  "messages": [
+    {"role": "system", "content": "You are a concise assistant."},
+    {"role": "user", "content": "How tall is Mount Fuji?"}
+  ]
+}'</code></pre>
+      <pre><code>{
+  "model": "my-profile",
+  "created_at": "2026-06-14T03:10:00Z",
+  "message": { "role": "assistant", "content": "3,776 m." },
+  "done": true
+}</code></pre>
+      <h3>Streaming response (NDJSON)</h3>
+      <pre><code>{"model":"my-profile","created_at":"...","message":{"role":"assistant","content":"3,776"},"done":false}
+{"model":"my-profile","created_at":"...","message":{"role":"assistant","content":" m."},"done":false}
+{"model":"my-profile","created_at":"...","message":{"role":"assistant","content":""},"done":true}</code></pre>
+    </section>
+
+    <section class="card" id="tags">
+      <h2>6. <span class="method get">GET</span><span class="method post">POST</span>/api/tags</h2>
+      <p>List of available models (profiles). Ollama <code>tags</code> compatible.</p>
+      <pre><code>curl http://localhost:11434/api/tags</code></pre>
+      <pre><code>{
+  "models": [
+    {
+      "name": "my-profile",
+      "model": "my-profile",
+      "modified_at": "2026-06-14T03:10:00Z",
+      "size": 0,
+      "details": {
+        "format": "gguf",
+        "family": "llama",
+        "parameter_size": "unknown",
+        "quantization_level": "unknown"
+      }
+    }
+  ]
+}</code></pre>
+      <p class="note">Fields such as <code>size</code> and <code>parameter_size</code> cannot be determined on-device, so they use fixed values (<code>0</code> / <code>"unknown"</code>). Use <code>/v1/models</code> for richer status and modality information.</p>
+    </section>
+
+    <section class="card" id="openai">
+      <h2>7. <span class="method post">POST</span>/v1/chat/completions</h2>
+      <p>OpenAI Chat Completions compatible. Streaming (SSE) by default. Point the official OpenAI SDK's <code>base_url</code> at this server to use it.</p>
+      <h3>Request</h3>
+      <table>
+        <thead><tr><th>Field</th><th>Type</th><th>Description</th></tr></thead>
+        <tbody>
+          <tr><td><code>model</code></td><td>string</td><td>Profile name. If empty/omitted, resolves to the currently loaded model, otherwise the default profile.</td></tr>
+          <tr><td><code>messages</code></td><td>array</td><td>Required. OpenAI format. <code>content</code> is a string or an array of <code>{type, ...}</code> parts (<a href="#multimodal">section 11</a>).</td></tr>
+          <tr><td><code>stream</code></td><td>bool</td><td>Default <code>true</code>.</td></tr>
+          <tr><td><code>tools</code> / <code>tool_choice</code> / <code>parallel_tool_calls</code></td><td>array / any / bool</td><td>Optional (<a href="#tools">section 12</a>).</td></tr>
+          <tr><td>Sampling fields</td><td>number, etc.</td><td><code>temperature</code>, <code>top_p</code>, <code>top_k</code>, <code>min_p</code>, <code>presence_penalty</code>, <code>frequency_penalty</code>, and more (<a href="#params">section 10</a>). Overrides settings per request.</td></tr>
+        </tbody>
+      </table>
+      <h3>Non-streaming response</h3>
+      <pre><code>curl http://localhost:11434/v1/chat/completions -d '{
+  "model": "my-profile",
+  "stream": false,
+  "messages": [
+    {"role": "user", "content": "Say hello in Japanese."}
+  ]
+}'</code></pre>
+      <pre><code>{
+  "object": "chat.completion",
+  "model": "my-profile",
+  "choices": [
+    {
+      "index": 0,
+      "message": { "role": "assistant", "content": "Konnichiwa!" },
+      "finish_reason": "stop"
+    }
+  ]
+}</code></pre>
+      <p class="note">Note: responses do not include <code>id</code> / <code>created</code> / <code>usage</code>. Clients that require these will see them as missing.</p>
+      <h3>Streaming response (SSE)</h3>
+      <p>First a chunk with <code>delta.role="assistant"</code>, then chunks carrying <code>delta.content</code>, and finally a chunk with <code>finish_reason:"stop"</code> followed by <code>data: [DONE]</code>.</p>
+      <pre><code>data: {"object":"chat.completion.chunk","model":"my-profile","choices":[{"index":0,"delta":{"role":"assistant"},"finish_reason":null}]}
+
+data: {"object":"chat.completion.chunk","model":"my-profile","choices":[{"index":0,"delta":{"content":"Konni"},"finish_reason":null}]}
+
+data: {"object":"chat.completion.chunk","model":"my-profile","choices":[{"index":0,"delta":{"content":"chiwa!"},"finish_reason":null}]}
+
+data: {"object":"chat.completion.chunk","model":"my-profile","choices":[{"index":0,"delta":{},"finish_reason":"stop"}]}
+
+data: [DONE]</code></pre>
+    </section>
+
+    <section class="card" id="models">
+      <h2>8. <span class="method get">GET</span>/v1/models &amp; /models</h2>
+      <p>Returns the OpenAI-compatible model list plus a llama.cpp WebUI-oriented <code>models</code> array (status and modalities).</p>
+      <pre><code>curl http://localhost:11434/v1/models</code></pre>
+      <pre><code>{
+  "object": "list",
+  "data": [
+    {
+      "id": "my-profile",
+      "name": "my-profile",
+      "object": "model",
+      "owned_by": "llamacpp",
+      "created": 1781000000,
+      "in_cache": true,
+      "path": "/data/.../my-model.gguf",
+      "status": { "value": "loaded" },
+      "tags": []
+    }
+  ],
+  "models": [
+    {
+      "name": "my-profile",
+      "model": "my-profile",
+      "modified_at": "2026-06-14T03:10:00Z",
+      "size": 4100000000,
+      "capabilities": ["multimodal"],
+      "modalities": { "vision": true, "audio": false },
+      "details": { "format": "gguf", "family": "llama", "parameter_size": "unknown", "quantization_level": "unknown" }
+    }
+  ]
+}</code></pre>
+      <p class="note"><code>data[]</code> is OpenAI-compatible; <code>models[]</code> is llama.cpp WebUI-compatible. <code>modalities</code> reflects actual support for loaded models, or values inferred from the file when not loaded.</p>
+    </section>
+
+    <section class="card" id="props">
+      <h2>9. <span class="method get">GET</span>/props, /slots, /health</h2>
+      <p>Endpoints mainly used to initialize the bundled (llama.cpp-style) WebUI. Use <code>?model=&lt;profile-name&gt;</code> to target a profile.</p>
+      <ul>
+        <li><strong><code>/props</code>:</strong> Returns <code>default_generation_settings</code> (<code>n_ctx</code> and sampling values), <code>chat_template</code>, <code>modalities</code>, <code>model_path</code>, <code>build_info</code>, and <code>webui_settings</code> (system message, Think display, shared MCP / Function Definitions). <code>total_slots</code> is <code>1</code>.</li>
+        <li><strong><code>/slots</code>:</strong> A slot array (one element) with <code>n_ctx</code>, <code>params</code> (sampling values), and <code>is_processing</code>.</li>
+        <li><strong><code>/health</code>, <code>/v1/health</code>:</strong> <code>{"status":"ok","role":...,"webui":true}</code>.</li>
+      </ul>
+      <pre><code>curl "http://localhost:11434/props?model=my-profile"</code></pre>
+    </section>
+
+    <section class="card" id="params">
+      <h2>10. Sampling parameters</h2>
+      <p>For <code>/v1/chat/completions</code>, including the following keys in the request body overrides the configured values for that request (unspecified fields fall back to the profile values).</p>
+      <table>
+        <thead><tr><th>Key</th><th>Type</th><th>Maps to</th></tr></thead>
+        <tbody>
+          <tr><td><code>temperature</code></td><td>number</td><td>Temperature</td></tr>
+          <tr><td><code>top_k</code></td><td>int</td><td>Top-k</td></tr>
+          <tr><td><code>top_p</code></td><td>number</td><td>Top-p</td></tr>
+          <tr><td><code>min_p</code></td><td>number</td><td>Min-p</td></tr>
+          <tr><td><code>typ_p</code></td><td>number</td><td>Typical-p</td></tr>
+          <tr><td><code>dynatemp_range</code> / <code>dynatemp_exponent</code></td><td>number</td><td>Dynamic temperature</td></tr>
+          <tr><td><code>xtc_probability</code> / <code>xtc_threshold</code></td><td>number</td><td>XTC sampler</td></tr>
+          <tr><td><code>repeat_last_n</code></td><td>int</td><td>Penalty window size</td></tr>
+          <tr><td><code>repeat_penalty</code></td><td>number</td><td>Repeat penalty</td></tr>
+          <tr><td><code>presence_penalty</code> / <code>frequency_penalty</code></td><td>number</td><td>Presence / Frequency penalty</td></tr>
+          <tr><td><code>dry_multiplier</code> / <code>dry_base</code> / <code>dry_allowed_length</code> / <code>dry_penalty_last_n</code></td><td>number / int</td><td>DRY sampler</td></tr>
+          <tr><td><code>mirostat</code> / <code>mirostat_tau</code> / <code>mirostat_eta</code></td><td>int / number</td><td>Mirostat</td></tr>
+        </tbody>
+      </table>
+      <p class="note">Setting <code>n_predict: 0</code> performs pre-encode only and returns an empty response early (useful for prompt-evaluation warm-up).</p>
+    </section>
+
+    <section class="card" id="multimodal">
+      <h2>11. Multimodal inputs</h2>
+      <p><code>/api/chat</code> and <code>/v1/chat/completions</code> accept images and audio by passing <code>content</code> as a parts array. The loaded model must support vision / audio; otherwise the request returns <code>400</code>.</p>
+      <table>
+        <thead><tr><th>type</th><th>Description</th></tr></thead>
+        <tbody>
+          <tr><td><code>text</code> / <code>input_text</code></td><td>Text (<code>text</code> field).</td></tr>
+          <tr><td><code>image_url</code></td><td><code>image_url.url</code> is an HTTP/HTTPS image URL or a <code>data:image/...;base64,</code> data URL. Remote fetch is limited to 10 MB.</td></tr>
+          <tr><td><code>input_audio</code></td><td><code>input_audio.data</code> (base64) and <code>input_audio.format</code> (<code>"wav"</code> or <code>"mp3"</code>).</td></tr>
+        </tbody>
+      </table>
+      <pre><code>curl http://localhost:11434/v1/chat/completions -d '{
+  "model": "my-vision-profile",
+  "stream": false,
+  "messages": [
+    {
+      "role": "user",
+      "content": [
+        {"type": "text", "text": "Describe this image."},
+        {"type": "image_url", "image_url": {"url": "data:image/jpeg;base64,/9j/4AAQ..."}}
+      ]
+    }
+  ]
+}'</code></pre>
+      <pre><code>// Audio input (wav / mp3)
+{
+  "role": "user",
+  "content": [
+    {"type": "text", "text": "Transcribe this audio."},
+    {"type": "input_audio", "input_audio": {"data": "UklGR...", "format": "wav"}}
+  ]
+}</code></pre>
+    </section>
+
+    <section class="card" id="tools">
+      <h2>12. Tools / Function Calling</h2>
+      <p>Passing <code>tools</code> in the request, or enabling shared MCP / Function Definitions in the app's MCP Settings, switches to the internal tool-execution loop. This works on <code>/api/generate</code>, <code>/api/chat</code>, and <code>/v1/chat/completions</code>.</p>
+      <ul>
+        <li><code>tools</code> is an OpenAI-compatible array. Passing a non-array returns <code>400</code>.</li>
+        <li><code>tool_choice</code> and <code>parallel_tool_calls</code> are accepted.</li>
+        <li>When shared MCP / Function Definitions are enabled, the same tool settings apply to the main prompt input and to each API.</li>
+        <li>Responses may include <code>tool_calls</code> returned directly by the model, plus calls extracted from in-text tool-call markers or <code>reasoning_content</code>.</li>
+      </ul>
+      <pre><code>// OpenAI-compatible tool example (part of a non-streaming response)
+{
+  "object": "chat.completion",
+  "model": "my-profile",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "",
+        "tool_calls": [
+          {
+            "id": "call_1",
+            "type": "function",
+            "function": { "name": "get_weather", "arguments": "{\"city\":\"Tokyo\"}" }
+          }
+        ]
+      },
+      "finish_reason": "tool_calls"
+    }
+  ]
+}</code></pre>
+    </section>
+
+    <section class="card" id="clients">
+      <h2>13. Client examples</h2>
+      <h3>OpenAI Python SDK</h3>
+      <pre><code>from openai import OpenAI
+
+client = OpenAI(
+    base_url="http://localhost:11434/v1",
+    api_key="not-needed",  # auth is not required (any string works)
+)
+
+resp = client.chat.completions.create(
+    model="my-profile",
+    messages=[{"role": "user", "content": "Hello"}],
+    stream=False,
+)
+print(resp.choices[0].message.content)</code></pre>
+
+      <h3>OpenAI-compatible streaming (Python)</h3>
+      <pre><code>stream = client.chat.completions.create(
+    model="my-profile",
+    messages=[{"role": "user", "content": "Write one haiku"}],
+    stream=True,
+)
+for chunk in stream:
+    delta = chunk.choices[0].delta
+    if delta.content:
+        print(delta.content, end="", flush=True)</code></pre>
+
+      <h3>Ollama-compatible (curl / NDJSON)</h3>
+      <pre><code>curl -N http://localhost:11434/api/chat -d '{
+  "model": "my-profile",
+  "messages": [{"role": "user", "content": "Introduce yourself"}]
+}'</code></pre>
+
+      <h3>JavaScript (fetch / SSE)</h3>
+      <pre><code>const res = await fetch("http://localhost:11434/v1/chat/completions", {
+  method: "POST",
+  headers: { "Content-Type": "application/json" },
+  body: JSON.stringify({
+    model: "my-profile",
+    messages: [{ role: "user", content: "Hello" }],
+    stream: true,
+  }),
+});
+
+const reader = res.body.getReader();
+const decoder = new TextDecoder();
+while (true) {
+  const { value, done } = await reader.read();
+  if (done) break;
+  for (const line of decoder.decode(value).split("\n")) {
+    if (!line.startsWith("data: ")) continue;
+    const data = line.slice(6);
+    if (data === "[DONE]") break;
+    const json = JSON.parse(data);
+    process.stdout.write(json.choices[0].delta.content ?? "");
+  }
+}</code></pre>
+    </section>
+
+    <section class="card">
+      <p class="note">This page is based on the current Android implementation (<code>OllamaApiServer</code>). Response examples are formatted for clarity; actual field sets and defaults may vary by app version.</p>
+    </section>
+  </main>
+  <script defer src="/browser-api-register.js"></script>
+</body>
+</html>

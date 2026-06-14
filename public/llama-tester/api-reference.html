@@ -1,0 +1,490 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>API リファレンス — LLM AI Server with llama.cpp — Mick Lab</title>
+  <link rel="alternate" hreflang="ja" href="/llama-tester/api-reference.html">
+  <link rel="alternate" hreflang="en" href="/llama-tester/api-reference-en.html">
+  <link rel="icon" href="/llama-tester/ic_launcher.png" type="image/png">
+  <style>
+    :root{--bg:#08080a;--card:#0f1114;--muted:#9aa3b2;--accent:#7c5cff;--line:rgba(255,255,255,0.08)}
+    *{box-sizing:border-box}
+    body{margin:0;background:var(--bg);color:#e6eef8;font-family:Inter,system-ui,Segoe UI,Roboto,Arial;line-height:1.72}
+    header{padding:18px 24px;border-bottom:1px solid rgba(255,255,255,0.03);display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap}
+    a{color:var(--accent);text-decoration:none}
+    main{max-width:1120px;margin:28px auto;padding:20px}
+    .card{background:var(--card);padding:20px;border-radius:14px;border:1px solid rgba(255,255,255,0.03);margin-bottom:18px}
+    h1{margin:0 0 12px;font-size:32px}
+    h2{margin:0 0 12px;font-size:24px}
+    h3{margin:18px 0 8px;font-size:18px}
+    p{margin:0 0 12px}
+    ul,ol{margin:0;padding-left:22px;color:var(--muted)}
+    li+li{margin-top:8px}
+    table{width:100%;border-collapse:collapse;margin-top:12px}
+    th,td{padding:12px;border:1px solid var(--line);vertical-align:top;text-align:left}
+    th{color:#fff;background:rgba(255,255,255,0.03)}
+    td{color:var(--muted)}
+    code{background:rgba(255,255,255,0.05);padding:2px 6px;border-radius:4px}
+    pre{margin:12px 0 0;background:#090b10;border:1px solid var(--line);border-radius:10px;padding:14px;overflow:auto;color:#dbe7ff;font-family:ui-monospace,SFMono-Regular,Consolas,monospace;font-size:13px;line-height:1.6}
+    .lead{color:#eef4ff}
+    .note{color:var(--muted);font-size:14px}
+    .callout{background:linear-gradient(90deg,rgba(124,92,255,0.08),rgba(0,212,255,0.03));border:1px solid var(--line)}
+    .nav-links,.lang-switch{display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+    .back{font-size:14px}
+    .lang-switch{color:var(--muted);font-size:14px}
+    .lang-switch a[aria-current="page"]{color:#fff;font-weight:700}
+    .toc{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px}
+    .toc a{display:block;padding:12px 14px;border:1px solid var(--line);border-radius:10px;background:rgba(255,255,255,0.02)}
+    .mono{font-family:ui-monospace,SFMono-Regular,Consolas,monospace}
+    .pill{display:inline-block;margin:0 8px 8px 0;padding:4px 10px;border-radius:999px;background:rgba(124,92,255,0.14);color:#d9d0ff;font-size:12px;font-weight:700}
+    .method{display:inline-block;padding:2px 8px;border-radius:6px;font-size:12px;font-weight:700;margin-right:8px}
+    .post{background:rgba(0,212,255,0.16);color:#9be9ff}
+    .get{background:rgba(124,255,170,0.16);color:#a8f5c8}
+    @media (max-width:700px){main{padding:16px}h1{font-size:28px}table,thead,tbody,tr,th,td{display:block}th{border-bottom:none}td{border-top:none}}
+  </style>
+</head>
+<body>
+  <header>
+    <div class="nav-links">
+      <a class="back" href="/">← ホームへ戻る</a>
+      <a class="back" href="/llama-tester.html">← LLM AI Server with llama.cpp</a>
+    </div>
+    <nav class="lang-switch" aria-label="Language switch">
+      <a href="/llama-tester/api-reference.html" aria-current="page">日本語</a>
+      <span>|</span>
+      <a href="/llama-tester/api-reference-en.html">English</a>
+    </nav>
+  </header>
+  <main>
+    <section class="card callout">
+      <h1>API リファレンス</h1>
+      <p class="lead">LLM AI Server with llama.cpp が端末内で公開する HTTP API の仕様と使用例です。Ollama 互換エンドポイント（<code>/api/*</code>）と OpenAI 互換エンドポイント（<code>/v1/*</code>）、および llama.cpp WebUI 互換エンドポイント（<code>/props</code>, <code>/slots</code> ほか）を、現行の <code>OllamaApiServer</code> 実装をもとに整理しています。</p>
+      <p class="note">関連文書: <a href="/llama-tester/manual.html">操作マニュアル</a> | <a href="/llama-tester/technical-spec.html">技術仕様</a> | <a href="/llama-tester/privacy.html#ja">プライバシーポリシー</a></p>
+      <div>
+        <span class="pill">Ollama 互換</span>
+        <span class="pill">OpenAI 互換</span>
+        <span class="pill">SSE / NDJSON streaming</span>
+        <span class="pill">Multimodal</span>
+        <span class="pill">Tools / Function Calling</span>
+      </div>
+    </section>
+
+    <section class="card">
+      <h2>目次</h2>
+      <div class="toc">
+        <a href="#basics">1. 基本情報</a>
+        <a href="#compat">2. 互換性サマリ</a>
+        <a href="#common">3. 共通仕様</a>
+        <a href="#generate">4. POST /api/generate</a>
+        <a href="#chat">5. POST /api/chat</a>
+        <a href="#tags">6. /api/tags</a>
+        <a href="#openai">7. POST /v1/chat/completions</a>
+        <a href="#models">8. /v1/models・/models</a>
+        <a href="#props">9. /props・/slots・/health</a>
+        <a href="#params">10. サンプリングパラメータ</a>
+        <a href="#multimodal">11. マルチモーダル入力</a>
+        <a href="#tools">12. ツール / Function Calling</a>
+        <a href="#clients">13. クライアント例</a>
+      </div>
+    </section>
+
+    <section class="card" id="basics">
+      <h2>1. 基本情報</h2>
+      <ul>
+        <li><strong>ベース URL:</strong> <code>http://localhost:&lt;port&gt;</code>（既定ポート <code>11434</code>）。Wi-Fi 接続中は同じポートで LAN URL（<code>http://&lt;端末 IP&gt;:&lt;port&gt;</code>）も利用できます。</li>
+        <li><strong>同居構成:</strong> API と WebUI は同一ポートで提供されます。API パス以外への GET は WebUI 配信に回されます。</li>
+        <li><strong>認証:</strong> API キー認証はありません（<code>Authorization</code> ヘッダーは無視されます）。同一端末またはローカルネットワーク内での利用を想定しています。</li>
+        <li><strong>CORS:</strong> すべての応答に <code>Access-Control-Allow-Origin: *</code> を付与し、<code>OPTIONS</code> プリフライトに <code>204</code> を返します。</li>
+        <li><strong>Content-Type:</strong> リクエストボディは JSON（<code>application/json</code>）。非ストリーミング応答は JSON、ストリーミング応答は <code>/api/*</code> が NDJSON（<code>application/x-ndjson</code>）、<code>/v1/*</code> が SSE（<code>text/event-stream</code>）です。</li>
+        <li><strong>モデル指定:</strong> <code>model</code> には設定（プロファイル）名を指定します。プロファイル一覧は <code>/api/tags</code> または <code>/v1/models</code> で取得できます。</li>
+      </ul>
+    </section>
+
+    <section class="card" id="compat">
+      <h2>2. 互換性サマリ</h2>
+      <p>主要なチャット / 生成クライアントが利用する範囲では Ollama・OpenAI の両仕様と互換です。一方で、本アプリは「端末内 1 モデル・1 推論」を前提とした実装のため、一部の管理系エンドポイントや統計フィールドは提供しません。</p>
+      <table>
+        <thead>
+          <tr><th>区分</th><th>内容</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Ollama 互換（実装済み）</td><td><code>POST /api/generate</code>、<code>POST /api/chat</code>、<code>GET/POST /api/tags</code>。応答形は <code>{model, created_at, response|message, done}</code> 系で互換。ツール利用時は <code>done_reason</code>・<code>tool_calls</code>・<code>reasoning_content</code> を追加。</td></tr>
+          <tr><td>OpenAI 互換（実装済み）</td><td><code>POST /v1/chat/completions</code>（streaming は SSE、終端 <code>data: [DONE]</code>）、<code>GET /v1/models</code>。<code>object</code>・<code>choices[].message</code>/<code>delta</code>・<code>finish_reason</code> を返却。</td></tr>
+          <tr><td>llama.cpp WebUI 互換</td><td><code>GET /props</code>、<code>GET /slots</code>、<code>GET /health</code>（<code>/v1/health</code>）、<code>GET /models</code>、Bundled WebUI 配信。</td></tr>
+          <tr><td>拡張（独自）</td><td>マルチモーダル入力（<code>image_url</code> / <code>input_audio</code>）、共有 MCP / Function Definitions 設定、<code>reasoning_content</code>、パフォーマンス指標を本文末尾に付記するオプション。</td></tr>
+          <tr><td>未実装（注意点）</td><td>OpenAI 応答に <code>id</code> / <code>created</code> / <code>usage</code> は<strong>含まれません</strong>。Ollama 応答に <code>total_duration</code> / <code>eval_count</code> / <code>prompt_eval_count</code> / <code>context</code> などの統計は<strong>含まれません</strong>。埋め込み（<code>/api/embed</code>, <code>/v1/embeddings</code>）、モデル管理（<code>/api/show</code>, <code>/api/pull</code>, <code>/api/ps</code>, <code>/api/version</code>）、<code>/v1/completions</code>（旧 completions）は提供しません。</td></tr>
+        </tbody>
+      </table>
+      <p class="note">トークン使用量などの統計が必要な場合は、出力設定の「パフォーマンス指標を表示」を有効にすると、生成完了後にトークン数・処理時間・速度が本文末尾（OpenAI は最終 delta、Ollama は追加 chunk）に付記されます。</p>
+    </section>
+
+    <section class="card" id="common">
+      <h2>3. 共通仕様</h2>
+      <h3>3-1. 同時実行と待機キュー</h3>
+      <ul>
+        <li>推論 slot は 1 つだけ（single-generation）。生成中の追加リクエストは最大 <code>10</code> 件まで待機キューに入り、最大 <code>60</code> 秒待機します。</li>
+        <li>キュー超過・待機タイムアウト時は <code>503</code> を返します。</li>
+        <li>モデル再初期化（リセット）要求中は、新規リクエストを拒否し、待機中リクエストも打ち切ります（<code>503</code>）。</li>
+      </ul>
+      <h3>3-2. エラー応答</h3>
+      <p><code>/api/*</code> 系はプレーンな JSON / テキストでエラーを返し、<code>/v1/*</code> 系は OpenAI 形式のエラーオブジェクトを返します。</p>
+      <pre><code>// /v1/* のエラー形式
+{
+  "error": {
+    "message": "No messages provided",
+    "type": "invalid_request_error",
+    "code": 400
+  }
+}</code></pre>
+      <table>
+        <thead><tr><th>ステータス</th><th>意味</th></tr></thead>
+        <tbody>
+          <tr><td><code>400</code></td><td>JSON 不正、必須項目欠落、非対応の <code>content[].type</code>、未対応モダリティ など</td></tr>
+          <tr><td><code>404</code></td><td>未定義の経路</td></tr>
+          <tr><td><code>405</code></td><td>非対応の HTTP メソッド</td></tr>
+          <tr><td><code>500</code></td><td>設定ロード失敗、生成失敗 など</td></tr>
+          <tr><td><code>503</code></td><td>ビジー（キュー満杯 / 待機タイムアウト / リセット進行中）</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section class="card" id="generate">
+      <h2>4. <span class="method post">POST</span>/api/generate</h2>
+      <p>単一プロンプトからの生成（Ollama <code>generate</code> 互換）。既定で streaming（NDJSON）。</p>
+      <h3>リクエスト</h3>
+      <table>
+        <thead><tr><th>フィールド</th><th>型</th><th>説明</th></tr></thead>
+        <tbody>
+          <tr><td><code>model</code></td><td>string</td><td>プロファイル名。未指定時は <code>"default"</code>。</td></tr>
+          <tr><td><code>prompt</code></td><td>string</td><td>ユーザープロンプト。</td></tr>
+          <tr><td><code>system</code></td><td>string?</td><td>任意。システムプロンプト（設定側より優先）。</td></tr>
+          <tr><td><code>stream</code></td><td>bool</td><td>既定 <code>true</code>。<code>false</code> で一括応答。</td></tr>
+          <tr><td><code>tools</code></td><td>array?</td><td>任意。指定すると内部ツール実行ループに切り替わります（<a href="#tools">12 章</a>）。</td></tr>
+        </tbody>
+      </table>
+      <h3>非ストリーミング応答</h3>
+      <pre><code>curl http://localhost:11434/api/generate -d '{
+  "model": "my-profile",
+  "prompt": "日本の首都は？",
+  "stream": false
+}'</code></pre>
+      <pre><code>{
+  "model": "my-profile",
+  "created_at": "2026-06-14T03:10:00Z",
+  "response": "日本の首都は東京です。",
+  "done": true
+}</code></pre>
+      <h3>ストリーミング応答（NDJSON）</h3>
+      <p>1 行 1 JSON。各 chunk は <code>"done": false</code> で <code>response</code> に部分文字列。最後に <code>"done": true</code> の chunk を送出します。</p>
+      <pre><code>{"model":"my-profile","created_at":"...","response":"日本","done":false}
+{"model":"my-profile","created_at":"...","response":"の首都は","done":false}
+{"model":"my-profile","created_at":"...","response":"","done":true}</code></pre>
+    </section>
+
+    <section class="card" id="chat">
+      <h2>5. <span class="method post">POST</span>/api/chat</h2>
+      <p>messages 配列による会話生成（Ollama <code>chat</code> 互換）。既定で streaming（NDJSON）。</p>
+      <h3>リクエスト</h3>
+      <table>
+        <thead><tr><th>フィールド</th><th>型</th><th>説明</th></tr></thead>
+        <tbody>
+          <tr><td><code>model</code></td><td>string</td><td>プロファイル名。未指定時は <code>"default"</code>。</td></tr>
+          <tr><td><code>messages</code></td><td>array</td><td>必須。<code>{role, content}</code> の配列。<code>role</code> は <code>system</code> / <code>user</code> / <code>assistant</code> / <code>tool</code>。<code>content</code> は文字列、またはマルチモーダル用の配列（<a href="#multimodal">11 章</a>）。</td></tr>
+          <tr><td><code>stream</code></td><td>bool</td><td>既定 <code>true</code>。</td></tr>
+          <tr><td><code>tools</code></td><td>array?</td><td>任意（<a href="#tools">12 章</a>）。</td></tr>
+        </tbody>
+      </table>
+      <h3>非ストリーミング応答</h3>
+      <pre><code>curl http://localhost:11434/api/chat -d '{
+  "model": "my-profile",
+  "stream": false,
+  "messages": [
+    {"role": "system", "content": "あなたは簡潔に答えるアシスタントです。"},
+    {"role": "user", "content": "富士山の標高は？"}
+  ]
+}'</code></pre>
+      <pre><code>{
+  "model": "my-profile",
+  "created_at": "2026-06-14T03:10:00Z",
+  "message": { "role": "assistant", "content": "3,776 m です。" },
+  "done": true
+}</code></pre>
+      <h3>ストリーミング応答（NDJSON）</h3>
+      <pre><code>{"model":"my-profile","created_at":"...","message":{"role":"assistant","content":"3,776"},"done":false}
+{"model":"my-profile","created_at":"...","message":{"role":"assistant","content":" m です。"},"done":false}
+{"model":"my-profile","created_at":"...","message":{"role":"assistant","content":""},"done":true}</code></pre>
+    </section>
+
+    <section class="card" id="tags">
+      <h2>6. <span class="method get">GET</span><span class="method post">POST</span>/api/tags</h2>
+      <p>利用可能なモデル（プロファイル）一覧。Ollama <code>tags</code> 互換。</p>
+      <pre><code>curl http://localhost:11434/api/tags</code></pre>
+      <pre><code>{
+  "models": [
+    {
+      "name": "my-profile",
+      "model": "my-profile",
+      "modified_at": "2026-06-14T03:10:00Z",
+      "size": 0,
+      "details": {
+        "format": "gguf",
+        "family": "llama",
+        "parameter_size": "unknown",
+        "quantization_level": "unknown"
+      }
+    }
+  ]
+}</code></pre>
+      <p class="note"><code>size</code> や <code>parameter_size</code> 等は端末側で確定できないため固定値（<code>0</code> / <code>"unknown"</code>）です。より詳しい状態・モダリティが必要な場合は <code>/v1/models</code> を使ってください。</p>
+    </section>
+
+    <section class="card" id="openai">
+      <h2>7. <span class="method post">POST</span>/v1/chat/completions</h2>
+      <p>OpenAI Chat Completions 互換。既定で streaming（SSE）。OpenAI 公式 SDK の <code>base_url</code> をこのサーバーに向けるだけで利用できます。</p>
+      <h3>リクエスト</h3>
+      <table>
+        <thead><tr><th>フィールド</th><th>型</th><th>説明</th></tr></thead>
+        <tbody>
+          <tr><td><code>model</code></td><td>string</td><td>プロファイル名。空 / 未指定時は現在ロード中のモデル、なければ既定プロファイルに解決されます。</td></tr>
+          <tr><td><code>messages</code></td><td>array</td><td>必須。OpenAI 形式。<code>content</code> は文字列または <code>{type, ...}</code> パーツ配列（<a href="#multimodal">11 章</a>）。</td></tr>
+          <tr><td><code>stream</code></td><td>bool</td><td>既定 <code>true</code>。</td></tr>
+          <tr><td><code>tools</code> / <code>tool_choice</code> / <code>parallel_tool_calls</code></td><td>array / any / bool</td><td>任意（<a href="#tools">12 章</a>）。</td></tr>
+          <tr><td>サンプリング各種</td><td>number 等</td><td><code>temperature</code>, <code>top_p</code>, <code>top_k</code>, <code>min_p</code>, <code>presence_penalty</code>, <code>frequency_penalty</code> ほか（<a href="#params">10 章</a>）。リクエスト単位で設定を上書きします。</td></tr>
+        </tbody>
+      </table>
+      <h3>非ストリーミング応答</h3>
+      <pre><code>curl http://localhost:11434/v1/chat/completions -d '{
+  "model": "my-profile",
+  "stream": false,
+  "messages": [
+    {"role": "user", "content": "Say hello in Japanese."}
+  ]
+}'</code></pre>
+      <pre><code>{
+  "object": "chat.completion",
+  "model": "my-profile",
+  "choices": [
+    {
+      "index": 0,
+      "message": { "role": "assistant", "content": "こんにちは！" },
+      "finish_reason": "stop"
+    }
+  ]
+}</code></pre>
+      <p class="note">注意: 本アプリの応答には <code>id</code> / <code>created</code> / <code>usage</code> は含まれません。これらを必須とする一部クライアントでは欠落として扱われます。</p>
+      <h3>ストリーミング応答（SSE）</h3>
+      <p>先頭に <code>delta.role="assistant"</code> の chunk、続いて <code>delta.content</code> を持つ chunk 群、最後に <code>finish_reason:"stop"</code> の chunk と <code>data: [DONE]</code> を送出します。</p>
+      <pre><code>data: {"object":"chat.completion.chunk","model":"my-profile","choices":[{"index":0,"delta":{"role":"assistant"},"finish_reason":null}]}
+
+data: {"object":"chat.completion.chunk","model":"my-profile","choices":[{"index":0,"delta":{"content":"こん"},"finish_reason":null}]}
+
+data: {"object":"chat.completion.chunk","model":"my-profile","choices":[{"index":0,"delta":{"content":"にちは！"},"finish_reason":null}]}
+
+data: {"object":"chat.completion.chunk","model":"my-profile","choices":[{"index":0,"delta":{},"finish_reason":"stop"}]}
+
+data: [DONE]</code></pre>
+    </section>
+
+    <section class="card" id="models">
+      <h2>8. <span class="method get">GET</span>/v1/models・/models</h2>
+      <p>OpenAI 互換のモデル一覧に加え、llama.cpp WebUI 向けの <code>models</code> 配列（状態・モダリティ）も同時に返します。</p>
+      <pre><code>curl http://localhost:11434/v1/models</code></pre>
+      <pre><code>{
+  "object": "list",
+  "data": [
+    {
+      "id": "my-profile",
+      "name": "my-profile",
+      "object": "model",
+      "owned_by": "llamacpp",
+      "created": 1781000000,
+      "in_cache": true,
+      "path": "/data/.../my-model.gguf",
+      "status": { "value": "loaded" },
+      "tags": []
+    }
+  ],
+  "models": [
+    {
+      "name": "my-profile",
+      "model": "my-profile",
+      "modified_at": "2026-06-14T03:10:00Z",
+      "size": 4100000000,
+      "capabilities": ["multimodal"],
+      "modalities": { "vision": true, "audio": false },
+      "details": { "format": "gguf", "family": "llama", "parameter_size": "unknown", "quantization_level": "unknown" }
+    }
+  ]
+}</code></pre>
+      <p class="note"><code>data[]</code> が OpenAI 互換、<code>models[]</code> が llama.cpp WebUI 互換です。<code>modalities</code> はロード済みモデルなら実際の対応状況、未ロードならファイルからの推定値を返します。</p>
+    </section>
+
+    <section class="card" id="props">
+      <h2>9. <span class="method get">GET</span>/props・/slots・/health</h2>
+      <p>主に同梱 WebUI（llama.cpp 風）の初期化に使われるエンドポイントです。<code>?model=&lt;プロファイル名&gt;</code> で対象を指定できます。</p>
+      <ul>
+        <li><strong><code>/props</code>:</strong> <code>default_generation_settings</code>（<code>n_ctx</code> や各サンプリング値）、<code>chat_template</code>、<code>modalities</code>、<code>model_path</code>、<code>build_info</code>、<code>webui_settings</code>（systemMessage、Think 表示、共有 MCP / Function Definitions 設定）などを返します。<code>total_slots</code> は <code>1</code>。</li>
+        <li><strong><code>/slots</code>:</strong> slot 配列（要素 1 個）。<code>n_ctx</code>、<code>params</code>（サンプリング値）、<code>is_processing</code> などを返します。</li>
+        <li><strong><code>/health</code>, <code>/v1/health</code>:</strong> <code>{"status":"ok","role":...,"webui":true}</code>。</li>
+      </ul>
+      <pre><code>curl "http://localhost:11434/props?model=my-profile"</code></pre>
+    </section>
+
+    <section class="card" id="params">
+      <h2>10. サンプリングパラメータ</h2>
+      <p><code>/v1/chat/completions</code> ではリクエスト本文に次のキーを含めると、そのリクエストのあいだ設定値を上書きします（指定しなかった項目はプロファイルの値を使用）。</p>
+      <table>
+        <thead><tr><th>キー</th><th>型</th><th>対応する設定</th></tr></thead>
+        <tbody>
+          <tr><td><code>temperature</code></td><td>number</td><td>温度</td></tr>
+          <tr><td><code>top_k</code></td><td>int</td><td>Top-k</td></tr>
+          <tr><td><code>top_p</code></td><td>number</td><td>Top-p</td></tr>
+          <tr><td><code>min_p</code></td><td>number</td><td>Min-p</td></tr>
+          <tr><td><code>typ_p</code></td><td>number</td><td>Typical-p</td></tr>
+          <tr><td><code>dynatemp_range</code> / <code>dynatemp_exponent</code></td><td>number</td><td>Dynamic temperature</td></tr>
+          <tr><td><code>xtc_probability</code> / <code>xtc_threshold</code></td><td>number</td><td>XTC サンプラー</td></tr>
+          <tr><td><code>repeat_last_n</code></td><td>int</td><td>Penalty 対象トークン数</td></tr>
+          <tr><td><code>repeat_penalty</code></td><td>number</td><td>Repeat penalty</td></tr>
+          <tr><td><code>presence_penalty</code> / <code>frequency_penalty</code></td><td>number</td><td>Presence / Frequency penalty</td></tr>
+          <tr><td><code>dry_multiplier</code> / <code>dry_base</code> / <code>dry_allowed_length</code> / <code>dry_penalty_last_n</code></td><td>number / int</td><td>DRY サンプラー</td></tr>
+          <tr><td><code>mirostat</code> / <code>mirostat_tau</code> / <code>mirostat_eta</code></td><td>int / number</td><td>Mirostat</td></tr>
+        </tbody>
+      </table>
+      <p class="note"><code>n_predict: 0</code> を指定すると pre-encode のみを行い、空応答で早期復帰します（プロンプト評価のウォームアップ用）。</p>
+    </section>
+
+    <section class="card" id="multimodal">
+      <h2>11. マルチモーダル入力</h2>
+      <p><code>/api/chat</code> と <code>/v1/chat/completions</code> では、<code>content</code> をパーツ配列にすることで画像・音声を渡せます。ロード中のモデルが vision / audio に対応している必要があり、非対応の場合は <code>400</code> を返します。</p>
+      <table>
+        <thead><tr><th>type</th><th>説明</th></tr></thead>
+        <tbody>
+          <tr><td><code>text</code> / <code>input_text</code></td><td>テキスト（<code>text</code> フィールド）。</td></tr>
+          <tr><td><code>image_url</code></td><td><code>image_url.url</code> に HTTP/HTTPS の画像 URL、または <code>data:image/...;base64,</code> 形式の data URL。リモート取得は 10MB 上限。</td></tr>
+          <tr><td><code>input_audio</code></td><td><code>input_audio.data</code>（base64）と <code>input_audio.format</code>（<code>"wav"</code> または <code>"mp3"</code>）。</td></tr>
+        </tbody>
+      </table>
+      <pre><code>curl http://localhost:11434/v1/chat/completions -d '{
+  "model": "my-vision-profile",
+  "stream": false,
+  "messages": [
+    {
+      "role": "user",
+      "content": [
+        {"type": "text", "text": "この画像を説明して"},
+        {"type": "image_url", "image_url": {"url": "data:image/jpeg;base64,/9j/4AAQ..."}}
+      ]
+    }
+  ]
+}'</code></pre>
+      <pre><code>// 音声入力（wav / mp3）
+{
+  "role": "user",
+  "content": [
+    {"type": "text", "text": "この音声を文字起こしして"},
+    {"type": "input_audio", "input_audio": {"data": "UklGR...", "format": "wav"}}
+  ]
+}</code></pre>
+    </section>
+
+    <section class="card" id="tools">
+      <h2>12. ツール / Function Calling</h2>
+      <p>リクエストに <code>tools</code> を渡すか、アプリの「MCP 設定」で共有 MCP / Function Definitions を有効にすると、内部ツール実行ループに切り替わります。<code>/api/generate</code>・<code>/api/chat</code>・<code>/v1/chat/completions</code> のいずれでも利用できます。</p>
+      <ul>
+        <li><code>tools</code> は OpenAI 互換の配列です。配列以外を渡すと <code>400</code> になります。</li>
+        <li><code>tool_choice</code> と <code>parallel_tool_calls</code> を受け取ります。</li>
+        <li>共有 MCP / Function Definitions を有効化している場合、メイン画面のプロンプトや各 API でも共通のツール設定が適用されます。</li>
+        <li>応答にはモデルが直接返した <code>tool_calls</code> に加え、本文中の tool-call マーカーや <code>reasoning_content</code> からの抽出結果も含まれることがあります。</li>
+      </ul>
+      <pre><code>// OpenAI 互換のツール定義例（非ストリーミング応答の一部）
+{
+  "object": "chat.completion",
+  "model": "my-profile",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "",
+        "tool_calls": [
+          {
+            "id": "call_1",
+            "type": "function",
+            "function": { "name": "get_weather", "arguments": "{\"city\":\"Tokyo\"}" }
+          }
+        ]
+      },
+      "finish_reason": "tool_calls"
+    }
+  ]
+}</code></pre>
+    </section>
+
+    <section class="card" id="clients">
+      <h2>13. クライアント例</h2>
+      <h3>OpenAI Python SDK</h3>
+      <pre><code>from openai import OpenAI
+
+client = OpenAI(
+    base_url="http://localhost:11434/v1",
+    api_key="not-needed",  # 認証は不要（任意の文字列で可）
+)
+
+resp = client.chat.completions.create(
+    model="my-profile",
+    messages=[{"role": "user", "content": "こんにちは"}],
+    stream=False,
+)
+print(resp.choices[0].message.content)</code></pre>
+
+      <h3>OpenAI 互換ストリーミング（Python）</h3>
+      <pre><code>stream = client.chat.completions.create(
+    model="my-profile",
+    messages=[{"role": "user", "content": "俳句を1つ"}],
+    stream=True,
+)
+for chunk in stream:
+    delta = chunk.choices[0].delta
+    if delta.content:
+        print(delta.content, end="", flush=True)</code></pre>
+
+      <h3>Ollama 互換（curl / NDJSON）</h3>
+      <pre><code>curl -N http://localhost:11434/api/chat -d '{
+  "model": "my-profile",
+  "messages": [{"role": "user", "content": "自己紹介して"}]
+}'</code></pre>
+
+      <h3>JavaScript（fetch / SSE）</h3>
+      <pre><code>const res = await fetch("http://localhost:11434/v1/chat/completions", {
+  method: "POST",
+  headers: { "Content-Type": "application/json" },
+  body: JSON.stringify({
+    model: "my-profile",
+    messages: [{ role: "user", content: "Hello" }],
+    stream: true,
+  }),
+});
+
+const reader = res.body.getReader();
+const decoder = new TextDecoder();
+while (true) {
+  const { value, done } = await reader.read();
+  if (done) break;
+  for (const line of decoder.decode(value).split("\n")) {
+    if (!line.startsWith("data: ")) continue;
+    const data = line.slice(6);
+    if (data === "[DONE]") break;
+    const json = JSON.parse(data);
+    process.stdout.write(json.choices[0].delta.content ?? "");
+  }
+}</code></pre>
+    </section>
+
+    <section class="card">
+      <p class="note">本ページは現行の Android 実装（<code>OllamaApiServer</code>）に基づきます。応答例は説明のため整形しています。実際のフィールド構成・既定値はアプリのバージョンにより変わることがあります。</p>
+    </section>
+  </main>
+  <script defer src="/browser-api-register.js"></script>
+</body>
+</html>
