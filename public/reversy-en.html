@@ -26,8 +26,7 @@
     .highlight ul{color:#e6eef8;font-weight:600}
     .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px}
     figure{margin:0}
-    .shot{width:100%;aspect-ratio:9/16;border-radius:10px;border:1px dashed rgba(255,255,255,0.18);background:linear-gradient(180deg,rgba(124,92,255,0.08),rgba(255,255,255,0.02));display:flex;align-items:center;justify-content:center;padding:18px;text-align:center;color:#d8def0}
-    .shot span{display:block;color:var(--muted);font-size:13px;margin-top:6px}
+    .shot-img{width:100%;border-radius:10px;border:1px solid rgba(255,255,255,0.12);display:block}
     figcaption{margin-top:8px;color:var(--muted);font-size:13px}
     .lang-switch{display:flex;align-items:center;gap:10px;color:var(--muted);font-size:14px}
     .lang-switch a[aria-current="page"]{color:#fff;font-weight:700}
@@ -65,19 +64,18 @@
 
     <section class="card">
       <h2>Screenshots</h2>
-      <p class="note">Only placeholder frames are shown for now so actual screen images can be dropped in later.</p>
       <div class="grid">
         <figure>
-          <div class="shot">Screenshot placeholder<span>Main game screen with board, Black/White mode switches, and the start/reset action</span></div>
-          <figcaption>The main game view combines the 8x8 board and control buttons. Black and White can be switched independently between Human, CPU, and AI.</figcaption>
+          <img class="shot-img" src="/reversy/sm301.jpg" alt="Game screen: Black (CPU) vs White (AI) in progress. Status bar shows White AI thinking and the comment pane displays the CPU's move reason.">
+          <figcaption>The main game view combines the 8x8 board and control buttons. Black and White can be switched independently between Human, CPU, and AI. Move reasons from CPU and AI appear in the comment pane below.</figcaption>
         </figure>
         <figure>
-          <div class="shot">Screenshot placeholder<span>Black / White settings, model picker, and AI communication log</span></div>
-          <figcaption>The settings dialog lets you adjust CPU depth, AI URL, model, prompt, timeout, and retry count for each player.</figcaption>
+          <img class="shot-img" src="/reversy/sm302.jpg" alt="White player settings dialog showing CPU depth, LLM API launch button, AI URL, model selector, and AI prompt editor.">
+          <figcaption>The settings dialog lets you adjust CPU depth, launch the LLM API, set the AI URL, choose the model, and edit the prompt — all per player.</figcaption>
         </figure>
         <figure>
-          <div class="shot">Screenshot placeholder<span>Comment pane and document viewer example</span></div>
-          <figcaption>The lower comment pane accumulates move explanations, and the document viewer provides the manual and privacy policy inside the app.</figcaption>
+          <img class="shot-img" src="/reversy/sm303.jpg" alt="White AI communication log showing the prompt sent to the AI and the AI's response with the chosen move and reasoning.">
+          <figcaption>The AI communication log shows the full prompt sent to the AI and the AI's response — including the chosen move and its reasoning — in chronological order. Entries can be copied or cleared.</figcaption>
         </figure>
       </div>
     </section>

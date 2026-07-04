@@ -26,8 +26,7 @@
     .highlight ul{color:#e6eef8;font-weight:600}
     .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px}
     figure{margin:0}
-    .shot{width:100%;aspect-ratio:9/16;border-radius:10px;border:1px dashed rgba(255,255,255,0.18);background:linear-gradient(180deg,rgba(124,92,255,0.08),rgba(255,255,255,0.02));display:flex;align-items:center;justify-content:center;padding:18px;text-align:center;color:#d8def0}
-    .shot span{display:block;color:var(--muted);font-size:13px;margin-top:6px}
+    .shot-img{width:100%;border-radius:10px;border:1px solid rgba(255,255,255,0.12);display:block}
     figcaption{margin-top:8px;color:var(--muted);font-size:13px}
     .lang-switch{display:flex;align-items:center;gap:10px;color:var(--muted);font-size:14px}
     .lang-switch a[aria-current="page"]{color:#fff;font-weight:700}
@@ -65,19 +64,18 @@
 
     <section class="card">
       <h2>スクリーンショット</h2>
-      <p class="note">画面イメージは後から差し替えできるよう、現在はプレースホルダー枠のみ配置しています。</p>
       <div class="grid">
         <figure>
-          <div class="shot">スクリーンショット追加予定<span>盤面、黒/白モード切替、対局開始/リセットを表示するメイン画面</span></div>
-          <figcaption>8x8 の盤面と操作ボタンをまとめた対局画面。黒と白を独立して Human / CPU / AI に切り替えられます。</figcaption>
+          <img class="shot-img" src="/reversy/sm301.jpg" alt="対局画面：黒CPUと白AIが対局中。白AI思考中のステータスと下部コメント欄にCPUの着手理由が表示されている。">
+          <figcaption>8x8 の盤面と操作ボタンをまとめた対局画面。黒と白を独立して Human / CPU / AI に切り替えられます。コメント欄には CPU / AI の着手理由が表示されます。</figcaption>
         </figure>
         <figure>
-          <div class="shot">スクリーンショット追加予定<span>黒設定 / 白設定、モデル選択、AI通信ログの画面</span></div>
-          <figcaption>設定ダイアログでは、CPU 深さ、AI URL、モデル、プロンプト、タイムアウト、再試行回数をプレイヤーごとに調整できます。</figcaption>
+          <img class="shot-img" src="/reversy/sm302.jpg" alt="白の設定ダイアログ：CPU深さ、LLM API起動ボタン、AI URL、モデル選択、AIプロンプト編集フィールドが並ぶ。">
+          <figcaption>設定ダイアログでは、CPU 深さ、LLM API の起動、AI URL、モデル、プロンプトをプレイヤーごとに調整できます。</figcaption>
         </figure>
         <figure>
-          <div class="shot">スクリーンショット追加予定<span>コメント欄とドキュメント画面の表示例</span></div>
-          <figcaption>対局下部のコメント欄には着手理由が蓄積され、ドキュメント画面からマニュアルや Privacy Policy を参照できます。</figcaption>
+          <img class="shot-img" src="/reversy/sm303.jpg" alt="白 AI通信ログ：AIへ送ったプロンプトとAIのレスポンス（着手座標と理由）が時系列で表示されている。">
+          <figcaption>AI 通信ログでは、AI へ送信したプロンプトと AI が返した着手・理由を時系列で確認でき、コピーやクリアも行えます。</figcaption>
         </figure>
       </div>
     </section>
