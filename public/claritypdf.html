@@ -24,6 +24,10 @@
     .doc-links,.note{color:var(--muted);font-size:14px}
     .title-row{display:flex;align-items:center;gap:16px;margin-bottom:10px}
     .app-icon{width:64px;height:64px;border-radius:14px;border:1px solid rgba(255,255,255,0.12);display:block}
+    .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px}
+    figure{margin:0}
+    .shot-img{width:100%;border-radius:10px;border:1px solid rgba(255,255,255,0.12);display:block}
+    figcaption{margin-top:8px;color:var(--muted);font-size:13px}
     .highlight{background:linear-gradient(90deg,rgba(124,92,255,0.08),rgba(0,212,255,0.03));border:1px solid var(--line);border-radius:12px;padding:14px 16px}
     .highlight ul{color:#e6eef8;font-weight:600}
     .lang-switch{display:flex;align-items:center;gap:10px;color:var(--muted);font-size:14px}
@@ -60,6 +64,28 @@
           <li>OCR は「埋め込みテキスト（元からある文字）」と「OCR（画像認識）」を区別し、JSON でも出力できます。</li>
           <li>LLM 接続は既定で端末内 <code>127.0.0.1</code>。設定画面から「LLM API を起動」ボタンとステータス表示も利用できます。</li>
         </ul>
+      </div>
+    </section>
+
+    <section class="card">
+      <h2>スクリーンショット</h2>
+      <div class="grid">
+        <figure>
+          <img class="shot-img" src="/claritypdf/sm401.jpg" alt="ホーム画面：ClarityPDF のタイトルと『Create &amp; edit PDF / Convert &amp; compose PDF / OCR / AI-OCR / Settings』の 4 カテゴリ。">
+          <figcaption>ホーム画面。「PDF 作成と編集」「PDF 変換と構成」「OCR・AI-OCR」「環境設定」の 4 カテゴリから各機能へ進みます。</figcaption>
+        </figure>
+        <figure>
+          <img class="shot-img" src="/claritypdf/sm402.jpg" alt="PDF 編集画面：固定キャンバスに追加した画像と装飾テキスト、下部に Text / Image / Layers / Font / Save のツールボックス。">
+          <figcaption>PDF 編集画面。キャンバスは固定表示のまま、下部のツールボックス（テキスト / 画像 / レイヤー / フォント / 保存）とフロートウィンドウで追加・編集します。画像と下線付きテキストを配置した例。</figcaption>
+        </figure>
+        <figure>
+          <img class="shot-img" src="/claritypdf/sm403_1.jpg" alt="AI プロンプト画面：指示入力欄、処理単位（Whole PDF / Per page）、方式（OCR→LLM / Vision）と OCR エンジン選択。">
+          <figcaption>AI プロンプト。任意の指示を入力し、処理単位（PDF 全体／ページごと）、方式（OCR→LLM / Vision）、OCR エンジンを選べます。</figcaption>
+        </figure>
+        <figure>
+          <img class="shot-img" src="/claritypdf/sm403_2.jpg" alt="AI プロンプト画面（続き）：LLM 接続情報（127.0.0.1:11434 / Qwen）、Run AI ボタン、全体の処理結果。">
+          <figcaption>同画面の下部。LLM 接続先（既定は端末内 127.0.0.1）を確認して実行すると、PDF 全体への処理結果が表示されます。</figcaption>
+        </figure>
       </div>
     </section>
 

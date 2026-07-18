@@ -24,6 +24,10 @@
     .doc-links,.note{color:var(--muted);font-size:14px}
     .title-row{display:flex;align-items:center;gap:16px;margin-bottom:10px}
     .app-icon{width:64px;height:64px;border-radius:14px;border:1px solid rgba(255,255,255,0.12);display:block}
+    .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px}
+    figure{margin:0}
+    .shot-img{width:100%;border-radius:10px;border:1px solid rgba(255,255,255,0.12);display:block}
+    figcaption{margin-top:8px;color:var(--muted);font-size:13px}
     .highlight{background:linear-gradient(90deg,rgba(124,92,255,0.08),rgba(0,212,255,0.03));border:1px solid var(--line);border-radius:12px;padding:14px 16px}
     .highlight ul{color:#e6eef8;font-weight:600}
     .lang-switch{display:flex;align-items:center;gap:10px;color:var(--muted);font-size:14px}
@@ -60,6 +64,28 @@
           <li>OCR distinguishes "embedded text" (already in the file) from "OCR" (image recognition), and can export JSON.</li>
           <li>The LLM connection defaults to on-device <code>127.0.0.1</code>. Settings include a "Launch LLM API" button and a status tile.</li>
         </ul>
+      </div>
+    </section>
+
+    <section class="card">
+      <h2>Screenshots</h2>
+      <div class="grid">
+        <figure>
+          <img class="shot-img" src="/claritypdf/sm401.jpg" alt="Home screen: the ClarityPDF title and four categories — Create &amp; edit PDF, Convert &amp; compose PDF, OCR / AI-OCR, and Settings.">
+          <figcaption>Home screen. Four categories — Create &amp; edit PDF, Convert &amp; compose PDF, OCR / AI-OCR, and Settings — lead to each tool.</figcaption>
+        </figure>
+        <figure>
+          <img class="shot-img" src="/claritypdf/sm402.jpg" alt="Edit PDF screen: a fixed canvas with an added image and styled text, and a bottom toolbox with Text / Image / Layers / Font / Save.">
+          <figcaption>Edit PDF screen. The canvas stays fixed while you add and edit from the bottom toolbox (Text / Image / Layers / Font / Save) and floating windows. Shown with an image and underlined text placed.</figcaption>
+        </figure>
+        <figure>
+          <img class="shot-img" src="/claritypdf/sm403_1.jpg" alt="AI Prompt screen: instruction field, Processing unit (Whole PDF / Per page), method (OCR→LLM / Vision), and OCR engine selection.">
+          <figcaption>AI Prompt. Enter an instruction and choose the processing unit (Whole PDF / Per page), the method (OCR→LLM / Vision), and the OCR engine.</figcaption>
+        </figure>
+        <figure>
+          <img class="shot-img" src="/claritypdf/sm403_2.jpg" alt="AI Prompt screen (continued): LLM connection info (127.0.0.1:11434 / Qwen), the Run AI button, and the whole-document result.">
+          <figcaption>The lower part of the same screen. Confirm the LLM endpoint (on-device 127.0.0.1 by default) and run to see the result for the whole PDF.</figcaption>
+        </figure>
       </div>
     </section>
 
