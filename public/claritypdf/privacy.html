@@ -59,14 +59,16 @@
           <li>OCR モデル（Tesseract / PaddleOCR）や日本語フォントの初回ダウンロード。</li>
           <li>「ローカル LLM Vision」「PDF サマリ」「AI プロンプト」を利用する場合の、設定した LLM サーバへのリクエスト。既定の接続先は端末内 <code>127.0.0.1</code> です。</li>
           <li>外部サーバを指定した場合、ページ画像や抽出テキストがそのサーバへ送信されます。送信先はご自身の設定に依存します。</li>
+          <li>広告配信のための通信。本アプリは Google AdMob を利用して広告を表示します。</li>
           <li>本アプリはクリアテキスト通信を許可しています。<code>http://</code> の接続先を設定した場合、その通信は暗号化されないことがあります。</li>
         </ul>
 
         <h3>4. 端末内で扱う情報</h3>
         <p>入力ファイルは読み取りのみで、元ファイルを書き換えることはありません。出力は常に新規ファイルとして作成します。抽出テキストや要約・処理結果は、画面表示とコピーのために端末内で扱われます。</p>
 
-        <h3>5. 外部送信・第三者提供</h3>
-        <p>本アプリには広告 SDK、解析 SDK、独自のトラッキングは含まれていません。ただし、ユーザーが LLM 接続先として外部サービスを指定した場合、その通信はユーザーの操作によって行われます。</p>
+        <h3>5. 外部送信・第三者提供（広告）</h3>
+        <p>本アプリは Google AdMob（提供: Google LLC）を広告配信に利用します。広告の配信・表示のため、Google は広告識別子（AAID）、IP アドレス、端末情報、利用状況などを取得・利用することがあります。これらの情報は第三者である Google により、<a href="https://policies.google.com/privacy">Google プライバシーポリシー</a>および<a href="https://policies.google.com/technologies/partner-sites">Google のパートナーサイトでのデータ利用</a>に基づいて扱われます。ファイルの内容そのものが広告目的で送信されることはありません。広告のパーソナライズは、端末の「設定 → Google → 広告」から広告 ID のリセット／オプトアウトにより制限できます。</p>
+        <p>上記の広告配信を除き、本アプリには独自の解析 SDK やトラッキングは含まれていません。なお、ユーザーが LLM 接続先として外部サービスを指定した場合、その通信はユーザーの操作によって行われます。</p>
 
         <h3>6. 改定</h3>
         <p>プライバシーポリシーは、機能追加や権限変更に応じて、アプリ内文書および公開ページを更新する形で改定されることがあります。ご不明点はアプリ提供元へお問い合わせください。</p>
@@ -89,14 +91,16 @@
           <li>The first download of OCR models (Tesseract / PaddleOCR) or the Japanese font.</li>
           <li>Requests to the LLM server you configured when using "local LLM Vision", "PDF summary", or "AI Prompt". The default endpoint is on-device <code>127.0.0.1</code>.</li>
           <li>If you specify an external server, page images and extracted text are sent to that server. The destination depends on your own settings.</li>
+          <li>Communication to serve ads. This app uses Google AdMob to display ads.</li>
           <li>The app allows cleartext traffic. If you configure an <code>http://</code> endpoint, that traffic may be unencrypted.</li>
         </ul>
 
         <h3>4. Information Used on the Device</h3>
         <p>Input files are read-only; the original file is never rewritten. Output is always created as a new file. Extracted text, summaries, and processing results are used on the device for display and copying.</p>
 
-        <h3>5. External Transmission and Third Parties</h3>
-        <p>The app does not include advertising SDKs, analytics SDKs, or proprietary tracking. However, if the user points an LLM connection to an external service, that communication happens as a result of the user’s own configuration.</p>
+        <h3>5. External Transmission and Third Parties (Advertising)</h3>
+        <p>This app uses Google AdMob (provided by Google LLC) to serve ads. To deliver and display ads, Google may collect and use the advertising identifier (AAID), IP address, device information, and usage data. This information is handled by Google as a third party under the <a href="https://policies.google.com/privacy">Google Privacy Policy</a> and <a href="https://policies.google.com/technologies/partner-sites">How Google uses data from sites or apps that use our services</a>. The contents of your files are never sent for advertising purposes. You can limit ad personalization by resetting or opting out of your advertising ID under "Settings → Google → Ads" on your device.</p>
+        <p>Other than the ad delivery above, the app does not include proprietary analytics SDKs or tracking. If the user points an LLM connection to an external service, that communication happens as a result of the user’s own configuration.</p>
 
         <h3>6. Revisions</h3>
         <p>This privacy policy may be revised by updating the in-app documents and public page when features or permissions change. For questions, please contact the app provider.</p>
