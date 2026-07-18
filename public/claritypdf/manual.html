@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>操作マニュアル — ClarityPDF — Mick Lab</title>
+  <link rel="alternate" hreflang="ja" href="/claritypdf/manual.html">
+  <link rel="alternate" hreflang="en" href="/claritypdf/manual-en.html">
+  <style>
+    :root{--bg:#08080a;--card:#0f1114;--muted:#9aa3b2;--accent:#7c5cff;--line:rgba(255,255,255,0.08)}
+    *{box-sizing:border-box}
+    body{margin:0;background:var(--bg);color:#e6eef8;font-family:Inter,system-ui,Segoe UI,Roboto,Arial;line-height:1.7}
+    header{padding:18px 24px;border-bottom:1px solid rgba(255,255,255,0.03);display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap}
+    a{color:var(--accent);text-decoration:none}
+    main{max-width:1040px;margin:28px auto;padding:20px}
+    .card{background:var(--card);padding:20px;border-radius:14px;border:1px solid rgba(255,255,255,0.03);margin-bottom:18px}
+    h1{margin:0 0 12px;font-size:32px}
+    h2{margin:0 0 10px;font-size:23px}
+    p{margin:0 0 12px}
+    ul,ol{margin:0;padding-left:22px;color:var(--muted)}
+    li+li{margin-top:8px}
+    .lead{color:#eef4ff}
+    .note{color:var(--muted);font-size:14px}
+    .nav-links,.lang-switch{display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+    .back{font-size:14px}
+    .lang-switch{color:var(--muted);font-size:14px}
+    .lang-switch a[aria-current="page"]{color:#fff;font-weight:700}
+    code{background:rgba(255,255,255,0.05);padding:2px 6px;border-radius:4px}
+    .callout{background:linear-gradient(90deg,rgba(124,92,255,0.08),rgba(0,212,255,0.03));border:1px solid var(--line)}
+    @media (max-width:700px){main{padding:16px}h1{font-size:28px}}
+  </style>
+</head>
+<body>
+  <header>
+    <div class="nav-links">
+      <a class="back" href="/">← ホームへ戻る</a>
+      <a class="back" href="/claritypdf.html">← ClarityPDF</a>
+    </div>
+    <nav class="lang-switch" aria-label="Language switch">
+      <a href="/claritypdf/manual.html" aria-current="page">日本語</a>
+      <span>|</span>
+      <a href="/claritypdf/manual-en.html">English</a>
+    </nav>
+  </header>
+  <main>
+    <section class="card callout">
+      <h1>操作マニュアル</h1>
+      <p class="lead">このページは、現在の Android 実装に基づく ClarityPDF の操作ガイドです。アプリ内ドキュメントの内容をベースに、公開ページ向けに整理して掲載しています。</p>
+      <p class="note">関連文書: <a href="/claritypdf/privacy.html#ja">プライバシーポリシー</a></p>
+    </section>
+
+    <section class="card">
+      <h2>1. 共通</h2>
+      <ul>
+        <li>ホームは「PDF 作成と編集 / PDF 変換と構成 / OCR・AI-OCR / 環境設定」の 4 カテゴリです。カテゴリをタップすると各機能が表示されます。</li>
+        <li>入力ファイルは読み取りのみで、元ファイルは変更しません。結果は常に新しいファイルとして保存します。</li>
+        <li>出力先は各画面の「出力先」で選べます。未指定なら端末の「Download/PDFToolkit」に保存します。</li>
+      </ul>
+    </section>
+
+    <section class="card">
+      <h2>2. PDF 編集（テキスト・画像の追加／既存文字の編集）</h2>
+      <ol>
+        <li>「PDF を選択」で編集する PDF を開くか、「白紙から新規作成」で空の A4 を作成します。</li>
+        <li>プレビューはキャンバスとして固定表示され、下部のツールボックスからページ移動と各操作を選びます。</li>
+        <li><strong>テキストを追加</strong>: ツールから「テキスト」を選び、フロートウィンドウに文字を入力（改行可）→ サイズ・色・太字／斜体／下線・回転・URL を設定して「追加」。プレビュー上に置かれるのでドラッグで移動します。</li>
+        <li><strong>画像を追加</strong>: 「画像」で画像を選ぶとプレビューに配置されます。ドラッグで移動、拡大縮小・回転も指定できます。</li>
+        <li><strong>既存の文字を編集</strong>: プレビュー上の文字をタップ、または「レイヤー」一覧から選択します。「置換後の文」を入力、または「元の文字を削除」を選びます。サイズ・色・装飾も変更できます。
+          <ul>
+            <li>同じ書体・同じ文字集合ならその場で置換します。</li>
+            <li>表示できない文字・移動・サイズ/色/装飾の変更時は、元のサイズ・色を引き継いで文全体を描き直します（日本語フォントを使用）。</li>
+          </ul>
+        </li>
+        <li><strong>レイヤー</strong>: 追加・編集した項目とページ上の認識オブジェクトは「レイヤー」に一覧表示されます。行をタップで選択、× で取消できます。</li>
+        <li>各メニューの「決定」やレイヤー一覧の「決定」を押すと、その時点の編集を一時 PDF に反映し、実際の見た目でプレビューを更新します。</li>
+        <li>「適用して保存」で最終的な PDF を出力します。</li>
+      </ol>
+      <p class="note">※ テキストの追加・編集には日本語フォント(Noto Sans JP)の取得が必要です（初回のみ通信、以後オフライン）。フォント未取得なら「フォントを取得」を押してください。</p>
+    </section>
+
+    <section class="card">
+      <h2>3. PDF 変換と構成</h2>
+      <ul>
+        <li><strong>分解（ページ抽出）</strong>: PDF を開き、抽出したいページを選択 → 1 つにまとめる／ページごとに分ける、を選んで出力。</li>
+        <li><strong>統合（結合）</strong>: 複数の PDF を選び、順序を整えて 1 つに結合します。</li>
+        <li><strong>並べ替え</strong>: サムネイルをドラッグしてページ順を入れ替え、新しい PDF として保存します。</li>
+        <li><strong>PDF 画像化</strong>: 各ページを PNG / JPEG に変換します。DPI（解像度）を指定できます。</li>
+        <li><strong>画像 → PDF 化</strong>: 複数の画像を選び、順序を指定して 1 つの PDF にまとめます。</li>
+      </ul>
+    </section>
+
+    <section class="card">
+      <h2>4. OCR / AI-OCR</h2>
+      <ul>
+        <li><strong>OCR / テキスト抽出</strong>: PDF・画像から文字を抽出します。埋め込みテキスト（元からある文字）と OCR（画像認識）を区別して JSON でも出力します。エンジンは Tesseract / PaddleOCR / ローカル LLM Vision から選べます。大きな文書はバックグラウンド実行が可能です。</li>
+        <li><strong>PDF サマリ（要約）</strong>: ファイル全体・ページごとを LLM で要約します。「OCR→LLM」または「Vision（ページ画像を直接 LLM へ）」を選べます。</li>
+        <li><strong>AI プロンプト</strong>: 任意の指示（プロンプト）を入力し、PDF 全体または各ページごとに AI 処理を実行できます。方式は「OCR→LLM」または「Vision」を選べます。</li>
+      </ul>
+    </section>
+
+    <section class="card">
+      <h2>5. 環境設定</h2>
+      <ul>
+        <li><strong>OCR 設定・モデル管理</strong>: Tesseract / PaddleOCR のモデル取得、日本語フォントの取得、LLM(Ollama / OpenAI 互換)の接続 URL・モデル選択・接続確認。</li>
+        <li><strong>LLM API の起動</strong>: 設定画面の「LLM API を起動」ボタンでコンパニオンアプリ(LLM Tester)の API サーバを起動でき、緑／黄のステータスタイルで <code>/api/tags</code> の接続状態を確認できます。</li>
+        <li><strong>操作マニュアル / プライバシーポリシー / 権利表記</strong>: 本ドキュメント類（各画面で本文をコピーできます）。</li>
+      </ul>
+    </section>
+
+    <section class="card">
+      <h2>6. オフラインについて</h2>
+      <ul>
+        <li>PDF・画像処理は端末内で完結します。通信するのは「OCR モデル・フォントの初回ダウンロード」と「LLM を利用する場合の設定サーバへの送信」だけです（既定の LLM 接続先は端末内 <code>127.0.0.1</code>）。</li>
+        <li>外部 LLM サーバを指定した場合、ページ画像や抽出テキストはその接続先へ送信されます。送信先はご自身の設定に依存します。</li>
+      </ul>
+    </section>
+  </main>
+</body>
+</html>

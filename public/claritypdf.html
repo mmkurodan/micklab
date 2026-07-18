@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>ClarityPDF — Mick Lab</title>
+  <link rel="alternate" hreflang="ja" href="/claritypdf.html">
+  <link rel="alternate" hreflang="en" href="/claritypdf-en.html">
+  <style>
+    :root{--bg:#08080a;--card:#0f1114;--muted:#9aa3b2;--accent:#7c5cff;--line:rgba(255,255,255,0.08)}
+    *{box-sizing:border-box}
+    body{margin:0;background:var(--bg);color:#e6eef8;font-family:Inter,system-ui,Segoe UI,Roboto,Arial;line-height:1.65}
+    header{padding:18px 24px;border-bottom:1px solid rgba(255,255,255,0.03);display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap}
+    a{color:var(--accent);text-decoration:none}
+    main{max-width:1040px;margin:28px auto;padding:20px}
+    .card{background:var(--card);padding:20px;border-radius:14px;border:1px solid rgba(255,255,255,0.03);margin-bottom:18px}
+    .eyebrow{margin:0 0 8px;color:#b7a9ff;font-size:13px;font-weight:700;letter-spacing:.08em;text-transform:uppercase}
+    h1{margin:0 0 12px;font-size:34px;line-height:1.15}
+    h2{margin:0 0 12px;font-size:22px}
+    p{margin:0 0 12px}
+    ul{margin:0;padding-left:20px;color:var(--muted)}
+    li+li{margin-top:8px}
+    .lead{color:#eef4ff;font-size:17px}
+    .doc-links,.note{color:var(--muted);font-size:14px}
+    .title-row{display:flex;align-items:center;gap:16px;margin-bottom:10px}
+    .app-icon{width:64px;height:64px;border-radius:14px;border:1px solid rgba(255,255,255,0.12);display:block}
+    .highlight{background:linear-gradient(90deg,rgba(124,92,255,0.08),rgba(0,212,255,0.03));border:1px solid var(--line);border-radius:12px;padding:14px 16px}
+    .highlight ul{color:#e6eef8;font-weight:600}
+    .lang-switch{display:flex;align-items:center;gap:10px;color:var(--muted);font-size:14px}
+    .lang-switch a[aria-current="page"]{color:#fff;font-weight:700}
+    .nav-links{display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+    .back{font-size:14px}
+    code{background:rgba(255,255,255,0.05);padding:2px 6px;border-radius:4px}
+    @media (max-width:700px){main{padding:16px}h1{font-size:28px}}
+  </style>
+</head>
+<body>
+  <header>
+    <div class="nav-links">
+      <a class="back" href="/">← ホームへ戻る</a>
+    </div>
+    <nav class="lang-switch" aria-label="Language switch">
+      <a href="/claritypdf.html" aria-current="page">日本語</a>
+      <span>|</span>
+      <a href="/claritypdf-en.html">English</a>
+    </nav>
+  </header>
+  <main>
+    <section class="card">
+      <p class="eyebrow">Android / PDF・画像・OCR / オフライン中心</p>
+      <div class="title-row">
+        <img class="app-icon" src="/claritypdf/ic_launcher.png" alt="ClarityPDF アイコン">
+        <h1>ClarityPDF</h1>
+      </div>
+      <p class="lead">ClarityPDF は、PDF の作成・編集、変換・構成、OCR / AI-OCR を 1 つにまとめた Android アプリです。処理は原則として端末内で完結し、入力ファイルは読み取りのみ・結果は常に新しいファイルとして保存します。</p>
+      <p class="doc-links">文書: <a href="/claritypdf/manual.html">操作マニュアル</a> | <a href="/claritypdf/privacy.html#ja">プライバシーポリシー</a></p>
+      <div class="highlight">
+        <ul>
+          <li>入力は読み取り専用・非破壊。編集や変換の結果は必ず新規ファイルとして書き出します。</li>
+          <li>OCR は「埋め込みテキスト（元からある文字）」と「OCR（画像認識）」を区別し、JSON でも出力できます。</li>
+          <li>LLM 接続は既定で端末内 <code>127.0.0.1</code>。設定画面から「LLM API を起動」ボタンとステータス表示も利用できます。</li>
+        </ul>
+      </div>
+    </section>
+
+    <section class="card">
+      <h2>主な機能</h2>
+      <ul>
+        <li><strong>PDF 編集</strong>: テキスト・画像の追加、既存文字の置換／削除。キャンバスは固定表示のまま、フロートウィンドウとツールボックスから追加・編集を行います。太字／斜体／下線、回転、拡大縮小、リンク（URL）に対応。</li>
+        <li><strong>分解（ページ抽出）</strong>: 選択ページを 1 つの PDF にまとめる／1 ページずつに分ける。</li>
+        <li><strong>統合（結合）</strong>: 複数の PDF を順序指定で 1 つに結合。</li>
+        <li><strong>並べ替え</strong>: サムネイルをドラッグしてページ順を入れ替え。</li>
+        <li><strong>PDF 画像化</strong>: 各ページを PNG / JPEG に変換（DPI 指定可）。</li>
+        <li><strong>画像 → PDF 化</strong>: 複数の画像を順序指定で 1 つの PDF に。</li>
+      </ul>
+    </section>
+
+    <section class="card">
+      <h2>OCR / AI-OCR</h2>
+      <ul>
+        <li><strong>OCR / テキスト抽出</strong>: PDF・画像から文字を抽出。埋め込みテキストと OCR を区別し、JSON 出力にも対応。エンジンは Tesseract / PaddleOCR / ローカル LLM Vision から選択できます。</li>
+        <li><strong>PDF サマリ（要約）</strong>: ファイル全体・ページごとを LLM で要約。「OCR→LLM」または「Vision（ページ画像を直接 LLM へ）」を選べます。</li>
+        <li><strong>AI プロンプト</strong>: 任意の指示（プロンプト）を入力し、PDF 全体または各ページごとに AI 処理を実行できます（OCR→LLM / Vision）。</li>
+        <li><strong>LLM 接続</strong>: Ollama / OpenAI 互換サーバに対応。<code>/api/tags</code> でモデル一覧を取得し、接続確認と API 起動、ステータス表示を行えます。</li>
+      </ul>
+    </section>
+
+    <section class="card">
+      <h2>利用メモ</h2>
+      <ul>
+        <li>テキストの追加・編集には日本語フォント(Noto Sans JP)の取得が必要です（初回のみ通信、以後オフライン）。</li>
+        <li>通信を行うのは「OCR モデル・フォントの初回ダウンロード」と「LLM を利用する場合の設定サーバへの送信」だけです。既定の LLM 接続先は端末内 <code>127.0.0.1</code> です。</li>
+        <li>外部 LLM サーバを指定した場合、ページ画像や抽出テキストはその接続先へ送信され、取り扱いはその運用ポリシーに従います。</li>
+      </ul>
+    </section>
+  </main>
+  <script defer src="/browser-api-register.js"></script>
+</body>
+</html>

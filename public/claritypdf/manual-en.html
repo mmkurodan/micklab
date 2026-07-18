@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>User Manual — ClarityPDF — Mick Lab</title>
+  <link rel="alternate" hreflang="ja" href="/claritypdf/manual.html">
+  <link rel="alternate" hreflang="en" href="/claritypdf/manual-en.html">
+  <style>
+    :root{--bg:#08080a;--card:#0f1114;--muted:#9aa3b2;--accent:#7c5cff;--line:rgba(255,255,255,0.08)}
+    *{box-sizing:border-box}
+    body{margin:0;background:var(--bg);color:#e6eef8;font-family:Inter,system-ui,Segoe UI,Roboto,Arial;line-height:1.7}
+    header{padding:18px 24px;border-bottom:1px solid rgba(255,255,255,0.03);display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap}
+    a{color:var(--accent);text-decoration:none}
+    main{max-width:1040px;margin:28px auto;padding:20px}
+    .card{background:var(--card);padding:20px;border-radius:14px;border:1px solid rgba(255,255,255,0.03);margin-bottom:18px}
+    h1{margin:0 0 12px;font-size:32px}
+    h2{margin:0 0 10px;font-size:23px}
+    p{margin:0 0 12px}
+    ul,ol{margin:0;padding-left:22px;color:var(--muted)}
+    li+li{margin-top:8px}
+    .lead{color:#eef4ff}
+    .note{color:var(--muted);font-size:14px}
+    .nav-links,.lang-switch{display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+    .back{font-size:14px}
+    .lang-switch{color:var(--muted);font-size:14px}
+    .lang-switch a[aria-current="page"]{color:#fff;font-weight:700}
+    code{background:rgba(255,255,255,0.05);padding:2px 6px;border-radius:4px}
+    .callout{background:linear-gradient(90deg,rgba(124,92,255,0.08),rgba(0,212,255,0.03));border:1px solid var(--line)}
+    @media (max-width:700px){main{padding:16px}h1{font-size:28px}}
+  </style>
+</head>
+<body>
+  <header>
+    <div class="nav-links">
+      <a class="back" href="/index-en.html">← Back to home</a>
+      <a class="back" href="/claritypdf-en.html">← ClarityPDF</a>
+    </div>
+    <nav class="lang-switch" aria-label="Language switch">
+      <a href="/claritypdf/manual.html">日本語</a>
+      <span>|</span>
+      <a href="/claritypdf/manual-en.html" aria-current="page">English</a>
+    </nav>
+  </header>
+  <main>
+    <section class="card callout">
+      <h1>User Manual</h1>
+      <p class="lead">This page is an operation guide for ClarityPDF based on the current Android implementation. It is adapted from the in-app documentation for the public site.</p>
+      <p class="note">Related document: <a href="/claritypdf/privacy.html#en">Privacy policy</a></p>
+    </section>
+
+    <section class="card">
+      <h2>1. Common</h2>
+      <ul>
+        <li>The home screen has 4 categories: "Create &amp; edit PDF / Convert &amp; compose PDF / OCR &amp; AI-OCR / Settings". Tap a category to see its tools.</li>
+        <li>Input files are read-only; the original is never modified. Results are always saved as new files.</li>
+        <li>Choose the output location in each screen's "Output folder". If unset, files are saved to "Download/PDFToolkit" on the device.</li>
+      </ul>
+    </section>
+
+    <section class="card">
+      <h2>2. Edit PDF (add text/images, edit existing text)</h2>
+      <ol>
+        <li>Open a PDF with "Choose PDF", or make an empty A4 with "Start from blank".</li>
+        <li>The preview stays fixed as a canvas; use the toolbox at the bottom to move between pages and pick each action.</li>
+        <li><strong>Add text</strong>: pick "Text" from the toolbox, type into the floating window (line breaks allowed), set size / color / bold / italic / underline / rotation / URL, then "Add". It is placed on the preview; drag to move it.</li>
+        <li><strong>Add an image</strong>: choose one under "Image" and it is placed on the preview. Drag to move it; you can also scale and rotate it.</li>
+        <li><strong>Edit existing text</strong>: tap text on the preview, or select it from the "Layers" list. Enter "Replacement text", or choose "Delete the original text". You can also change size / color / styling.
+          <ul>
+            <li>If the font and character set match, it is replaced in place.</li>
+            <li>For characters that can't be shown, moves, or size/color/style changes, the whole run is redrawn, keeping the original size and color (using the Japanese font).</li>
+          </ul>
+        </li>
+        <li><strong>Layers</strong>: added/edited items and recognized objects on the page are listed under "Layers". Tap a row to select it, or × to remove it.</li>
+        <li>Tapping "Apply" in each menu, or in the Layers list, bakes the current edits into a temporary PDF and refreshes the preview with the real appearance.</li>
+        <li>"Apply and save" outputs the final PDF.</li>
+      </ol>
+      <p class="note">* Adding/editing text needs the Japanese font (Noto Sans JP) — downloaded once, offline afterward. If it isn't present, tap "Get the font".</p>
+    </section>
+
+    <section class="card">
+      <h2>3. Convert &amp; compose PDF</h2>
+      <ul>
+        <li><strong>Split (extract pages)</strong>: open a PDF, select the pages to extract, then choose "combine into one" or "one per page" and export.</li>
+        <li><strong>Merge</strong>: choose several PDFs, arrange the order, and combine into one.</li>
+        <li><strong>Reorder</strong>: drag thumbnails to change the page order and save as a new PDF.</li>
+        <li><strong>PDF to images</strong>: convert each page to PNG / JPEG. You can set the DPI (resolution).</li>
+        <li><strong>Images to PDF</strong>: choose several images, set the order, and combine into one PDF.</li>
+      </ul>
+    </section>
+
+    <section class="card">
+      <h2>4. OCR / AI-OCR</h2>
+      <ul>
+        <li><strong>OCR / text extraction</strong>: extract text from PDFs/images. Embedded text (already in the file) and OCR (image recognition) are distinguished, and can also be exported as JSON. Engines: Tesseract / PaddleOCR / local LLM Vision. Large documents can run in the background.</li>
+        <li><strong>PDF summary</strong>: summarize the whole file or per page with an LLM. Choose "OCR→LLM" or "Vision (page images sent directly to the LLM)".</li>
+        <li><strong>AI Prompt</strong>: enter an arbitrary instruction (prompt) and run it over the whole PDF or per page. Choose "OCR→LLM" or "Vision".</li>
+      </ul>
+    </section>
+
+    <section class="card">
+      <h2>5. Settings</h2>
+      <ul>
+        <li><strong>OCR settings and models</strong>: download Tesseract / PaddleOCR models and the Japanese font, and set the LLM (Ollama / OpenAI-compatible) connection URL, model, and connection test.</li>
+        <li><strong>Launch LLM API</strong>: the "Launch LLM API" button starts the companion app (LLM Tester) API server, and a green/amber status tile shows the <code>/api/tags</code> reachability.</li>
+        <li><strong>User manual / Privacy policy / Licenses</strong>: these documents (you can copy the body on each screen).</li>
+      </ul>
+    </section>
+
+    <section class="card">
+      <h2>6. About offline use</h2>
+      <ul>
+        <li>PDF and image processing run entirely on the device. The only network use is "the first download of OCR models / fonts" and "sending to the configured server when using an LLM" (the default LLM endpoint is <code>127.0.0.1</code> on the device).</li>
+        <li>If you configure an external LLM server, page images and extracted text are sent there. The destination depends on your own settings.</li>
+      </ul>
+    </section>
+  </main>
+</body>
+</html>
