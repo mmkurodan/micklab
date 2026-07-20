@@ -67,3 +67,6 @@ node_modules/
 
 # dataconnect generated files
 .dataconnect
+
+# ocr-api.zip is 161MB (over GitHub 100MB limit) - distributed via GitHub Releases
+public/ocr-api.zip
