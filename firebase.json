@@ -6,13 +6,6 @@
       "**/.*",
       "**/node_modules/**"
     ],
-    "redirects": [
-      {
-        "source": "/ocr-api.zip",
-        "destination": "https://github.com/mmkurodan/micklab/releases/download/ocr-api-v1.0.0/ocr-api.zip",
-        "type": 302
-      }
-    ],
     "rewrites": [
       {
         "source": "/api/**",
