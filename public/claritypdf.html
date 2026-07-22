@@ -92,7 +92,7 @@
     <section class="card">
       <h2>主な機能</h2>
       <ul>
-        <li><strong>PDF 編集</strong>: テキスト・画像の追加、既存文字の置換／削除。キャンバスは固定表示のまま、フロートウィンドウとツールボックスから追加・編集を行います。太字／斜体／下線、回転、拡大縮小、リンク（URL）に対応。</li>
+        <li><strong>PDF 編集</strong>: テキスト・画像の追加、既存文字の置換／削除。キャンバスは固定表示のまま、フロートウィンドウとツールボックスから追加・編集を行います。太字／斜体／下線、回転、拡大縮小、リンク（URL）、フォント選択（複数の OFL 書体・テキストごと）に対応。</li>
         <li><strong>分解（ページ抽出）</strong>: 選択ページを 1 つの PDF にまとめる／1 ページずつに分ける。</li>
         <li><strong>統合（結合）</strong>: 複数の PDF を順序指定で 1 つに結合。</li>
         <li><strong>並べ替え</strong>: サムネイルをドラッグしてページ順を入れ替え。</li>
@@ -104,7 +104,7 @@
     <section class="card">
       <h2>OCR / AI-OCR</h2>
       <ul>
-        <li><strong>OCR / テキスト抽出</strong>: PDF・画像から文字を抽出。埋め込みテキストと OCR を区別し、JSON 出力にも対応。エンジンは Tesseract / PaddleOCR / ローカル LLM Vision から選択できます。</li>
+        <li><strong>OCR / テキスト抽出</strong>: PDF・画像から文字を抽出。埋め込みテキストと OCR を区別し、JSON 出力にも対応。エンジンは Tesseract / PaddleOCR / ローカル LLM Vision から選択でき、日本語・英語・中国語(簡体)・韓国語の認識に対応します。</li>
         <li><strong>PDF サマリ（要約）</strong>: ファイル全体・ページごとを LLM で要約。「OCR→LLM」または「Vision（ページ画像を直接 LLM へ）」を選べます。</li>
         <li><strong>AI プロンプト</strong>: 任意の指示（プロンプト）を入力し、PDF 全体または各ページごとに AI 処理を実行できます（OCR→LLM / Vision）。</li>
         <li><strong>LLM 接続</strong>: Ollama / OpenAI 互換サーバに対応。<code>/api/tags</code> でモデル一覧を取得し、接続確認と API 起動、ステータス表示を行えます。</li>
@@ -114,7 +114,7 @@
     <section class="card">
       <h2>利用メモ</h2>
       <ul>
-        <li>テキストの追加・編集には日本語フォント(Noto Sans JP)の取得が必要です（初回のみ通信、以後オフライン）。</li>
+        <li>テキストの追加・編集には埋め込みフォントの取得が必要です。Noto Sans JP / Noto Serif JP / M PLUS Rounded 1c / Zen Kaku Gothic New / Klee One（すべて SIL OFL）から選べ、テキストごとに指定できます（各書体は初回のみ通信、以後オフライン）。</li>
         <li>通信を行うのは「OCR モデル・フォントの初回ダウンロード」と「LLM を利用する場合の設定サーバへの送信」だけです。既定の LLM 接続先は端末内 <code>127.0.0.1</code> です。</li>
         <li>外部 LLM サーバを指定した場合、ページ画像や抽出テキストはその接続先へ送信され、取り扱いはその運用ポリシーに従います。</li>
       </ul>

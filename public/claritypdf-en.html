@@ -92,7 +92,7 @@
     <section class="card">
       <h2>Key features</h2>
       <ul>
-        <li><strong>Edit PDF</strong>: add text/images and replace or delete existing text. The canvas stays fixed while you add and edit from floating windows and a toolbox. Bold / italic / underline, rotation, scaling, and links (URLs) are supported.</li>
+        <li><strong>Edit PDF</strong>: add text/images and replace or delete existing text. The canvas stays fixed while you add and edit from floating windows and a toolbox. Bold / italic / underline, rotation, scaling, links (URLs), and font selection (several OFL fonts, per text run) are supported.</li>
         <li><strong>Split (extract pages)</strong>: combine selected pages into one PDF, or split into one page each.</li>
         <li><strong>Merge</strong>: combine several PDFs into one in a chosen order.</li>
         <li><strong>Reorder</strong>: drag thumbnails to change the page order.</li>
@@ -104,7 +104,7 @@
     <section class="card">
       <h2>OCR / AI-OCR</h2>
       <ul>
-        <li><strong>OCR / text extraction</strong>: extract text from PDFs/images. Embedded text and OCR are distinguished and can be exported as JSON. Engines: Tesseract / PaddleOCR / local LLM Vision.</li>
+        <li><strong>OCR / text extraction</strong>: extract text from PDFs/images. Embedded text and OCR are distinguished and can be exported as JSON. Engines: Tesseract / PaddleOCR / local LLM Vision, with Japanese, English, Simplified Chinese, and Korean recognition.</li>
         <li><strong>PDF summary</strong>: summarize the whole file or per page with an LLM. Choose "OCR→LLM" or "Vision (page images sent directly to the LLM)".</li>
         <li><strong>AI Prompt</strong>: enter an arbitrary instruction (prompt) and run it over the whole PDF or per page (OCR→LLM / Vision).</li>
         <li><strong>LLM connection</strong>: works with Ollama / OpenAI-compatible servers. Fetch the model list via <code>/api/tags</code>, test the connection, launch the API, and see its status.</li>
@@ -114,7 +114,7 @@
     <section class="card">
       <h2>Notes</h2>
       <ul>
-        <li>Adding/editing text needs the Japanese font (Noto Sans JP) — downloaded once, then used offline.</li>
+        <li>Adding/editing text needs an embedded font. Choose from Noto Sans JP / Noto Serif JP / M PLUS Rounded 1c / Zen Kaku Gothic New / Klee One (all SIL OFL), per text run — each downloads once, then used offline.</li>
         <li>The only network use is "the first download of OCR models / fonts" and "sending to the configured server when using an LLM". The default LLM endpoint is on-device <code>127.0.0.1</code>.</li>
         <li>If you configure an external LLM server, page images and extracted text are sent there and handled under that server's policies.</li>
       </ul>

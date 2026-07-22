@@ -63,19 +63,19 @@
       <ol>
         <li>Open a PDF with "Choose PDF", or make an empty A4 with "Start from blank".</li>
         <li>The preview stays fixed as a canvas; use the toolbox at the bottom to move between pages and pick each action.</li>
-        <li><strong>Add text</strong>: pick "Text" from the toolbox, type into the floating window (line breaks allowed), set size / color / bold / italic / underline / rotation / URL, then "Add". It is placed on the preview; drag to move it.</li>
+        <li><strong>Add text</strong>: pick "Text" from the toolbox, type into the floating window (line breaks allowed), set size / color / font / bold / italic / underline / rotation / URL, then "Add". It is placed on the preview; drag to move it.</li>
         <li><strong>Add an image</strong>: choose one under "Image" and it is placed on the preview. Drag to move it; you can also scale and rotate it.</li>
         <li><strong>Edit existing text</strong>: tap text on the preview, or select it from the "Layers" list. Enter "Replacement text", or choose "Delete the original text". You can also change size / color / styling.
           <ul>
             <li>If the font and character set match, it is replaced in place.</li>
-            <li>For characters that can't be shown, moves, or size/color/style changes, the whole run is redrawn, keeping the original size and color (using the Japanese font).</li>
+            <li>For characters that can't be shown, moves, or size/color/style/font changes, the whole run is redrawn, keeping the original size and color (using the chosen font).</li>
           </ul>
         </li>
         <li><strong>Layers</strong>: added/edited items and recognized objects on the page are listed under "Layers". Tap a row to select it, or × to remove it.</li>
         <li>Tapping "Apply" in each menu, or in the Layers list, bakes the current edits into a temporary PDF and refreshes the preview with the real appearance.</li>
         <li>"Apply and save" outputs the final PDF.</li>
       </ol>
-      <p class="note">* Adding/editing text needs the Japanese font (Noto Sans JP) — downloaded once, offline afterward. If it isn't present, tap "Get the font".</p>
+      <p class="note">* Adding/editing text needs an embedded font. Choose from Noto Sans JP / Noto Serif JP / M PLUS Rounded 1c / Zen Kaku Gothic New / Klee One (all SIL OFL), per text run. Each font downloads once, then works offline; get missing ones from the editor or Settings.</p>
     </section>
 
     <section class="card">
@@ -92,7 +92,7 @@
     <section class="card">
       <h2>4. OCR / AI-OCR</h2>
       <ul>
-        <li><strong>OCR / text extraction</strong>: extract text from PDFs/images. Embedded text (already in the file) and OCR (image recognition) are distinguished, and can also be exported as JSON. Engines: Tesseract / PaddleOCR / local LLM Vision. Large documents can run in the background.</li>
+        <li><strong>OCR / text extraction</strong>: extract text from PDFs/images. Embedded text (already in the file) and OCR (image recognition) are distinguished, and can also be exported as JSON. Engines: Tesseract / PaddleOCR / local LLM Vision, with Japanese, English, Simplified Chinese, and Korean recognition. Large documents can run in the background.</li>
         <li><strong>PDF summary</strong>: summarize the whole file or per page with an LLM. Choose "OCR→LLM" or "Vision (page images sent directly to the LLM)".</li>
         <li><strong>AI Prompt</strong>: enter an arbitrary instruction (prompt) and run it over the whole PDF or per page. Choose "OCR→LLM" or "Vision".</li>
       </ul>
@@ -101,7 +101,7 @@
     <section class="card">
       <h2>5. Settings</h2>
       <ul>
-        <li><strong>OCR settings and models</strong>: download Tesseract / PaddleOCR models and the Japanese font, and set the LLM (Ollama / OpenAI-compatible) connection URL, model, and connection test.</li>
+        <li><strong>OCR settings and models</strong>: download Tesseract / PaddleOCR language models (Japanese, English, Chinese, Korean) and the editing fonts, and set the LLM (Ollama / OpenAI-compatible) connection URL, model, and connection test. Order is Tesseract → PaddleOCR → LLM.</li>
         <li><strong>Launch LLM API</strong>: the "Launch LLM API" button starts the companion app (LLM Tester) API server, and a green/amber status tile shows the <code>/api/tags</code> reachability.</li>
         <li><strong>User manual / Privacy policy / Licenses</strong>: these documents (you can copy the body on each screen).</li>
       </ul>
