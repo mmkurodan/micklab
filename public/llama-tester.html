@@ -87,6 +87,7 @@
         <li><strong>端末内でのローカル推論</strong>: llama.cpp を使って Android 端末上で GGUF モデルを直接実行します。</li>
         <li><strong>モデル導入の自由度</strong>: HTTP/HTTPS のモデル URL 指定と、ローカル端末からの <code>.gguf</code> 取り込みの両方に対応しています。</li>
         <li><strong>詳細な推論制御</strong>: <code>n_ctx</code>、<code>n_threads</code>、コンピュートバックエンド（CPU / GPU）、オフロード層数、Top-p、Top-k、Penalty、Mirostat、DRY、Think、custom chat template まで調整できます。</li>
+        <li><strong>MTP 投機デコード（実験的）</strong>: MTP ヘッドを内蔵するモデル（Qwen3.5-MTP, Gemma 4 など）で MTP（投機デコード, draft-mtp）をモデル別プロファイルで有効化できます。既定 OFF、<code>n_draft</code> 調整可、追加ファイル不要（自ヘッド使用）。対応環境では生成が高速化する場合があります。</li>
         <li><strong>共有 MCP / Function Calling 設定</strong>: モデル別プロファイルとは別に MCP Config JSON と Function Definitions JSON を保存でき、外部利用スイッチを有効にするとメイン画面、<code>/api/chat</code>、<code>/api/generate</code>、<code>/v1/chat/completions</code> でも共通利用されます。</li>
         <li><strong>内蔵 Ollama/OpenAI 互換 API と WebUI</strong>: <code>/api/chat</code>、<code>/api/generate</code>、<code>/api/tags</code>、<code>/v1/chat/completions</code>、<code>/v1/models</code>、<code>/props</code>、<code>/slots</code> を同じポートで提供し、同時生成は 1 件、待機キューは最大 10 件・最大 60 秒です。</li>
         <li><strong>マルチモーダル API 入力</strong>: <code>/api/chat</code> と <code>/v1/chat/completions</code> では <code>image_url</code> と <code>input_audio</code> を扱え、ロード済みモデルの vision/audio 対応状況に応じて利用できます。</li>

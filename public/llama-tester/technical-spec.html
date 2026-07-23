@@ -307,10 +307,10 @@ ModelManager → LlamaNative → JNI → llama.cpp</pre>
       <p class="note">一般的な llama.cpp 導入の観点から JNI 境界や CMake 構成をさらに詳しく見る場合は、<a href="/llama-tester/technical-spec-llama-jni-cmake.html">llama.cpp / JNI / CMake 深掘り</a> を参照してください。</p>
       <h3>6-1. Gradle / NDK 側の特徴</h3>
       <ul>
-        <li><code>compileSdk 35</code>, <code>targetSdk 35</code>, <code>minSdk 24</code> です。</li>
+        <li><code>compileSdk 36</code>, <code>targetSdk 36</code>（Android 16）, <code>minSdk 24</code> です。targetSdk 36 の edge-to-edge 強制に合わせ、release ビルドでは R8（コード縮小 / 難読化）を有効化しています。</li>
         <li>ABI は <code>arm64-v8a</code> のみに絞られています。</li>
         <li>Native build は <code>src/main/cpp/CMakeLists.txt</code> を使い、<code>-DANDROID_SUPPORT_FLEXIBLE_PAGE_SIZES=ON</code> を渡しています。</li>
-        <li>NDK は <code>27.2.12479018</code> を固定し、Android 15 系で重要な 16KB page size 対応に合わせています。</li>
+        <li>NDK は <code>27.2.12479018</code> を固定し、Android 15/16 系で重要な 16KB page size 対応に合わせています。</li>
       </ul>
 
       <h3>6-2. CMake 側の構成</h3>
@@ -318,7 +318,8 @@ ModelManager → LlamaNative → JNI → llama.cpp</pre>
         <li>プロジェクト名は <code>llama_android</code>、C++17 / C11 を使用します。</li>
         <li>llama.cpp 本体は Git submodule 的な別ビルドではなく、<code>app/src/main/cpp/llama</code> 配下の source を直接 GLOB して <code>llama_jni</code> に静的に取り込んでいます。</li>
         <li>ggml は CPU backend を中心に必要 source を直接列挙し、ARM 向け実装も含めています。</li>
-        <li>mtmd 系 source もリンクしているため、画像 / 音声 projector を伴うモデルを同じ <code>llama_jni</code> で扱えます。</li>
+        <li>mtmd 系 source もリンクしているため、画像 / 音声 projector を伴うモデル（Qwen3-VL, Gemma 4 など）を同じ <code>llama_jni</code> で扱えます。</li>
+        <li>common / speculative 系 source もリンクしており、MTP ヘッドを内蔵する対応モデル（Qwen3.5-MTP, Gemma 4 など）で <strong>MTP（投機デコード, draft-mtp）</strong>を利用できます（設定でモデルごとに有効化。既定 OFF）。</li>
         <li><code>libcurl.a</code> と mbedTLS 3 本の static library を IMPORTED 扱いでリンクしています。</li>
       </ul>
 

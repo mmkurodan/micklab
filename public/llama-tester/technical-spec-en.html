@@ -305,7 +305,7 @@ ModelManager → LlamaNative → JNI → llama.cpp</pre>
       <p class="note">For a deeper explanation of the JNI boundary and CMake structure from a general llama.cpp-integration perspective, see <a href="/llama-tester/technical-spec-llama-jni-cmake-en.html">llama.cpp / JNI / CMake Deep Dive</a>.</p>
       <h3>6-1. Gradle / NDK characteristics</h3>
       <ul>
-        <li><code>compileSdk 35</code>, <code>targetSdk 35</code>, and <code>minSdk 24</code>.</li>
+        <li><code>compileSdk 36</code>, <code>targetSdk 36</code> (Android 16), and <code>minSdk 24</code>. To match the edge-to-edge enforcement of targetSdk 36, release builds enable R8 (code shrinking / obfuscation).</li>
         <li>The app builds only for <code>arm64-v8a</code>.</li>
         <li>Native build uses <code>src/main/cpp/CMakeLists.txt</code> with <code>-DANDROID_SUPPORT_FLEXIBLE_PAGE_SIZES=ON</code>.</li>
         <li>NDK version is fixed to <code>27.2.12479018</code> for current Android compatibility, including 16 KB page-size support.</li>
@@ -316,7 +316,8 @@ ModelManager → LlamaNative → JNI → llama.cpp</pre>
         <li>The project builds a single shared library named <code>llama_jni</code>.</li>
         <li>llama.cpp sources are vendored directly under <code>app/src/main/cpp/llama</code> and compiled into the shared library instead of being consumed as a prebuilt binary.</li>
         <li>ggml CPU sources and ARM-specific implementations are compiled into the same target.</li>
-        <li>mtmd sources are also included, enabling multimodal projector-backed models in the same runtime.</li>
+        <li>mtmd sources are also included, enabling multimodal projector-backed models (Qwen3-VL, Gemma 4, etc.) in the same runtime.</li>
+        <li>common / speculative sources are also linked, so models that embed an MTP head (Qwen3.5-MTP, Gemma 4, etc.) can use <strong>MTP (speculative decoding, draft-mtp)</strong> — enabled per-model in Settings (off by default).</li>
         <li>Static <code>libcurl</code> and three static mbedTLS libraries are imported and linked explicitly.</li>
       </ul>
 

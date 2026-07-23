@@ -128,6 +128,7 @@
         <li><strong>コンピュートバックエンド:</strong> GPU（OpenCL/Adreno）の有効/無効を切り替えます。オフの場合は CPU で実行します。</li>
         <li><strong>オフロード層（GPU）:</strong> GPU にオフロードする層数をスライダーで設定します。最大値は全層（ALL）を意味します。GPU が無効の場合（CPU 実行）はスライダーが無効化されます。</li>
         <li><strong>モデルパラメータ:</strong> <code>n_ctx</code>、<code>n_threads</code>、<code>n_batch</code>、温度などの生成パラメータを設定します。</li>
+        <li><strong>MTP（投機デコード・実験的）:</strong> 「MTP speculative decoding」トグルで有効化します（既定OFF）。有効時は <code>n_draft</code>（1ステップあたりのドラフト数・既定2）とドラフト元（「このモデル自身のMTPヘッドを使用（推奨）」または別GGUF）を指定できます。設定はモデルごとのプロファイルに保存され、設定保存後のモデル読み込みで反映されます。Qwen3.5-MTP や Gemma&nbsp;4 など MTP ヘッドを内蔵するモデルでは「自ヘッド使用」を選ぶだけで、追加ファイル不要・メモリ二重消費なしで生成が高速化する場合があります（効果は端末・モデル・<code>n_draft</code> に依存。OFF 時は従来と同一動作。推論中は無効化）。</li>
         <li><strong>出力設定:</strong> ストリーミング出力の有効/無効を切り替えます。パフォーマンス指標の表示を有効にすると生成完了後にトークン数・処理時間・速度を出力欄に付記します。</li>
         <li><strong>プロンプトテンプレート:</strong> システムプロンプト、Think有効/無効（chat-template-kwargs.enable_thinking）、カスタムテンプレートを設定できます。カスタム未設定時はGGUFのchat_templateメタデータを優先し、必要に応じてモデルファミリーから自動選択されます。Bonsai系の既定テンプレートにも対応しています。</li>
         <li><strong>Llama APIサーバー:</strong> サーバーポートを指定します。ローカルURLは <code>http://localhost:&lt;port&gt;</code> で表示され、Wi-Fi接続中はLAN URLも表示してタップでコピーできます。起動時ポップアップまたはメイン画面で有効化すると、APIとWebUIが同じポートで利用可能になります。</li>
