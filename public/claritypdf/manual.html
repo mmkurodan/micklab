@@ -16,6 +16,7 @@
     .card{background:var(--card);padding:20px;border-radius:14px;border:1px solid rgba(255,255,255,0.03);margin-bottom:18px}
     h1{margin:0 0 12px;font-size:32px}
     h2{margin:0 0 10px;font-size:23px}
+    h3{margin:18px 0 8px;font-size:17px}
     p{margin:0 0 12px}
     ul,ol{margin:0;padding-left:22px;color:var(--muted)}
     li+li{margin-top:8px}
@@ -26,7 +27,13 @@
     .lang-switch{color:var(--muted);font-size:14px}
     .lang-switch a[aria-current="page"]{color:#fff;font-weight:700}
     code{background:rgba(255,255,255,0.05);padding:2px 6px;border-radius:4px}
+    pre{background:rgba(255,255,255,0.04);border:1px solid var(--line);border-radius:8px;padding:14px;overflow-x:auto;font-size:13px;line-height:1.6}
     .callout{background:linear-gradient(90deg,rgba(124,92,255,0.08),rgba(0,212,255,0.03));border:1px solid var(--line)}
+    .expert{background:linear-gradient(90deg,rgba(0,212,255,0.07),rgba(124,92,255,0.04));border:1px solid rgba(0,212,255,0.15)}
+    table{width:100%;border-collapse:collapse;font-size:14px;margin:12px 0}
+    th,td{padding:8px 12px;border:1px solid var(--line);text-align:left}
+    th{color:#e6eef8;background:rgba(255,255,255,0.04)}
+    td{color:var(--muted)}
     @media (max-width:700px){main{padding:16px}h1{font-size:28px}}
   </style>
 </head>
@@ -61,7 +68,7 @@
     <section class="card">
       <h2>2. PDF 編集（テキスト・画像の追加／既存文字の編集）</h2>
       <ol>
-        <li>「PDF を選択」で編集する PDF を開くか、「白紙から新規作成」で空の A4 を作成します。</li>
+        <li>「PDF を選択」で編集する PDF を開くか、「白紙から新規作成」で空の A4 を作成します。新規作成時はページサイズ・背景色を選択できます。</li>
         <li>プレビューはキャンバスとして固定表示され、下部のツールボックスからページ移動と各操作を選びます。</li>
         <li><strong>テキストを追加</strong>: ツールから「テキスト」を選び、フロートウィンドウに文字を入力（改行可）→ サイズ・色・フォント・太字／斜体／下線・回転・URL を設定して「追加」。プレビュー上に置かれるのでドラッグで移動します。</li>
         <li><strong>画像を追加</strong>: 「画像」で画像を選ぶとプレビューに配置されます。ドラッグで移動、拡大縮小・回転も指定できます。</li>
@@ -71,9 +78,12 @@
             <li>表示できない文字・移動・サイズ/色/装飾/フォントの変更時は、元のサイズ・色を引き継いで文全体を描き直します（選んだフォントを使用）。</li>
           </ul>
         </li>
+        <li><strong>図形を追加</strong>: 「図形」ツールで四角・楕円を選び、枠線色・塗り色・線幅を設定してキャンバス上でドラッグして配置します。</li>
+        <li><strong>描画</strong>: 「描画」ツールでブラシまたは消しゴムを使い、キャンバス上に自由描画します。「決定」で PDF に反映します。</li>
+        <li><strong>背景色</strong>: 「背景」ツールで現在ページの背景色を設定します（既存のコンテンツは保持されます）。</li>
         <li><strong>レイヤー</strong>: 追加・編集した項目とページ上の認識オブジェクトは「レイヤー」に一覧表示されます。行をタップで選択、× で取消できます。</li>
         <li>各メニューの「決定」やレイヤー一覧の「決定」を押すと、その時点の編集を一時 PDF に反映し、実際の見た目でプレビューを更新します。</li>
-        <li>「適用して保存」で最終的な PDF を出力します。</li>
+        <li>「適用して保存」で最終的な PDF を出力します。「元に戻す」で直前の確定操作を取り消せます。</li>
       </ol>
       <p class="note">※ テキストの追加・編集には埋め込みフォントの取得が必要です。書体は Noto Sans JP / Noto Serif JP / M PLUS Rounded 1c / Zen Kaku Gothic New / Klee One（すべて SIL OFL）から選べ、テキストごとに指定できます。各書体は初回のみ通信し以後オフライン。未取得の書体は編集画面や設定画面から取得できます。</p>
     </section>
@@ -102,7 +112,8 @@
       <h2>5. 環境設定</h2>
       <ul>
         <li><strong>OCR 設定・モデル管理</strong>: Tesseract / PaddleOCR の言語モデル取得（日本語・英語・中国語・韓国語）、編集用フォント（複数書体）の取得、LLM(Ollama / OpenAI 互換)の接続 URL・モデル選択・接続確認。並び順は Tesseract → PaddleOCR → LLM。</li>
-        <li><strong>LLM API の起動</strong>: 設定画面の「LLM API を起動」ボタンでコンパニオンアプリ(LLM Tester)の API サーバを起動でき、緑／黄のステータスタイルで <code>/api/tags</code> の接続状態を確認できます。</li>
+        <li><strong>LLM API の起動</strong>: 「LLM API を起動」ボタンでコンパニオンアプリ(LLM Tester)の API サーバを起動でき、緑／黄のステータスタイルで <code>/api/tags</code> の接続状態を確認できます。</li>
+        <li><strong>言語設定</strong>: アプリの表示言語を切り替えられます。対応言語: 日本語 / English / Français / Deutsch / Español / Italiano / Português / 中文（简体）/ 한국어。</li>
         <li><strong>操作マニュアル / プライバシーポリシー / 権利表記</strong>: 本ドキュメント類（各画面で本文をコピーできます）。</li>
       </ul>
     </section>
@@ -112,6 +123,80 @@
       <ul>
         <li>PDF・画像処理は端末内で完結します。通信するのは「OCR モデル・フォントの初回ダウンロード」と「LLM を利用する場合の設定サーバへの送信」だけです（既定の LLM 接続先は端末内 <code>127.0.0.1</code>）。</li>
         <li>外部 LLM サーバを指定した場合、ページ画像や抽出テキストはその接続先へ送信されます。送信先はご自身の設定に依存します。</li>
+      </ul>
+    </section>
+
+    <section class="card expert">
+      <h2>7. エキスパートモード — ローカル OCR API</h2>
+      <p>「環境設定 → OCR 設定・モデル管理」の最下部にある「エキスパートモード」を有効にすると、この端末が OCR API サーバになります。同じ LAN 上の PC・他端末から HTTP でリクエストを送れます。</p>
+      <p class="note">⚠️ 認証はありません。信頼できるローカルネットワーク内でのみ使用してください。</p>
+
+      <h3>エンドポイント</h3>
+      <table>
+        <tr><th>用途</th><th>URL</th></tr>
+        <tr><td>OCR リクエスト</td><td><code>POST http://&lt;端末IP&gt;:8765/ocr</code></td></tr>
+        <tr><td>端末内から</td><td><code>POST http://127.0.0.1:8765/ocr</code></td></tr>
+        <tr><td>ヘルスチェック</td><td><code>GET http://&lt;端末IP&gt;:8765/health</code></td></tr>
+      </table>
+
+      <h3>リクエスト（multipart/form-data）</h3>
+      <table>
+        <tr><th>フィールド</th><th>必須</th><th>説明</th></tr>
+        <tr><td><code>file</code></td><td>○</td><td>画像（PNG/JPEG/WebP/BMP）または PDF</td></tr>
+        <tr><td><code>engine</code></td><td>△</td><td><code>tesseract</code>（既定）| <code>paddleocr</code> | <code>llm</code></td></tr>
+        <tr><td><code>lang</code></td><td>△</td><td>言語コード、カンマ区切り（既定: <code>eng</code>）例: <code>jpn</code> / <code>jpn,eng</code> / <code>chi_sim</code> / <code>kor</code></td></tr>
+      </table>
+
+      <h3>レスポンス（HTTP 200）</h3>
+      <pre>{
+  "pages": [
+    { "page": 1, "text": "認識されたテキスト", "confidence": 0.95, "source": "OCR" }
+  ],
+  "engine": "Tesseract",
+  "languages": ["jpn"],
+  "pageCount": 1
+}</pre>
+
+      <h3>エラー</h3>
+      <table>
+        <tr><th>HTTP</th><th>内容</th></tr>
+        <tr><td>400</td><td><code>{"error":"Missing 'file' field"}</code> — file フィールドなし</td></tr>
+        <tr><td>400</td><td><code>{"error":"Could not decode image"}</code> — 画像デコード失敗</td></tr>
+        <tr><td>500</td><td><code>{"error":"..."}</code> — OCR 処理エラー</td></tr>
+      </table>
+
+      <h3>curl 使用例</h3>
+      <pre># JPEG を英語 Tesseract で OCR
+curl -X POST http://192.168.1.10:8765/ocr \
+     -F "file=@document.jpg" -F "engine=tesseract" -F "lang=eng"
+
+# PDF を日本語+英語で OCR（複数ページ対応）
+curl -X POST http://192.168.1.10:8765/ocr \
+     -F "file=@scan.pdf;type=application/pdf" -F "lang=jpn,eng"
+
+# ヘルスチェック
+curl http://192.168.1.10:8765/health</pre>
+
+      <h3>Python 使用例</h3>
+      <pre>import requests
+
+with open("document.pdf", "rb") as f:
+    resp = requests.post(
+        "http://192.168.1.10:8765/ocr",
+        files={"file": ("document.pdf", f, "application/pdf")},
+        data={"engine": "tesseract", "lang": "jpn,eng"},
+    )
+result = resp.json()
+for page in result["pages"]:
+    print(f"Page {page['page']}: {page['text'][:80]}...")</pre>
+
+      <h3>注意事項</h3>
+      <ul>
+        <li>認証はありません。信頼できるローカルネットワーク内でのみ使用してください。</li>
+        <li>大きな PDF は処理に時間がかかります（1 ページあたり数秒〜数十秒）。</li>
+        <li>プロセス Kill 対策として通知権限が必要です。通知からサーバーを停止できます。</li>
+        <li>端末のスリープ中は処理が中断される場合があります。</li>
+        <li><code>engine=tesseract</code> で <code>lang=jpn</code> を使うには Tesseract 日本語モデルが必要です。PaddleOCR / LLM も各エンジンのモデル・設定が必要です。</li>
       </ul>
     </section>
   </main>

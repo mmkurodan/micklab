@@ -16,6 +16,7 @@
     .card{background:var(--card);padding:20px;border-radius:14px;border:1px solid rgba(255,255,255,0.03);margin-bottom:18px}
     h1{margin:0 0 12px;font-size:32px}
     h2{margin:0 0 10px;font-size:23px}
+    h3{margin:18px 0 8px;font-size:17px}
     p{margin:0 0 12px}
     ul,ol{margin:0;padding-left:22px;color:var(--muted)}
     li+li{margin-top:8px}
@@ -26,7 +27,13 @@
     .lang-switch{color:var(--muted);font-size:14px}
     .lang-switch a[aria-current="page"]{color:#fff;font-weight:700}
     code{background:rgba(255,255,255,0.05);padding:2px 6px;border-radius:4px}
+    pre{background:rgba(255,255,255,0.04);border:1px solid var(--line);border-radius:8px;padding:14px;overflow-x:auto;font-size:13px;line-height:1.6}
     .callout{background:linear-gradient(90deg,rgba(124,92,255,0.08),rgba(0,212,255,0.03));border:1px solid var(--line)}
+    .expert{background:linear-gradient(90deg,rgba(0,212,255,0.07),rgba(124,92,255,0.04));border:1px solid rgba(0,212,255,0.15)}
+    table{width:100%;border-collapse:collapse;font-size:14px;margin:12px 0}
+    th,td{padding:8px 12px;border:1px solid var(--line);text-align:left}
+    th{color:#e6eef8;background:rgba(255,255,255,0.04)}
+    td{color:var(--muted)}
     @media (max-width:700px){main{padding:16px}h1{font-size:28px}}
   </style>
 </head>
@@ -61,7 +68,7 @@
     <section class="card">
       <h2>2. Edit PDF (add text/images, edit existing text)</h2>
       <ol>
-        <li>Open a PDF with "Choose PDF", or make an empty A4 with "Start from blank".</li>
+        <li>Open a PDF with "Choose PDF", or make an empty A4 with "Start from blank". When creating a new document, you can choose the page size and background color.</li>
         <li>The preview stays fixed as a canvas; use the toolbox at the bottom to move between pages and pick each action.</li>
         <li><strong>Add text</strong>: pick "Text" from the toolbox, type into the floating window (line breaks allowed), set size / color / font / bold / italic / underline / rotation / URL, then "Add". It is placed on the preview; drag to move it.</li>
         <li><strong>Add an image</strong>: choose one under "Image" and it is placed on the preview. Drag to move it; you can also scale and rotate it.</li>
@@ -71,9 +78,12 @@
             <li>For characters that can't be shown, moves, or size/color/style/font changes, the whole run is redrawn, keeping the original size and color (using the chosen font).</li>
           </ul>
         </li>
+        <li><strong>Add shapes</strong>: use the "Shape" tool to place a rectangle or oval — configure stroke color, fill color, and line width, then drag on the canvas to position it.</li>
+        <li><strong>Draw</strong>: use the "Draw" tool with the brush or eraser to draw freehand on the canvas. Tap "Apply" to commit to the PDF.</li>
+        <li><strong>Background color</strong>: use the "BG" tool to set a background color for the current page (existing content is preserved).</li>
         <li><strong>Layers</strong>: added/edited items and recognized objects on the page are listed under "Layers". Tap a row to select it, or × to remove it.</li>
         <li>Tapping "Apply" in each menu, or in the Layers list, bakes the current edits into a temporary PDF and refreshes the preview with the real appearance.</li>
-        <li>"Apply and save" outputs the final PDF.</li>
+        <li>"Apply and save" outputs the final PDF. "Undo" reverts the most recent committed operation.</li>
       </ol>
       <p class="note">* Adding/editing text needs an embedded font. Choose from Noto Sans JP / Noto Serif JP / M PLUS Rounded 1c / Zen Kaku Gothic New / Klee One (all SIL OFL), per text run. Each font downloads once, then works offline; get missing ones from the editor or Settings.</p>
     </section>
@@ -103,6 +113,7 @@
       <ul>
         <li><strong>OCR settings and models</strong>: download Tesseract / PaddleOCR language models (Japanese, English, Chinese, Korean) and the editing fonts, and set the LLM (Ollama / OpenAI-compatible) connection URL, model, and connection test. Order is Tesseract → PaddleOCR → LLM.</li>
         <li><strong>Launch LLM API</strong>: the "Launch LLM API" button starts the companion app (LLM Tester) API server, and a green/amber status tile shows the <code>/api/tags</code> reachability.</li>
+        <li><strong>Language</strong>: switch the app display language. Supported languages: 日本語 / English / Français / Deutsch / Español / Italiano / Português / 中文（简体）/ 한국어.</li>
         <li><strong>User manual / Privacy policy / Licenses</strong>: these documents (you can copy the body on each screen).</li>
       </ul>
     </section>
@@ -112,6 +123,81 @@
       <ul>
         <li>PDF and image processing run entirely on the device. The only network use is "the first download of OCR models / fonts" and "sending to the configured server when using an LLM" (the default LLM endpoint is <code>127.0.0.1</code> on the device).</li>
         <li>If you configure an external LLM server, page images and extracted text are sent there. The destination depends on your own settings.</li>
+      </ul>
+    </section>
+
+    <section class="card expert">
+      <h2>7. Expert Mode — Local OCR API</h2>
+      <p>Enable "Expert Mode" at the bottom of Settings → OCR Settings &amp; Models to turn this device into an OCR API server. Other devices on the same LAN can then send OCR requests to it over HTTP.</p>
+      <p class="note">⚠️ There is no authentication. Use only on trusted local networks.</p>
+
+      <h3>Endpoints</h3>
+      <table>
+        <tr><th>Purpose</th><th>URL</th></tr>
+        <tr><td>OCR request</td><td><code>POST http://&lt;device-IP&gt;:8765/ocr</code></td></tr>
+        <tr><td>From same device</td><td><code>POST http://127.0.0.1:8765/ocr</code></td></tr>
+        <tr><td>Health check</td><td><code>GET http://&lt;device-IP&gt;:8765/health</code></td></tr>
+      </table>
+
+      <h3>Request (multipart/form-data)</h3>
+      <table>
+        <tr><th>Field</th><th>Required</th><th>Description</th></tr>
+        <tr><td><code>file</code></td><td>Yes</td><td>Image (PNG/JPEG/WebP/BMP) or PDF — sent as raw binary</td></tr>
+        <tr><td><code>engine</code></td><td>No</td><td><code>tesseract</code> (default) | <code>paddleocr</code> | <code>llm</code></td></tr>
+        <tr><td><code>lang</code></td><td>No</td><td>Language code(s), comma-separated (default: <code>eng</code>). e.g. <code>jpn</code> / <code>jpn,eng</code> / <code>chi_sim</code> / <code>kor</code></td></tr>
+      </table>
+
+      <h3>Response (HTTP 200)</h3>
+      <pre>{
+  "pages": [
+    { "page": 1, "text": "Recognized text here", "confidence": 0.95, "source": "OCR" }
+  ],
+  "engine": "Tesseract",
+  "languages": ["eng"],
+  "pageCount": 1
+}</pre>
+
+      <h3>Errors</h3>
+      <table>
+        <tr><th>HTTP</th><th>Body</th></tr>
+        <tr><td>400</td><td><code>{"error":"Missing 'file' field"}</code> — no file field</td></tr>
+        <tr><td>400</td><td><code>{"error":"Could not decode image"}</code> — invalid image data</td></tr>
+        <tr><td>500</td><td><code>{"error":"..."}</code> — OCR processing error</td></tr>
+      </table>
+
+      <h3>curl examples</h3>
+      <pre># OCR a JPEG with English Tesseract
+curl -X POST http://192.168.1.10:8765/ocr \
+     -F "file=@document.jpg" -F "engine=tesseract" -F "lang=eng"
+
+# OCR a PDF with Japanese+English (multi-page)
+curl -X POST http://192.168.1.10:8765/ocr \
+     -F "file=@scan.pdf;type=application/pdf" -F "lang=jpn,eng"
+
+# Health check
+curl http://192.168.1.10:8765/health</pre>
+
+      <h3>Python example</h3>
+      <pre>import requests
+
+with open("document.pdf", "rb") as f:
+    resp = requests.post(
+        "http://192.168.1.10:8765/ocr",
+        files={"file": ("document.pdf", f, "application/pdf")},
+        data={"engine": "tesseract", "lang": "eng"},
+    )
+result = resp.json()
+for page in result["pages"]:
+    print(f"Page {page['page']}: {page['text'][:80]}...")</pre>
+
+      <h3>Notes</h3>
+      <ul>
+        <li>No authentication — use only on trusted local networks.</li>
+        <li>Large PDFs may take several seconds to minutes per page.</li>
+        <li>Notification permission is required to keep the service alive after a process kill. You can stop the server from the notification.</li>
+        <li>Processing may be interrupted if the device goes to sleep.</li>
+        <li><code>engine=tesseract</code> with <code>lang=jpn</code> requires the Tesseract Japanese model. PaddleOCR and LLM also require their respective models/settings.</li>
+        <li>Files are sent as raw binary in multipart/form-data — no Base64 encoding needed.</li>
       </ul>
     </section>
   </main>
