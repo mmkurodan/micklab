@@ -59,14 +59,17 @@
   <main>
     <section class="card callout">
       <h1>API リファレンス</h1>
-      <p class="lead">LLM AI Server with llama.cpp が端末内で公開する HTTP API の仕様と使用例です。Ollama 互換エンドポイント（<code>/api/*</code>）と OpenAI 互換エンドポイント（<code>/v1/*</code>）、および llama.cpp WebUI 互換エンドポイント（<code>/props</code>, <code>/slots</code> ほか）を、現行の <code>OllamaApiServer</code> 実装をもとに整理しています。</p>
+      <p class="lead">LLM AI Server with llama.cpp が端末内で公開する HTTP API の仕様と使用例です。Ollama 互換エンドポイント（<code>/api/*</code>）、OpenAI 互換エンドポイント（<code>/v1/*</code>）、llama.cpp WebUI 互換エンドポイント（<code>/props</code>, <code>/slots</code> ほか）、およびモデル制御用の独自エンドポイント（<code>/models/load</code>, <code>/models/unload</code>）を、現行の <code>OllamaApiServer</code> 実装をもとに整理しています。</p>
       <p class="note">関連文書: <a href="/llama-tester/manual.html">操作マニュアル</a> | <a href="/llama-tester/technical-spec.html">技術仕様</a> | <a href="/llama-tester/privacy.html#ja">プライバシーポリシー</a></p>
       <div>
         <span class="pill">Ollama 互換</span>
         <span class="pill">OpenAI 互換</span>
         <span class="pill">SSE / NDJSON streaming</span>
+        <span class="pill">Embeddings</span>
+        <span class="pill">Structured Output</span>
         <span class="pill">Multimodal</span>
         <span class="pill">Tools / Function Calling</span>
+        <span class="pill">Reasoning</span>
       </div>
     </section>
 
@@ -81,11 +84,16 @@
         <a href="#tags">6. /api/tags</a>
         <a href="#openai">7. POST /v1/chat/completions</a>
         <a href="#models">8. /v1/models・/models</a>
-        <a href="#props">9. /props・/slots・/health</a>
-        <a href="#params">10. サンプリングパラメータ</a>
-        <a href="#multimodal">11. マルチモーダル入力</a>
-        <a href="#tools">12. ツール / Function Calling</a>
-        <a href="#clients">13. クライアント例</a>
+        <a href="#embeddings">9. 埋め込み（Embeddings）</a>
+        <a href="#tokens">10. トークン数カウント</a>
+        <a href="#modelctl">11. モデルのロード / アンロード</a>
+        <a href="#props">12. /props・/slots・/health</a>
+        <a href="#params">13. 生成・サンプリングパラメータ</a>
+        <a href="#structured">14. 構造化出力（JSON / GBNF）</a>
+        <a href="#thinking">15. 思考（Reasoning）制御</a>
+        <a href="#multimodal">16. マルチモーダル入力</a>
+        <a href="#tools">17. ツール / Function Calling</a>
+        <a href="#clients">18. クライアント例</a>
       </div>
     </section>
 
@@ -95,28 +103,29 @@
         <li><strong>ベース URL:</strong> <code>http://localhost:&lt;port&gt;</code>（既定ポート <code>11434</code>）。Wi-Fi 接続中は同じポートで LAN URL（<code>http://&lt;端末 IP&gt;:&lt;port&gt;</code>）も利用できます。</li>
         <li><strong>同居構成:</strong> API と WebUI は同一ポートで提供されます。API パス以外への GET は WebUI 配信に回されます。</li>
         <li><strong>認証:</strong> API キー認証はありません（<code>Authorization</code> ヘッダーは無視されます）。同一端末またはローカルネットワーク内での利用を想定しています。</li>
-        <li><strong>CORS:</strong> すべての応答に <code>Access-Control-Allow-Origin: *</code> を付与し、<code>OPTIONS</code> プリフライトに <code>204</code> を返します。</li>
-        <li><strong>Content-Type:</strong> リクエストボディは JSON（<code>application/json</code>）。非ストリーミング応答は JSON、ストリーミング応答は <code>/api/*</code> が NDJSON（<code>application/x-ndjson</code>）、<code>/v1/*</code> が SSE（<code>text/event-stream</code>）です。</li>
+        <li><strong>CORS:</strong> すべての応答に <code>Access-Control-Allow-Origin: *</code> を付与し、<code>OPTIONS</code> プリフライトには <code>204</code>（<code>Allow-Methods: GET, POST, OPTIONS</code>）を返します。</li>
+        <li><strong>Content-Type:</strong> リクエストボディは JSON（<code>application/json</code>）。非ストリーミング応答は JSON、ストリーミング応答は <code>/api/*</code> が NDJSON（<code>application/x-ndjson</code>、chunked）、<code>/v1/*</code> が SSE（<code>text/event-stream</code>）です。</li>
+        <li><strong>ボディ上限:</strong> リクエストボディは最大 <strong>64 MB</strong>。超過時は <code>413</code> を返します（base64 画像・音声を含むマルチモーダル要求を想定した値です）。</li>
         <li><strong>モデル指定:</strong> <code>model</code> には設定（プロファイル）名を指定します。プロファイル一覧は <code>/api/tags</code> または <code>/v1/models</code> で取得できます。</li>
       </ul>
     </section>
 
     <section class="card" id="compat">
       <h2>2. 互換性サマリ</h2>
-      <p>主要なチャット / 生成クライアントが利用する範囲では Ollama・OpenAI の両仕様と互換です。一方で、本アプリは「端末内 1 モデル・1 推論」を前提とした実装のため、一部の管理系エンドポイントや統計フィールドは提供しません。</p>
+      <p>チャット / 生成 / 埋め込みの主要な用途では Ollama・OpenAI の両仕様と互換です。トークン統計（Ollama の <code>eval_count</code> 系、OpenAI の <code>usage</code>）も返すため、Open WebUI や LangChain のような統計を参照するクライアントでもそのまま動作します。一方、本アプリは「端末内 1 モデル・1 推論」を前提とした実装のため、リポジトリ管理系のエンドポイントは提供しません。</p>
       <table>
         <thead>
           <tr><th>区分</th><th>内容</th></tr>
         </thead>
         <tbody>
-          <tr><td>Ollama 互換（実装済み）</td><td><code>POST /api/generate</code>、<code>POST /api/chat</code>、<code>GET/POST /api/tags</code>。応答形は <code>{model, created_at, response|message, done}</code> 系で互換。ツール利用時は <code>done_reason</code>・<code>tool_calls</code>・<code>reasoning_content</code> を追加。</td></tr>
-          <tr><td>OpenAI 互換（実装済み）</td><td><code>POST /v1/chat/completions</code>（streaming は SSE、終端 <code>data: [DONE]</code>）、<code>GET /v1/models</code>。<code>object</code>・<code>choices[].message</code>/<code>delta</code>・<code>finish_reason</code> を返却。</td></tr>
+          <tr><td>Ollama 互換</td><td><code>POST /api/generate</code>、<code>POST /api/chat</code>、<code>GET/POST /api/tags</code>、<code>POST /api/embed</code>、<code>POST /api/embeddings</code>（旧仕様）、<code>POST /api/tokenize</code>。応答形は <code>{model, created_at, response|message, done}</code> 系で互換。完了時の chunk には <code>total_duration</code> / <code>load_duration</code> / <code>prompt_eval_count</code> / <code>prompt_eval_duration</code> / <code>eval_count</code> / <code>eval_duration</code>（ナノ秒）を付与。ツール利用時は <code>done_reason</code>・<code>tool_calls</code>・<code>reasoning_content</code> を追加。</td></tr>
+          <tr><td>OpenAI 互換</td><td><code>POST /v1/chat/completions</code>（streaming は SSE、終端 <code>data: [DONE]</code>）、<code>GET /v1/models</code>、<code>POST /v1/embeddings</code>、<code>POST /v1/responses/input_tokens</code>。応答には <code>id</code>（<code>chatcmpl-…</code>）・<code>created</code>・<code>object</code>・<code>choices[].message</code>/<code>delta</code>・<code>finish_reason</code>、非ストリーミング時は <code>usage</code> を含みます。</td></tr>
           <tr><td>llama.cpp WebUI 互換</td><td><code>GET /props</code>、<code>GET /slots</code>、<code>GET /health</code>（<code>/v1/health</code>）、<code>GET /models</code>、Bundled WebUI 配信。</td></tr>
-          <tr><td>拡張（独自）</td><td>マルチモーダル入力（<code>image_url</code> / <code>input_audio</code>）、共有 MCP / Function Definitions 設定、<code>reasoning_content</code>、パフォーマンス指標を本文末尾に付記するオプション。</td></tr>
-          <tr><td>未実装（注意点）</td><td>OpenAI 応答に <code>id</code> / <code>created</code> / <code>usage</code> は<strong>含まれません</strong>。Ollama 応答に <code>total_duration</code> / <code>eval_count</code> / <code>prompt_eval_count</code> / <code>context</code> などの統計は<strong>含まれません</strong>。埋め込み（<code>/api/embed</code>, <code>/v1/embeddings</code>）、モデル管理（<code>/api/show</code>, <code>/api/pull</code>, <code>/api/ps</code>, <code>/api/version</code>）、<code>/v1/completions</code>（旧 completions）は提供しません。</td></tr>
+          <tr><td>拡張（独自）</td><td><code>POST /models/load</code> / <code>POST /models/unload</code>（明示的なモデル制御）、マルチモーダル入力（<code>image_url</code> / <code>input_audio</code>）、共有 MCP / Function Definitions 設定、<code>reasoning_content</code>、<code>samplers</code> によるサンプラー順序指定、パフォーマンス指標を本文末尾に付記するオプション。</td></tr>
+          <tr><td>未実装（注意点）</td><td>モデルリポジトリ管理（<code>/api/show</code>, <code>/api/pull</code>, <code>/api/push</code>, <code>/api/create</code>, <code>/api/copy</code>, <code>/api/delete</code>, <code>/api/ps</code>, <code>/api/version</code>）、<code>/v1/completions</code>（旧 completions）、<code>/v1/responses</code> 本体、<code>logprobs</code>、<code>n &gt; 1</code> の複数候補生成には対応していません。ストリーミング応答（SSE）には <code>usage</code> を含めません（<code>stream_options.include_usage</code> は無視されます）。<code>/v1/embeddings</code> の <code>usage</code> は形だけの <code>0</code> です。</td></tr>
         </tbody>
       </table>
-      <p class="note">トークン使用量などの統計が必要な場合は、出力設定の「パフォーマンス指標を表示」を有効にすると、生成完了後にトークン数・処理時間・速度が本文末尾（OpenAI は最終 delta、Ollama は追加 chunk）に付記されます。</p>
+      <p class="note">「パフォーマンス指標を表示」を有効にすると、上記の統計フィールドとは別に、トークン数・処理時間・速度・端末温度が生成本文の末尾（OpenAI は追加 delta、Ollama は追加 chunk）にテキストとして付記されます。</p>
     </section>
 
     <section class="card" id="common">
@@ -126,10 +135,14 @@
         <li>推論 slot は 1 つだけ（single-generation）。生成中の追加リクエストは最大 <code>10</code> 件まで待機キューに入り、最大 <code>60</code> 秒待機します。</li>
         <li>キュー超過・待機タイムアウト時は <code>503</code> を返します。</li>
         <li>モデル再初期化（リセット）要求中は、新規リクエストを拒否し、待機中リクエストも打ち切ります（<code>503</code>）。</li>
+        <li>生成系だけでなく、埋め込み・トークナイズ・モデルロードも同じ slot を取得します。</li>
       </ul>
       <h3>3-2. エラー応答</h3>
-      <p><code>/api/*</code> 系はプレーンな JSON / テキストでエラーを返し、<code>/v1/*</code> 系は OpenAI 形式のエラーオブジェクトを返します。</p>
-      <pre><code>// /v1/* のエラー形式
+      <p><code>/api/*</code> 系と独自エンドポイントは <code>{"error": "..."}</code> 形式、<code>/v1/*</code> 系は OpenAI 形式のエラーオブジェクトを返します。</p>
+      <pre><code>// /api/* のエラー形式
+{ "error": "'input' is required" }
+
+// /v1/* のエラー形式
 {
   "error": {
     "message": "No messages provided",
@@ -140,13 +153,15 @@
       <table>
         <thead><tr><th>ステータス</th><th>意味</th></tr></thead>
         <tbody>
-          <tr><td><code>400</code></td><td>JSON 不正、必須項目欠落、非対応の <code>content[].type</code>、未対応モダリティ など</td></tr>
+          <tr><td><code>400</code></td><td>JSON 不正、必須項目欠落、非対応の <code>content[].type</code>、未対応モダリティ、非対応の画像形式 など</td></tr>
           <tr><td><code>404</code></td><td>未定義の経路</td></tr>
           <tr><td><code>405</code></td><td>非対応の HTTP メソッド</td></tr>
-          <tr><td><code>500</code></td><td>設定ロード失敗、生成失敗 など</td></tr>
-          <tr><td><code>503</code></td><td>ビジー（キュー満杯 / 待機タイムアウト / リセット進行中）</td></tr>
+          <tr><td><code>413</code></td><td>リクエストボディが 64 MB を超過</td></tr>
+          <tr><td><code>500</code></td><td>設定ロード失敗、生成・埋め込み失敗 など</td></tr>
+          <tr><td><code>503</code></td><td>ビジー（キュー満杯 / 待機タイムアウト / リセット進行中 / アンロード時にモデル使用中）</td></tr>
         </tbody>
       </table>
+      <p class="note">ストリーミング中にエラーが発生した場合は、<code>/api/*</code> では <code>error</code> を含む chunk、<code>/v1/*</code> ではエラーオブジェクトの SSE イベントに続けて <code>data: [DONE]</code> を送出してストリームを閉じます。クライアント側が切断した場合はネイティブ生成もキャンセルされます。</p>
     </section>
 
     <section class="card" id="generate">
@@ -160,7 +175,10 @@
           <tr><td><code>prompt</code></td><td>string</td><td>ユーザープロンプト。</td></tr>
           <tr><td><code>system</code></td><td>string?</td><td>任意。システムプロンプト（設定側より優先）。</td></tr>
           <tr><td><code>stream</code></td><td>bool</td><td>既定 <code>true</code>。<code>false</code> で一括応答。</td></tr>
-          <tr><td><code>tools</code></td><td>array?</td><td>任意。指定すると内部ツール実行ループに切り替わります（<a href="#tools">12 章</a>）。</td></tr>
+          <tr><td><code>options</code></td><td>object?</td><td>Ollama 慣習のサンプリング / コンテキスト設定。<code>num_ctx</code>, <code>num_predict</code>, <code>temperature</code>, <code>top_k</code>, <code>top_p</code>, <code>min_p</code>, <code>repeat_penalty</code>, <code>repeat_last_n</code>, <code>mirostat*</code> を解釈します（<a href="#params">13 章</a>）。</td></tr>
+          <tr><td><code>format</code> / <code>grammar</code></td><td>string|object</td><td>任意。構造化出力の制約（<a href="#structured">14 章</a>）。</td></tr>
+          <tr><td><code>think</code></td><td>bool|string?</td><td>任意。思考（reasoning）の有効 / 無効（<a href="#thinking">15 章</a>）。</td></tr>
+          <tr><td><code>tools</code></td><td>array?</td><td>任意。指定すると内部ツール実行ループに切り替わります（<a href="#tools">17 章</a>）。配列以外を渡すと <code>400</code>。</td></tr>
         </tbody>
       </table>
       <h3>非ストリーミング応答</h3>
@@ -171,15 +189,22 @@
 }'</code></pre>
       <pre><code>{
   "model": "my-profile",
-  "created_at": "2026-06-14T03:10:00Z",
+  "created_at": "2026-08-13T03:10:00.000Z",
   "response": "日本の首都は東京です。",
-  "done": true
+  "done": true,
+  "total_duration": 1843000000,
+  "load_duration": 12000000,
+  "prompt_eval_count": 18,
+  "prompt_eval_duration": 231000000,
+  "eval_count": 12,
+  "eval_duration": 1600000000
 }</code></pre>
       <h3>ストリーミング応答（NDJSON）</h3>
-      <p>1 行 1 JSON。各 chunk は <code>"done": false</code> で <code>response</code> に部分文字列。最後に <code>"done": true</code> の chunk を送出します。</p>
+      <p>1 行 1 JSON。各 chunk は <code>"done": false</code> で <code>response</code> に部分文字列。最後に <code>"done": true</code> と統計フィールドを含む chunk を送出します。</p>
       <pre><code>{"model":"my-profile","created_at":"...","response":"日本","done":false}
 {"model":"my-profile","created_at":"...","response":"の首都は","done":false}
-{"model":"my-profile","created_at":"...","response":"","done":true}</code></pre>
+{"model":"my-profile","created_at":"...","response":"","done":true,"total_duration":1843000000,"prompt_eval_count":18,"eval_count":12,...}</code></pre>
+      <p class="note">統計フィールドはナノ秒単位で、Ollama の定義に合わせています（<code>total_duration = load_duration + prompt_eval_duration + eval_duration</code>）。tok/s を計算するクライアントはそのまま利用できます。</p>
     </section>
 
     <section class="card" id="chat">
@@ -190,15 +215,19 @@
         <thead><tr><th>フィールド</th><th>型</th><th>説明</th></tr></thead>
         <tbody>
           <tr><td><code>model</code></td><td>string</td><td>プロファイル名。未指定時は <code>"default"</code>。</td></tr>
-          <tr><td><code>messages</code></td><td>array</td><td>必須。<code>{role, content}</code> の配列。<code>role</code> は <code>system</code> / <code>user</code> / <code>assistant</code> / <code>tool</code>。<code>content</code> は文字列、またはマルチモーダル用の配列（<a href="#multimodal">11 章</a>）。</td></tr>
+          <tr><td><code>messages</code></td><td>array</td><td>必須。<code>{role, content}</code> の配列。<code>role</code> は <code>system</code> / <code>user</code> / <code>assistant</code> / <code>tool</code>。<code>content</code> は文字列、またはマルチモーダル用の配列（<a href="#multimodal">16 章</a>）。</td></tr>
           <tr><td><code>stream</code></td><td>bool</td><td>既定 <code>true</code>。</td></tr>
-          <tr><td><code>tools</code></td><td>array?</td><td>任意（<a href="#tools">12 章</a>）。</td></tr>
+          <tr><td><code>options</code></td><td>object?</td><td><a href="#generate">4 章</a>と同じ（<code>num_ctx</code> / <code>num_predict</code> ほか）。</td></tr>
+          <tr><td><code>format</code> / <code>grammar</code></td><td>string|object</td><td>任意（<a href="#structured">14 章</a>）。</td></tr>
+          <tr><td><code>think</code></td><td>bool|string?</td><td>任意（<a href="#thinking">15 章</a>）。</td></tr>
+          <tr><td><code>tools</code></td><td>array?</td><td>任意（<a href="#tools">17 章</a>）。</td></tr>
         </tbody>
       </table>
       <h3>非ストリーミング応答</h3>
       <pre><code>curl http://localhost:11434/api/chat -d '{
   "model": "my-profile",
   "stream": false,
+  "options": { "num_ctx": 8192, "temperature": 0.7 },
   "messages": [
     {"role": "system", "content": "あなたは簡潔に答えるアシスタントです。"},
     {"role": "user", "content": "富士山の標高は？"}
@@ -206,14 +235,21 @@
 }'</code></pre>
       <pre><code>{
   "model": "my-profile",
-  "created_at": "2026-06-14T03:10:00Z",
+  "created_at": "2026-08-13T03:10:00.000Z",
   "message": { "role": "assistant", "content": "3,776 m です。" },
-  "done": true
+  "done": true,
+  "total_duration": 980000000,
+  "load_duration": 8000000,
+  "prompt_eval_count": 34,
+  "prompt_eval_duration": 180000000,
+  "eval_count": 9,
+  "eval_duration": 792000000
 }</code></pre>
       <h3>ストリーミング応答（NDJSON）</h3>
       <pre><code>{"model":"my-profile","created_at":"...","message":{"role":"assistant","content":"3,776"},"done":false}
 {"model":"my-profile","created_at":"...","message":{"role":"assistant","content":" m です。"},"done":false}
-{"model":"my-profile","created_at":"...","message":{"role":"assistant","content":""},"done":true}</code></pre>
+{"model":"my-profile","created_at":"...","message":{"role":"assistant","content":""},"done":true,"eval_count":9,...}</code></pre>
+      <p class="note">思考を有効にしたモデルでは、思考部分は本文ではなく <code>message.reasoning_content</code> として送出されます（<a href="#thinking">15 章</a>）。</p>
     </section>
 
     <section class="card" id="tags">
@@ -225,7 +261,7 @@
     {
       "name": "my-profile",
       "model": "my-profile",
-      "modified_at": "2026-06-14T03:10:00Z",
+      "modified_at": "2026-08-13T03:10:00.000Z",
       "size": 0,
       "details": {
         "format": "gguf",
@@ -236,7 +272,7 @@
     }
   ]
 }</code></pre>
-      <p class="note"><code>size</code> や <code>parameter_size</code> 等は端末側で確定できないため固定値（<code>0</code> / <code>"unknown"</code>）です。より詳しい状態・モダリティが必要な場合は <code>/v1/models</code> を使ってください。</p>
+      <p class="note"><code>size</code> や <code>parameter_size</code> 等は端末側で確定できないため固定値（<code>0</code> / <code>"unknown"</code>）です。ファイルサイズ・ロード状態・モダリティ（vision / audio）まで必要な場合は <code>/v1/models</code>（<a href="#models">8 章</a>）を使ってください。</p>
     </section>
 
     <section class="card" id="openai">
@@ -247,10 +283,13 @@
         <thead><tr><th>フィールド</th><th>型</th><th>説明</th></tr></thead>
         <tbody>
           <tr><td><code>model</code></td><td>string</td><td>プロファイル名。空 / 未指定時は現在ロード中のモデル、なければ既定プロファイルに解決されます。</td></tr>
-          <tr><td><code>messages</code></td><td>array</td><td>必須。OpenAI 形式。<code>content</code> は文字列または <code>{type, ...}</code> パーツ配列（<a href="#multimodal">11 章</a>）。</td></tr>
+          <tr><td><code>messages</code></td><td>array</td><td>必須。OpenAI 形式。<code>content</code> は文字列または <code>{type, ...}</code> パーツ配列（<a href="#multimodal">16 章</a>）。</td></tr>
           <tr><td><code>stream</code></td><td>bool</td><td>既定 <code>true</code>。</td></tr>
-          <tr><td><code>tools</code> / <code>tool_choice</code> / <code>parallel_tool_calls</code></td><td>array / any / bool</td><td>任意（<a href="#tools">12 章</a>）。</td></tr>
-          <tr><td>サンプリング各種</td><td>number 等</td><td><code>temperature</code>, <code>top_p</code>, <code>top_k</code>, <code>min_p</code>, <code>presence_penalty</code>, <code>frequency_penalty</code> ほか（<a href="#params">10 章</a>）。リクエスト単位で設定を上書きします。</td></tr>
+          <tr><td><code>max_tokens</code> / <code>n_predict</code></td><td>int</td><td>生成トークン上限。<code>n_predict: 0</code> は pre-encode のみ（<a href="#params">13 章</a>）。</td></tr>
+          <tr><td><code>response_format</code></td><td>object?</td><td><code>json_object</code> / <code>json_schema</code> / <code>text</code>（<a href="#structured">14 章</a>）。</td></tr>
+          <tr><td><code>reasoning_format</code> / <code>chat_template_kwargs</code></td><td>string / object</td><td>思考制御（<a href="#thinking">15 章</a>）。</td></tr>
+          <tr><td><code>tools</code> / <code>tool_choice</code> / <code>parallel_tool_calls</code></td><td>array / any / bool</td><td>任意（<a href="#tools">17 章</a>）。</td></tr>
+          <tr><td>サンプリング各種</td><td>number 等</td><td><code>temperature</code>, <code>top_p</code>, <code>top_k</code>, <code>min_p</code>, <code>presence_penalty</code>, <code>frequency_penalty</code>, <code>samplers</code> ほか（<a href="#params">13 章</a>）。リクエスト単位で設定を上書きします。</td></tr>
         </tbody>
       </table>
       <h3>非ストリーミング応答</h3>
@@ -262,7 +301,9 @@
   ]
 }'</code></pre>
       <pre><code>{
+  "id": "chatcmpl-4f0a1c2e5b7d4a9f8c3e1b6d2a7f0e5c",
   "object": "chat.completion",
+  "created": 1786000000,
   "model": "my-profile",
   "choices": [
     {
@@ -270,20 +311,25 @@
       "message": { "role": "assistant", "content": "こんにちは！" },
       "finish_reason": "stop"
     }
-  ]
+  ],
+  "usage": {
+    "prompt_tokens": 14,
+    "completion_tokens": 5,
+    "total_tokens": 19
+  }
 }</code></pre>
-      <p class="note">注意: 本アプリの応答には <code>id</code> / <code>created</code> / <code>usage</code> は含まれません。これらを必須とする一部クライアントでは欠落として扱われます。</p>
       <h3>ストリーミング応答（SSE）</h3>
-      <p>先頭に <code>delta.role="assistant"</code> の chunk、続いて <code>delta.content</code> を持つ chunk 群、最後に <code>finish_reason:"stop"</code> の chunk と <code>data: [DONE]</code> を送出します。</p>
-      <pre><code>data: {"object":"chat.completion.chunk","model":"my-profile","choices":[{"index":0,"delta":{"role":"assistant"},"finish_reason":null}]}
+      <p>先頭に <code>delta.role="assistant"</code> の chunk、続いて <code>delta.content</code> を持つ chunk 群、最後に <code>finish_reason:"stop"</code> の chunk と <code>data: [DONE]</code> を送出します。全 chunk が同じ <code>id</code> / <code>created</code> を共有します。</p>
+      <pre><code>data: {"id":"chatcmpl-4f0a…","object":"chat.completion.chunk","created":1786000000,"model":"my-profile","choices":[{"index":0,"delta":{"role":"assistant"},"finish_reason":null}]}
 
-data: {"object":"chat.completion.chunk","model":"my-profile","choices":[{"index":0,"delta":{"content":"こん"},"finish_reason":null}]}
+data: {"id":"chatcmpl-4f0a…","object":"chat.completion.chunk","created":1786000000,"model":"my-profile","choices":[{"index":0,"delta":{"content":"こん"},"finish_reason":null}]}
 
-data: {"object":"chat.completion.chunk","model":"my-profile","choices":[{"index":0,"delta":{"content":"にちは！"},"finish_reason":null}]}
+data: {"id":"chatcmpl-4f0a…","object":"chat.completion.chunk","created":1786000000,"model":"my-profile","choices":[{"index":0,"delta":{"content":"にちは！"},"finish_reason":null}]}
 
-data: {"object":"chat.completion.chunk","model":"my-profile","choices":[{"index":0,"delta":{},"finish_reason":"stop"}]}
+data: {"id":"chatcmpl-4f0a…","object":"chat.completion.chunk","created":1786000000,"model":"my-profile","choices":[{"index":0,"delta":{},"finish_reason":"stop"}]}
 
 data: [DONE]</code></pre>
+      <p class="note">注意: ストリーミング応答の chunk には <code>usage</code> を含めません（<code>stream_options.include_usage</code> は未対応）。トークン統計が必要な場合は <code>stream: false</code> を使うか、Ollama 側の <code>/api/chat</code>（完了 chunk に <code>eval_count</code> 等を含む）を利用してください。</p>
     </section>
 
     <section class="card" id="models">
@@ -298,7 +344,7 @@ data: [DONE]</code></pre>
       "name": "my-profile",
       "object": "model",
       "owned_by": "llamacpp",
-      "created": 1781000000,
+      "created": 1786000000,
       "in_cache": true,
       "path": "/data/.../my-model.gguf",
       "status": { "value": "loaded" },
@@ -309,7 +355,7 @@ data: [DONE]</code></pre>
     {
       "name": "my-profile",
       "model": "my-profile",
-      "modified_at": "2026-06-14T03:10:00Z",
+      "modified_at": "2026-08-13T03:10:00.000Z",
       "size": 4100000000,
       "capabilities": ["multimodal"],
       "modalities": { "vision": true, "audio": false },
@@ -317,23 +363,105 @@ data: [DONE]</code></pre>
     }
   ]
 }</code></pre>
-      <p class="note"><code>data[]</code> が OpenAI 互換、<code>models[]</code> が llama.cpp WebUI 互換です。<code>modalities</code> はロード済みモデルなら実際の対応状況、未ロードならファイルからの推定値を返します。</p>
+      <p class="note"><code>data[]</code> が OpenAI 互換、<code>models[]</code> が llama.cpp WebUI 互換です。<code>status.value</code> は <code>loaded</code> / <code>unloaded</code>、<code>in_cache</code> は GGUF ファイルが端末内に存在するかどうか。<code>modalities</code> はロード済みモデルなら実際の対応状況、未ロードならファイルからの推定値を返します。<code>details.family</code> はモデルファイル名から推定したモデルファミリです。</p>
+    </section>
+
+    <section class="card" id="embeddings">
+      <h2>9. <span class="method post">POST</span>埋め込み（Embeddings）</h2>
+      <p>埋め込み用 GGUF（BERT 系 / <code>*-embedding</code> など）をプロファイルに設定しておくと、Ollama 形式と OpenAI 形式の両方でベクトルを取得できます。3 つのエンドポイントは同じネイティブ実装を共有し、入出力の形だけが異なります。</p>
+      <table>
+        <thead><tr><th>エンドポイント</th><th>入力</th><th>出力</th></tr></thead>
+        <tbody>
+          <tr><td><code>POST /api/embed</code>（Ollama 現行）</td><td><code>{model, input}</code>。<code>input</code> は文字列または文字列配列。</td><td><code>{model, embeddings: [[...], ...], total_duration, load_duration, prompt_eval_count}</code></td></tr>
+          <tr><td><code>POST /api/embeddings</code>（Ollama 旧仕様）</td><td><code>{model, prompt}</code>（単一文字列）</td><td><code>{embedding: [...]}</code></td></tr>
+          <tr><td><code>POST /v1/embeddings</code>（OpenAI）</td><td><code>{model, input}</code>。<code>input</code> は文字列または文字列配列。</td><td><code>{object:"list", data:[{object:"embedding", index, embedding:[...]}], model, usage}</code></td></tr>
+        </tbody>
+      </table>
+      <h3>使用例（Ollama 形式・複数入力）</h3>
+      <pre><code>curl http://localhost:11434/api/embed -d '{
+  "model": "my-embedding-profile",
+  "input": ["東京の天気", "大阪の天気"]
+}'</code></pre>
+      <pre><code>{
+  "model": "my-embedding-profile",
+  "embeddings": [[0.0123, -0.0456, ...], [0.0210, -0.0388, ...]],
+  "total_duration": 84000000,
+  "load_duration": 3000000,
+  "prompt_eval_count": 12
+}</code></pre>
+      <h3>使用例（OpenAI 形式）</h3>
+      <pre><code>curl http://localhost:11434/v1/embeddings -d '{
+  "model": "my-embedding-profile",
+  "input": "検索クエリのテキスト"
+}'</code></pre>
+      <pre><code>{
+  "object": "list",
+  "data": [
+    { "object": "embedding", "index": 0, "embedding": [0.0123, -0.0456, ...] }
+  ],
+  "model": "my-embedding-profile",
+  "usage": { "prompt_tokens": 0, "total_tokens": 0 }
+}</code></pre>
+      <p class="note">入力が空（<code>""</code> や空配列）の場合は <code>400</code>、埋め込み生成に失敗した場合は <code>500</code> を返します。長い入力はモデルの <code>n_batch</code> に合わせて内部で切り詰められます。<code>/v1/embeddings</code> の <code>usage</code> は互換性のためのプレースホルダで、常に <code>0</code> です。</p>
+    </section>
+
+    <section class="card" id="tokens">
+      <h2>10. <span class="method post">POST</span>トークン数カウント</h2>
+      <p>ロード中モデルのトークナイザで、テキストのトークン列 / トークン数を取得します。コンテキスト長の見積もりやチャンク分割に利用できます。</p>
+      <h3>Ollama 形式: <code>POST /api/tokenize</code></h3>
+      <pre><code>curl http://localhost:11434/api/tokenize -d '{
+  "model": "my-profile",
+  "content": "こんにちは、世界"
+}'</code></pre>
+      <pre><code>{ "tokens": [123, 4567, 89, 1011] }</code></pre>
+      <h3>OpenAI 形式: <code>POST /v1/responses/input_tokens</code></h3>
+      <pre><code>curl http://localhost:11434/v1/responses/input_tokens -d '{
+  "model": "my-profile",
+  "input": "こんにちは、世界"
+}'</code></pre>
+      <pre><code>{ "input_tokens": 4, "object": "response.input_tokens" }</code></pre>
+      <p class="note"><code>/api/tokenize</code> は <code>content</code>、<code>/v1/responses/input_tokens</code> は <code>input</code> が必須です（空文字は <code>400</code>）。<code>/v1/responses/input_tokens</code> で <code>model</code> を省略した場合は、ロード中のモデル → 既定プロファイルの順に解決されます。</p>
+    </section>
+
+    <section class="card" id="modelctl">
+      <h2>11. <span class="method post">POST</span>/models/load・/models/unload</h2>
+      <p>推論を伴わずにモデルの常駐状態を制御する独自エンドポイントです。ベンチマーク前のウォームアップや、メモリ解放に使えます。</p>
+      <pre><code>// 指定プロファイルをロード（既にロード済みなら即座に成功）
+curl http://localhost:11434/models/load -d '{"model": "my-profile"}'
+{ "success": true }
+
+// アンロード（メモリ解放）
+curl http://localhost:11434/models/unload -d '{"model": "my-profile"}'
+{ "success": true }</code></pre>
+      <ul>
+        <li><code>model</code> を省略した場合は、ロード中のモデル → 既定プロファイルの順に解決されます。</li>
+        <li>ロードに失敗した場合は <code>500</code> と <code>{"success": false, "error": "Failed to load model"}</code> を返します。</li>
+        <li><code>/models/unload</code> は、指定プロファイルが現在ロード中の場合のみ解放します。生成中は <code>503</code>（<code>Model is busy</code>）を返します。</li>
+      </ul>
     </section>
 
     <section class="card" id="props">
-      <h2>9. <span class="method get">GET</span>/props・/slots・/health</h2>
+      <h2>12. <span class="method get">GET</span>/props・/slots・/health</h2>
       <p>主に同梱 WebUI（llama.cpp 風）の初期化に使われるエンドポイントです。<code>?model=&lt;プロファイル名&gt;</code> で対象を指定できます。</p>
       <ul>
-        <li><strong><code>/props</code>:</strong> <code>default_generation_settings</code>（<code>n_ctx</code> や各サンプリング値）、<code>chat_template</code>、<code>modalities</code>、<code>model_path</code>、<code>build_info</code>、<code>webui_settings</code>（systemMessage、Think 表示、共有 MCP / Function Definitions 設定）などを返します。<code>total_slots</code> は <code>1</code>。</li>
-        <li><strong><code>/slots</code>:</strong> slot 配列（要素 1 個）。<code>n_ctx</code>、<code>params</code>（サンプリング値）、<code>is_processing</code> などを返します。</li>
-        <li><strong><code>/health</code>, <code>/v1/health</code>:</strong> <code>{"status":"ok","role":...,"webui":true}</code>。</li>
+        <li><strong><code>/props</code>:</strong> <code>default_generation_settings</code>（<code>n_ctx</code> や各サンプリング値、<code>n_predict</code>, <code>seed</code>, <code>stop</code>, <code>grammar</code>）、<code>chat_template</code>、<code>modalities</code>、<code>model_path</code>、<code>build_info</code>、<code>webui_settings</code>（systemMessage、Think 表示、共有 MCP / Function Definitions 設定）などを返します。<code>total_slots</code> は <code>1</code>。<code>max_tokens</code> は生成上限が明示設定されている場合のみ含まれます（無制限時は省略）。</li>
+        <li><strong><code>/slots</code>:</strong> slot 配列（要素 1 個）。<code>id</code>、<code>n_ctx</code>、<code>params</code>（サンプリング値）、<code>is_processing</code> などを返します。</li>
+        <li><strong><code>/health</code>, <code>/v1/health</code>:</strong> <code>{"status":"ok","role":"model"|"router","webui":true}</code>。</li>
+        <li><strong><code>GET /api</code>:</strong> <code>{"status":"Ollama is running"}</code>。Ollama クライアントの疎通確認用です。</li>
       </ul>
-      <pre><code>curl "http://localhost:11434/props?model=my-profile"</code></pre>
+      <pre><code>curl "http://localhost:11434/props?model=my-profile"
+curl http://localhost:11434/health</code></pre>
     </section>
 
     <section class="card" id="params">
-      <h2>10. サンプリングパラメータ</h2>
-      <p><code>/v1/chat/completions</code> ではリクエスト本文に次のキーを含めると、そのリクエストのあいだ設定値を上書きします（指定しなかった項目はプロファイルの値を使用）。</p>
+      <h2>13. 生成・サンプリングパラメータ</h2>
+      <h3>13-1. コンテキストサイズ（<code>num_ctx</code>）</h3>
+      <p><code>options.num_ctx</code>（またはトップレベルの <code>num_ctx</code>）を指定すると、次回ロード時のコンテキスト長として反映されます。現在ロード中の値と異なる場合はモデルが自動的に再ロードされるため、初回リクエストの応答時間が伸びる点に注意してください。</p>
+      <pre><code>{ "model": "my-profile", "options": { "num_ctx": 16384 }, "messages": [...] }</code></pre>
+      <h3>13-2. 生成トークン数</h3>
+      <p><code>num_predict</code> / <code>n_predict</code> / <code>max_tokens</code> のいずれでも指定できます（<code>options</code> 内・トップレベルの両方を参照。優先順位は <code>num_predict</code> → <code>n_predict</code> → <code>max_tokens</code>）。<code>n_predict: 0</code> を指定すると pre-encode のみを行い、空応答で早期復帰します（プロンプト評価のウォームアップ用）。</p>
+      <h3>13-3. サンプリングパラメータ</h3>
+      <p>次のキーをリクエスト本文（<code>/api/*</code> は <code>options</code> 内でも可）に含めると、そのリクエストのあいだプロファイル設定を上書きします（指定しなかった項目はプロファイルの値を使用）。</p>
       <table>
         <thead><tr><th>キー</th><th>型</th><th>対応する設定</th></tr></thead>
         <tbody>
@@ -349,22 +477,105 @@ data: [DONE]</code></pre>
           <tr><td><code>presence_penalty</code> / <code>frequency_penalty</code></td><td>number</td><td>Presence / Frequency penalty</td></tr>
           <tr><td><code>dry_multiplier</code> / <code>dry_base</code> / <code>dry_allowed_length</code> / <code>dry_penalty_last_n</code></td><td>number / int</td><td>DRY サンプラー</td></tr>
           <tr><td><code>mirostat</code> / <code>mirostat_tau</code> / <code>mirostat_eta</code></td><td>int / number</td><td>Mirostat</td></tr>
+          <tr><td><code>samplers</code></td><td>string[]</td><td>サンプラーチェーンの適用順（例 <code>["top_k","typ_p","top_p","min_p","temperature"]</code>）。空配列 / 未指定でプロファイルの既定順に戻ります。</td></tr>
         </tbody>
       </table>
-      <p class="note"><code>n_predict: 0</code> を指定すると pre-encode のみを行い、空応答で早期復帰します（プロンプト評価のウォームアップ用）。</p>
+      <p class="note"><code>options</code> 経由で解釈されるのは <code>num_ctx</code>, <code>num_predict</code>, <code>n_predict</code>, <code>temperature</code>, <code>top_k</code>, <code>top_p</code>, <code>min_p</code>, <code>repeat_penalty</code>, <code>repeat_last_n</code>, <code>mirostat</code>, <code>mirostat_tau</code>, <code>mirostat_eta</code> です。その他のサンプラー（DRY / XTC / dynatemp / typ_p など）はトップレベルに置いてください。</p>
+    </section>
+
+    <section class="card" id="structured">
+      <h2>14. 構造化出力（JSON / GBNF）</h2>
+      <p>生成をスキーマや文法で制約できます。Ollama 形式と OpenAI 形式の両方を受け付け、指定はリクエスト単位で適用され、次のリクエストには引き継がれません。</p>
+      <table>
+        <thead><tr><th>フィールド</th><th>形式</th><th>説明</th></tr></thead>
+        <tbody>
+          <tr><td><code>format</code></td><td>Ollama</td><td><code>"json"</code> で任意の JSON を強制。JSON Schema オブジェクトを渡すとそのスキーマに従います。</td></tr>
+          <tr><td><code>grammar</code></td><td>Ollama / llama.cpp</td><td>GBNF 文法を直接指定。</td></tr>
+          <tr><td><code>response_format</code></td><td>OpenAI</td><td><code>{"type":"json_object"}</code>、<code>{"type":"json_schema","json_schema":{"name":...,"schema":{...}}}</code>、<code>{"type":"text"}</code>（制約なし）。</td></tr>
+        </tbody>
+      </table>
+      <pre><code>// Ollama: JSON Schema による構造化出力
+curl http://localhost:11434/api/chat -d '{
+  "model": "my-profile",
+  "stream": false,
+  "format": {
+    "type": "object",
+    "properties": {
+      "city": { "type": "string" },
+      "temperature_c": { "type": "number" }
+    },
+    "required": ["city", "temperature_c"]
+  },
+  "messages": [{"role": "user", "content": "東京の気温を JSON で"}]
+}'</code></pre>
+      <pre><code>// OpenAI: response_format
+curl http://localhost:11434/v1/chat/completions -d '{
+  "model": "my-profile",
+  "stream": false,
+  "response_format": {
+    "type": "json_schema",
+    "json_schema": {
+      "name": "weather",
+      "schema": {
+        "type": "object",
+        "properties": { "city": {"type":"string"}, "temperature_c": {"type":"number"} },
+        "required": ["city", "temperature_c"]
+      }
+    }
+  },
+  "messages": [{"role": "user", "content": "Tokyo weather as JSON"}]
+}'</code></pre>
+      <pre><code>// GBNF を直接指定（yes / no のみを出力させる）
+{
+  "model": "my-profile",
+  "prompt": "富士山は日本で一番高い山ですか？",
+  "grammar": "root ::= \"yes\" | \"no\""
+}</code></pre>
+    </section>
+
+    <section class="card" id="thinking">
+      <h2>15. 思考（Reasoning）制御</h2>
+      <p>思考プロセスを持つモデル（DeepSeek-R1、Qwen3 系など）では、思考部分を本文と分離して <code>reasoning_content</code> として返します。有効 / 無効は次の優先順位で決まります。</p>
+      <ol>
+        <li><code>think</code>（Ollama 標準）: <code>true</code> / <code>false</code>、または文字列（<code>"false"</code> 以外は有効）。</li>
+        <li><code>reasoning_format</code>: <code>"none"</code> で無効、<code>"auto"</code> で有効。</li>
+        <li><code>chat_template_kwargs</code>: <code>enable_thinking</code> / <code>enable_reasoning</code>（bool）、<code>reasoning</code>（<code>"off"</code> で無効）。</li>
+        <li>プロファイル設定の「Enable Think」。</li>
+      </ol>
+      <pre><code>// 思考を明示的に無効化（Ollama 形式）
+{ "model": "my-profile", "think": false, "messages": [...] }
+
+// OpenAI 形式で思考出力を抑制
+{ "model": "my-profile", "reasoning_format": "none", "messages": [...] }</code></pre>
+      <pre><code>// 応答例（OpenAI / 非ストリーミング）
+{
+  "id": "chatcmpl-…",
+  "object": "chat.completion",
+  "choices": [{
+    "index": 0,
+    "message": {
+      "role": "assistant",
+      "reasoning_content": "ユーザーは標高を尋ねている。富士山は 3,776 m。",
+      "content": "3,776 m です。"
+    },
+    "finish_reason": "stop"
+  }]
+}</code></pre>
+      <p class="note">ストリーミング時は <code>delta.reasoning_content</code> を持つ chunk が本文 chunk より先に流れます。思考を無効にした場合、モデルが出力した <code>&lt;think&gt;</code> 等のタグは本文から除去されます。</p>
     </section>
 
     <section class="card" id="multimodal">
-      <h2>11. マルチモーダル入力</h2>
-      <p><code>/api/chat</code> と <code>/v1/chat/completions</code> では、<code>content</code> をパーツ配列にすることで画像・音声を渡せます。ロード中のモデルが vision / audio に対応している必要があり、非対応の場合は <code>400</code> を返します。</p>
+      <h2>16. マルチモーダル入力</h2>
+      <p><code>/api/chat</code> と <code>/v1/chat/completions</code> では、<code>content</code> をパーツ配列にすることで画像・音声を渡せます。ロード中のモデルが vision / audio に対応している必要があり、非対応の場合は <code>400</code> を返します（対応状況は <code>/v1/models</code> の <code>modalities</code> で確認できます）。</p>
       <table>
         <thead><tr><th>type</th><th>説明</th></tr></thead>
         <tbody>
           <tr><td><code>text</code> / <code>input_text</code></td><td>テキスト（<code>text</code> フィールド）。</td></tr>
-          <tr><td><code>image_url</code></td><td><code>image_url.url</code> に HTTP/HTTPS の画像 URL、または <code>data:image/...;base64,</code> 形式の data URL。リモート取得は 10MB 上限。</td></tr>
+          <tr><td><code>image_url</code></td><td><code>image_url.url</code> に <code>data:image/...;base64,</code> 形式の data URL、または HTTP/HTTPS の画像 URL。リモート取得は 10 MB 上限・接続 / 読み取り各 10 秒でタイムアウトします。</td></tr>
           <tr><td><code>input_audio</code></td><td><code>input_audio.data</code>（base64）と <code>input_audio.format</code>（<code>"wav"</code> または <code>"mp3"</code>）。</td></tr>
         </tbody>
       </table>
+      <p class="note"><strong>対応画像形式:</strong> JPEG / PNG / BMP / GIF など、ネイティブ側デコーダ（stb_image）が読める形式のみです。Android の標準保存形式である <strong>HEIC / HEIF・WebP・AVIF は非対応</strong>で、送信すると <code>400</code> とその旨のメッセージを返します。事前に JPEG / PNG へ変換してください。</p>
       <pre><code>curl http://localhost:11434/v1/chat/completions -d '{
   "model": "my-vision-profile",
   "stream": false,
@@ -389,17 +600,40 @@ data: [DONE]</code></pre>
     </section>
 
     <section class="card" id="tools">
-      <h2>12. ツール / Function Calling</h2>
+      <h2>17. ツール / Function Calling</h2>
       <p>リクエストに <code>tools</code> を渡すか、アプリの「MCP 設定」で共有 MCP / Function Definitions を有効にすると、内部ツール実行ループに切り替わります。<code>/api/generate</code>・<code>/api/chat</code>・<code>/v1/chat/completions</code> のいずれでも利用できます。</p>
       <ul>
         <li><code>tools</code> は OpenAI 互換の配列です。配列以外を渡すと <code>400</code> になります。</li>
         <li><code>tool_choice</code> と <code>parallel_tool_calls</code> を受け取ります。</li>
         <li>共有 MCP / Function Definitions を有効化している場合、メイン画面のプロンプトや各 API でも共通のツール設定が適用されます。</li>
         <li>応答にはモデルが直接返した <code>tool_calls</code> に加え、本文中の tool-call マーカーや <code>reasoning_content</code> からの抽出結果も含まれることがあります。</li>
+        <li>Ollama 形式では <code>done_reason</code>（<code>"stop"</code> / <code>"tool_calls"</code>）、OpenAI 形式では <code>finish_reason</code> が対応します。</li>
       </ul>
-      <pre><code>// OpenAI 互換のツール定義例（非ストリーミング応答の一部）
+      <pre><code>// リクエスト（OpenAI 互換のツール定義）
 {
+  "model": "my-profile",
+  "stream": false,
+  "tools": [
+    {
+      "type": "function",
+      "function": {
+        "name": "get_weather",
+        "description": "指定都市の現在の天気を返す",
+        "parameters": {
+          "type": "object",
+          "properties": { "city": { "type": "string" } },
+          "required": ["city"]
+        }
+      }
+    }
+  ],
+  "messages": [{"role": "user", "content": "東京の天気は？"}]
+}</code></pre>
+      <pre><code>// 応答（非ストリーミング）
+{
+  "id": "chatcmpl-…",
   "object": "chat.completion",
+  "created": 1786000000,
   "model": "my-profile",
   "choices": [
     {
@@ -417,12 +651,13 @@ data: [DONE]</code></pre>
       },
       "finish_reason": "tool_calls"
     }
-  ]
+  ],
+  "usage": { "prompt_tokens": 96, "completion_tokens": 21, "total_tokens": 117 }
 }</code></pre>
     </section>
 
     <section class="card" id="clients">
-      <h2>13. クライアント例</h2>
+      <h2>18. クライアント例</h2>
       <h3>OpenAI Python SDK</h3>
       <pre><code>from openai import OpenAI
 
@@ -436,7 +671,8 @@ resp = client.chat.completions.create(
     messages=[{"role": "user", "content": "こんにちは"}],
     stream=False,
 )
-print(resp.choices[0].message.content)</code></pre>
+print(resp.choices[0].message.content)
+print(resp.usage)  # prompt_tokens / completion_tokens / total_tokens</code></pre>
 
       <h3>OpenAI 互換ストリーミング（Python）</h3>
       <pre><code>stream = client.chat.completions.create(
@@ -448,6 +684,48 @@ for chunk in stream:
     delta = chunk.choices[0].delta
     if delta.content:
         print(delta.content, end="", flush=True)</code></pre>
+
+      <h3>構造化出力（Python）</h3>
+      <pre><code>resp = client.chat.completions.create(
+    model="my-profile",
+    messages=[{"role": "user", "content": "東京の気温を JSON で"}],
+    response_format={
+        "type": "json_schema",
+        "json_schema": {
+            "name": "weather",
+            "schema": {
+                "type": "object",
+                "properties": {"city": {"type": "string"}, "temperature_c": {"type": "number"}},
+                "required": ["city", "temperature_c"],
+            },
+        },
+    },
+    stream=False,
+)
+import json; print(json.loads(resp.choices[0].message.content))</code></pre>
+
+      <h3>埋め込み（Python）</h3>
+      <pre><code>vec = client.embeddings.create(
+    model="my-embedding-profile",
+    input=["東京の天気", "大阪の天気"],
+)
+print(len(vec.data), len(vec.data[0].embedding))</code></pre>
+
+      <h3>Ollama 公式 Python クライアント</h3>
+      <pre><code>from ollama import Client
+
+client = Client(host="http://localhost:11434")
+
+res = client.chat(
+    model="my-profile",
+    messages=[{"role": "user", "content": "自己紹介して"}],
+    options={"num_ctx": 8192, "temperature": 0.7},
+)
+print(res["message"]["content"])
+print(res["eval_count"], res["eval_duration"])  # tok/s の計算に利用可能
+
+emb = client.embed(model="my-embedding-profile", input="検索クエリ")
+print(len(emb["embeddings"][0]))</code></pre>
 
       <h3>Ollama 互換（curl / NDJSON）</h3>
       <pre><code>curl -N http://localhost:11434/api/chat -d '{
@@ -479,6 +757,19 @@ while (true) {
     process.stdout.write(json.choices[0].delta.content ?? "");
   }
 }</code></pre>
+
+      <h3>ウォームアップ → 生成 → 解放（curl）</h3>
+      <pre><code># 1. モデルを常駐させる（推論なし）
+curl http://localhost:11434/models/load -d '{"model":"my-profile"}'
+
+# 2. プロンプトのトークン数を確認
+curl http://localhost:11434/api/tokenize -d '{"model":"my-profile","content":"長い入力テキスト…"}'
+
+# 3. 生成
+curl http://localhost:11434/api/chat -d '{"model":"my-profile","stream":false,"messages":[{"role":"user","content":"要約して"}]}'
+
+# 4. メモリを解放
+curl http://localhost:11434/models/unload -d '{"model":"my-profile"}'</code></pre>
     </section>
 
     <section class="card">

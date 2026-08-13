@@ -347,6 +347,9 @@ ModelManager → LlamaNative → JNI → llama.cpp</pre>
           <tr><td><code>GET/POST /api/tags</code></td><td>Model list</td><td>Treats saved configurations as model names</td></tr>
           <tr><td><code>POST /v1/chat/completions</code></td><td>OpenAI-compatible chat endpoint</td><td>SSE streaming supported</td></tr>
           <tr><td><code>GET /v1/models</code>, <code>/models</code></td><td>Model inventory and status</td><td>Reports loaded state, modalities, file path, etc.</td></tr>
+          <tr><td><code>POST /api/embed</code>, <code>/api/embeddings</code>, <code>/v1/embeddings</code></td><td>Embedding vectors</td><td>Current Ollama, legacy Ollama, and OpenAI shapes over one native implementation</td></tr>
+          <tr><td><code>POST /api/tokenize</code>, <code>/v1/responses/input_tokens</code></td><td>Tokenize / token count</td><td>Return <code>{tokens:[...]}</code> and <code>{input_tokens:N}</code> respectively</td></tr>
+          <tr><td><code>POST /models/load</code>, <code>/models/unload</code></td><td>Explicit model load / release</td><td>App-specific; unloading during generation returns <code>503</code></td></tr>
           <tr><td><code>GET /props</code></td><td>llama.cpp WebUI model props</td><td>Includes generation defaults, chat template, and WebUI settings</td></tr>
           <tr><td><code>GET /slots</code></td><td>Slot state</td><td>Total slot count is fixed at 1</td></tr>
           <tr><td><code>GET /health</code>, <code>/v1/health</code></td><td>Health check</td><td>Returns <code>role</code> and <code>webui=true</code></td></tr>
@@ -377,6 +380,7 @@ ModelManager → LlamaNative → JNI → llama.cpp</pre>
       <ul>
         <li><code>/api/chat</code> and <code>/v1/chat/completions</code> can accept <code>content[]</code> parts such as <code>text</code>, <code>input_text</code>, <code>image_url</code>, and <code>input_audio</code>.</li>
         <li><code>image_url</code> supports HTTP/HTTPS images or base64 data URLs. Remote downloads are capped at 10 MB.</li>
+        <li>Only formats the native stb_image decoder can read (JPEG, PNG, BMP, GIF, …) are accepted. HEIC/HEIF, WebP, and AVIF are rejected with <code>400</code> during the header check, so the caller gets an actionable reason instead of a generic native decode failure.</li>
         <li><code>input_audio</code> accepts only base64-encoded <code>wav</code> or <code>mp3</code>.</li>
         <li>Media parts are replaced by an internal <code>&lt;__media__&gt;</code> marker in text, while raw bytes are forwarded to JNI as <code>byte[][]</code>.</li>
         <li>If the currently loaded model does not support the requested modality, the server returns <code>400</code>.</li>
@@ -390,6 +394,8 @@ ModelManager → LlamaNative → JNI → llama.cpp</pre>
         <li>Some request-level generation overrides are applied onto the configuration before the native sampler settings are re-applied.</li>
         <li>If <code>tool_calls</code> is missing, the runtime also tries to extract tool-call markers from <code>reasoning_content</code> or the returned content body.</li>
         <li>The server forwards <code>tool_choice</code> and <code>parallel_tool_calls</code>, combining request tools with shared MCP / Function Definitions settings for the internal tool-execution loop.</li>
+        <li>Responses carry a per-request <code>id</code> (<code>chatcmpl-…</code>) and <code>created</code>, shared by every SSE chunk of that request; non-streaming responses also include <code>usage</code> (prompt / completion / total tokens). Streaming responses omit <code>usage</code>.</li>
+        <li>Structured output accepts both the Ollama fields (<code>format</code>, <code>grammar</code>) and OpenAI's <code>response_format</code>, and the grammar constraint is always set or cleared per request so it never leaks into the next one.</li>
       </ul>
     </section>
 

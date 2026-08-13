@@ -349,6 +349,9 @@ ModelManager → LlamaNative → JNI → llama.cpp</pre>
           <tr><td><code>GET/POST /api/tags</code></td><td>モデル一覧</td><td>プロファイル一覧をモデル名として返す</td></tr>
           <tr><td><code>POST /v1/chat/completions</code></td><td>OpenAI 互換 chat completions</td><td>SSE streaming 対応</td></tr>
           <tr><td><code>GET /v1/models</code>, <code>/models</code></td><td>モデル一覧 + 状態</td><td>loaded/unloaded, modalities, path などを返す</td></tr>
+          <tr><td><code>POST /api/embed</code>, <code>/api/embeddings</code>, <code>/v1/embeddings</code></td><td>埋め込みベクトル生成</td><td>Ollama 現行 / Ollama 旧仕様 / OpenAI の 3 形式。同一ネイティブ実装を共有</td></tr>
+          <tr><td><code>POST /api/tokenize</code>, <code>/v1/responses/input_tokens</code></td><td>トークナイズ / トークン数</td><td>それぞれ <code>{tokens:[...]}</code> と <code>{input_tokens:N}</code> を返す</td></tr>
+          <tr><td><code>POST /models/load</code>, <code>/models/unload</code></td><td>モデルの明示的ロード / 解放</td><td>独自拡張。生成中の unload は <code>503</code></td></tr>
           <tr><td><code>GET /props</code></td><td>llama.cpp WebUI 向け model props</td><td>default_generation_settings, chat_template, webui_settings</td></tr>
           <tr><td><code>GET /slots</code></td><td>slot 情報</td><td>総 slot 数は 1 固定</td></tr>
           <tr><td><code>GET /health</code>, <code>/v1/health</code></td><td>ヘルスチェック</td><td><code>role</code> と <code>webui=true</code> を返す</td></tr>
@@ -379,6 +382,7 @@ ModelManager → LlamaNative → JNI → llama.cpp</pre>
       <ul>
         <li><code>/api/chat</code> と <code>/v1/chat/completions</code> は <code>content[]</code> 配列の中で <code>text</code>, <code>input_text</code>, <code>image_url</code>, <code>input_audio</code> を扱えます。</li>
         <li><code>image_url</code> は HTTP/HTTPS の画像 URL または base64 data URL を受けられます。リモート取得は 10MB 上限です。</li>
+        <li>画像は stb_image がデコードできる形式（JPEG / PNG / BMP / GIF など）のみ受け付けます。HEIC/HEIF・WebP・AVIF はヘッダ判定の段階で <code>400</code> として弾き、ネイティブ側の汎用エラーになる前に理由を返します。</li>
         <li><code>input_audio</code> は base64 本体を持つ <code>wav</code> / <code>mp3</code> のみ受け付けます。</li>
         <li>画像・音声部分は内部で <code>&lt;__media__&gt;</code> marker に置き換えられ、実データは <code>byte[][]</code> として JNI へ渡されます。</li>
         <li>現在ロード済みモデルが vision/audio 非対応なら <code>400</code> で弾きます。</li>
@@ -392,6 +396,8 @@ ModelManager → LlamaNative → JNI → llama.cpp</pre>
         <li>一部 sampling 値は request override として configuration に上書き適用され、そのまま Native sampler へ入ります。</li>
         <li><code>tool_calls</code> が直接返らない場合でも、<code>reasoning_content</code> や本文中の tool call marker から抽出を試みます。</li>
         <li><code>tool_choice</code> と <code>parallel_tool_calls</code> を受け取り、共有 MCP / Function Definitions 設定と組み合わせて内部ツール実行ループへ渡します。</li>
+        <li>応答にはリクエストごとの <code>id</code>（<code>chatcmpl-…</code>）と <code>created</code> を付与し、同一リクエストの SSE chunk はこれを共有します。非ストリーミング時は <code>usage</code>（prompt / completion / total tokens）も付きます（ストリーミング時は付きません）。</li>
+        <li>構造化出力は Ollama の <code>format</code> / <code>grammar</code> と OpenAI の <code>response_format</code> の両方を受け付け、文法制約はリクエストごとに必ず設定 or クリアされるため次のリクエストへ引き継がれません。</li>
       </ul>
     </section>
 
