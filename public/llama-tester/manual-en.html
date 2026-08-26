@@ -222,7 +222,8 @@
         <li>When enabled, the server provides:
           <ul>
             <li><code>/api/chat</code>, <code>/api/generate</code>, <code>/api/tags</code></li>
-            <li><code>/v1/chat/completions</code>, <code>/v1/models</code></li>
+            <li><code>/v1/chat/completions</code>, <code>/v1/completions</code>, <code>/v1/models</code></li>
+            <li><code>/v1/messages</code>, <code>/v1/messages/count_tokens</code> (Anthropic-compatible)</li>
             <li><code>/api/embed</code>, <code>/api/embeddings</code>, <code>/v1/embeddings</code> (embeddings)</li>
             <li><code>/api/tokenize</code>, <code>/v1/responses/input_tokens</code> (token counts)</li>
             <li><code>/models/load</code>, <code>/models/unload</code> (model residency control)</li>
@@ -234,7 +235,7 @@
         <li>MCP config JSON saved in the app settings is exposed to the WebUI through <code>/props</code> as a shared setting and is used together with the WebUI's local MCP settings.</li>
         <li>When MCP outside WebUI is enabled, shared MCP settings are also used by the main prompt input, <code>/api/chat</code>, <code>/api/generate</code>, and <code>/v1/chat/completions</code> for internal tool execution. When disabled, they remain WebUI-only.</li>
         <li>When Function Calling outside WebUI is enabled, Function Definitions JSON is automatically added as shared function-calling definitions for the main prompt input, <code>/api/chat</code>, <code>/api/generate</code>, and <code>/v1/chat/completions</code>. When disabled, it remains WebUI-only.</li>
-        <li>Only one generation runs at a time. When busy, requests are queued (up to 10) and wait up to 60 seconds; queue overflow or timeout returns 503.</li>
+        <li>Only one generation runs at a time. When busy, requests are queued (up to 10) and wait up to 600 seconds by default (configurable via the "busy timeout" setting; 0 = unlimited); queue overflow or timeout returns 503.</li>
         <li>Android 13+ may require notification permission.</li>
         <li>For per-endpoint request/response specs and usage examples, see the <a href="/llama-tester/api-reference-en.html">API Reference</a>.</li>
       </ul>

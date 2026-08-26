@@ -59,11 +59,12 @@
   <main>
     <section class="card callout">
       <h1>API リファレンス</h1>
-      <p class="lead">LLM AI Server with llama.cpp が端末内で公開する HTTP API の仕様と使用例です。Ollama 互換エンドポイント（<code>/api/*</code>）、OpenAI 互換エンドポイント（<code>/v1/*</code>）、llama.cpp WebUI 互換エンドポイント（<code>/props</code>, <code>/slots</code> ほか）、およびモデル制御用の独自エンドポイント（<code>/models/load</code>, <code>/models/unload</code>）を、現行の <code>OllamaApiServer</code> 実装をもとに整理しています。</p>
+      <p class="lead">LLM AI Server with llama.cpp が端末内で公開する HTTP API の仕様と使用例です。Ollama 互換エンドポイント（<code>/api/*</code>）、OpenAI 互換エンドポイント（<code>/v1/chat/completions</code>, <code>/v1/completions</code> ほか）、Anthropic Messages API 互換エンドポイント（<code>/v1/messages</code>, <code>/v1/messages/count_tokens</code>）、llama.cpp WebUI 互換エンドポイント（<code>/props</code>, <code>/slots</code> ほか）、およびモデル制御用の独自エンドポイント（<code>/models/load</code>, <code>/models/unload</code>）を、現行の <code>OllamaApiServer</code> 実装をもとに整理しています。</p>
       <p class="note">関連文書: <a href="/llama-tester/manual.html">操作マニュアル</a> | <a href="/llama-tester/technical-spec.html">技術仕様</a> | <a href="/llama-tester/privacy.html#ja">プライバシーポリシー</a></p>
       <div>
         <span class="pill">Ollama 互換</span>
         <span class="pill">OpenAI 互換</span>
+        <span class="pill">Anthropic 互換</span>
         <span class="pill">SSE / NDJSON streaming</span>
         <span class="pill">Embeddings</span>
         <span class="pill">Structured Output</span>
@@ -83,6 +84,8 @@
         <a href="#chat">5. POST /api/chat</a>
         <a href="#tags">6. /api/tags</a>
         <a href="#openai">7. POST /v1/chat/completions</a>
+        <a href="#completions">7-2. POST /v1/completions</a>
+        <a href="#anthropic">7-3. POST /v1/messages（Anthropic）</a>
         <a href="#models">8. /v1/models・/models</a>
         <a href="#embeddings">9. 埋め込み（Embeddings）</a>
         <a href="#tokens">10. トークン数カウント</a>
@@ -119,10 +122,11 @@
         </thead>
         <tbody>
           <tr><td>Ollama 互換</td><td><code>POST /api/generate</code>、<code>POST /api/chat</code>、<code>GET/POST /api/tags</code>、<code>POST /api/embed</code>、<code>POST /api/embeddings</code>（旧仕様）、<code>POST /api/tokenize</code>。応答形は <code>{model, created_at, response|message, done}</code> 系で互換。完了時の chunk には <code>total_duration</code> / <code>load_duration</code> / <code>prompt_eval_count</code> / <code>prompt_eval_duration</code> / <code>eval_count</code> / <code>eval_duration</code>（ナノ秒）を付与。ツール利用時は <code>done_reason</code>・<code>tool_calls</code>・<code>reasoning_content</code> を追加。</td></tr>
-          <tr><td>OpenAI 互換</td><td><code>POST /v1/chat/completions</code>（streaming は SSE、終端 <code>data: [DONE]</code>）、<code>GET /v1/models</code>、<code>POST /v1/embeddings</code>、<code>POST /v1/responses/input_tokens</code>。応答には <code>id</code>（<code>chatcmpl-…</code>）・<code>created</code>・<code>object</code>・<code>choices[].message</code>/<code>delta</code>・<code>finish_reason</code>、非ストリーミング時は <code>usage</code> を含みます。</td></tr>
+          <tr><td>OpenAI 互換</td><td><code>POST /v1/chat/completions</code>（streaming は SSE、終端 <code>data: [DONE]</code>）、<code>POST /v1/completions</code>（レガシー Completions、<code>object: "text_completion"</code>）、<code>GET /v1/models</code>、<code>POST /v1/embeddings</code>、<code>POST /v1/responses/input_tokens</code>。応答には <code>id</code>（<code>chatcmpl-…</code> / <code>cmpl-…</code>）・<code>created</code>・<code>object</code>・<code>choices[].message</code>/<code>delta</code>/<code>text</code>・<code>finish_reason</code>、非ストリーミング時は <code>usage</code> を含みます。</td></tr>
+          <tr><td>Anthropic 互換</td><td><code>POST /v1/messages</code>（Messages API。streaming は名前付き SSE イベント <code>message_start</code> / <code>content_block_*</code> / <code>message_delta</code> / <code>message_stop</code>）、<code>POST /v1/messages/count_tokens</code>。<code>system</code>・マルチターン・思考（<code>thinking</code> ブロック）・画像 / 音声入力・基本的な <code>tool_use</code> / <code>tool_result</code> に対応。応答は <code>content[]</code> ブロック配列（<code>text</code> / <code>thinking</code> / <code>tool_use</code>）＋ <code>stop_reason</code> ＋ <code>usage</code>（<code>input_tokens</code> / <code>output_tokens</code>）。</td></tr>
           <tr><td>llama.cpp WebUI 互換</td><td><code>GET /props</code>、<code>GET /slots</code>、<code>GET /health</code>（<code>/v1/health</code>）、<code>GET /models</code>、Bundled WebUI 配信。</td></tr>
-          <tr><td>拡張（独自）</td><td><code>POST /models/load</code> / <code>POST /models/unload</code>（明示的なモデル制御）、マルチモーダル入力（<code>image_url</code> / <code>input_audio</code>）、共有 MCP / Function Definitions 設定、<code>reasoning_content</code>、<code>samplers</code> によるサンプラー順序指定、パフォーマンス指標を本文末尾に付記するオプション。</td></tr>
-          <tr><td>未実装（注意点）</td><td>モデルリポジトリ管理（<code>/api/show</code>, <code>/api/pull</code>, <code>/api/push</code>, <code>/api/create</code>, <code>/api/copy</code>, <code>/api/delete</code>, <code>/api/ps</code>, <code>/api/version</code>）、<code>/v1/completions</code>（旧 completions）、<code>/v1/responses</code> 本体、<code>logprobs</code>、<code>n &gt; 1</code> の複数候補生成には対応していません。ストリーミング応答（SSE）には <code>usage</code> を含めません（<code>stream_options.include_usage</code> は無視されます）。<code>/v1/embeddings</code> の <code>usage</code> は形だけの <code>0</code> です。</td></tr>
+          <tr><td>拡張（独自）</td><td><code>POST /models/load</code> / <code>POST /models/unload</code>（明示的なモデル制御）、マルチモーダル入力（<code>image_url</code> / <code>input_audio</code>、Anthropic は <code>image</code> / <code>audio</code> ブロック）、共有 MCP / Function Definitions 設定、<code>reasoning_content</code>、<code>samplers</code> によるサンプラー順序指定、パフォーマンス指標を本文末尾に付記するオプション。</td></tr>
+          <tr><td>未実装（注意点）</td><td>モデルリポジトリ管理（<code>/api/show</code>, <code>/api/pull</code>, <code>/api/push</code>, <code>/api/create</code>, <code>/api/copy</code>, <code>/api/delete</code>, <code>/api/ps</code>, <code>/api/version</code>）、<code>/v1/responses</code> 本体、<code>logprobs</code>、<code>n &gt; 1</code> の複数候補生成には対応していません。ストリーミング応答（SSE）には <code>usage</code> を含めません（<code>stream_options.include_usage</code> は無視されます）。<code>/v1/embeddings</code> の <code>usage</code> は形だけの <code>0</code> です。<code>stop</code> / <code>stop_sequences</code> は受理しますが強制はしません。</td></tr>
         </tbody>
       </table>
       <p class="note">「パフォーマンス指標を表示」を有効にすると、上記の統計フィールドとは別に、トークン数・処理時間・速度・端末温度が生成本文の末尾（OpenAI は追加 delta、Ollama は追加 chunk）にテキストとして付記されます。</p>
@@ -132,7 +136,7 @@
       <h2>3. 共通仕様</h2>
       <h3>3-1. 同時実行と待機キュー</h3>
       <ul>
-        <li>推論 slot は 1 つだけ（single-generation）。生成中の追加リクエストは最大 <code>10</code> 件まで待機キューに入り、最大 <code>60</code> 秒待機します。</li>
+        <li>推論 slot は 1 つだけ（single-generation）。生成中の追加リクエストは最大 <code>10</code> 件まで待機キューに入り、既定で最大 <code>600</code> 秒待機します（設定の「ビジー時タイムアウト」で変更可能。<code>0</code> で無制限）。</li>
         <li>キュー超過・待機タイムアウト時は <code>503</code> を返します。</li>
         <li>モデル再初期化（リセット）要求中は、新規リクエストを拒否し、待機中リクエストも打ち切ります（<code>503</code>）。</li>
         <li>生成系だけでなく、埋め込み・トークナイズ・モデルロードも同じ slot を取得します。</li>
@@ -330,6 +334,113 @@ data: {"id":"chatcmpl-4f0a…","object":"chat.completion.chunk","created":178600
 
 data: [DONE]</code></pre>
       <p class="note">注意: ストリーミング応答の chunk には <code>usage</code> を含めません（<code>stream_options.include_usage</code> は未対応）。トークン統計が必要な場合は <code>stream: false</code> を使うか、Ollama 側の <code>/api/chat</code>（完了 chunk に <code>eval_count</code> 等を含む）を利用してください。</p>
+    </section>
+
+    <section class="card" id="completions">
+      <h2>7-2. <span class="method post">POST</span>/v1/completions</h2>
+      <p>OpenAI レガシー Completions 互換。チャットテンプレートを通さず、<code>prompt</code> をそのままモデルへ入力する素の補完用途です。応答は <code>object: "text_completion"</code> で、テキストは <code>choices[].text</code> に入ります。プロトコル上マルチモーダルは扱いません（画像・音声はチャット / Messages を利用してください）。</p>
+      <h3>リクエスト</h3>
+      <table>
+        <thead><tr><th>フィールド</th><th>型</th><th>説明</th></tr></thead>
+        <tbody>
+          <tr><td><code>model</code></td><td>string</td><td>プロファイル名。空 / 未指定時は現在ロード中のモデル、なければ既定プロファイルに解決されます。</td></tr>
+          <tr><td><code>prompt</code></td><td>string | string[]</td><td>必須。文字列、または文字列配列（改行で連結）。空 / 欠落時は <code>400</code>。</td></tr>
+          <tr><td><code>stream</code></td><td>bool</td><td>既定 <code>false</code>。<code>true</code> で SSE。</td></tr>
+          <tr><td><code>max_tokens</code> / <code>n_predict</code></td><td>int</td><td>生成トークン上限（<a href="#params">13 章</a>）。</td></tr>
+          <tr><td>サンプリング各種 / <code>grammar</code></td><td>number 等</td><td><code>temperature</code>, <code>top_p</code>, <code>top_k</code>, <code>samplers</code> ほか（<a href="#params">13 章</a>）、GBNF <code>grammar</code>（<a href="#structured">14 章</a>）を受け付けます。</td></tr>
+        </tbody>
+      </table>
+      <h3>非ストリーミング応答</h3>
+      <pre><code>curl http://localhost:11434/v1/completions -d '{
+  "model": "my-profile",
+  "prompt": "東京を3行で紹介して",
+  "max_tokens": 128,
+  "stream": false
+}'</code></pre>
+      <pre><code>{
+  "id": "cmpl-2b7d4a9f8c3e1b6d2a7f0e5c4f0a1c2e",
+  "object": "text_completion",
+  "created": 1786000000,
+  "model": "my-profile",
+  "choices": [
+    { "index": 0, "text": "東京は日本の首都です。…", "finish_reason": "stop", "logprobs": null }
+  ],
+  "usage": { "prompt_tokens": 12, "completion_tokens": 40, "total_tokens": 52 }
+}</code></pre>
+      <h3>ストリーミング応答（SSE）</h3>
+      <p>各 chunk は <code>object: "text_completion"</code> で、部分テキストが <code>choices[].text</code> に入ります。最後に <code>finish_reason: "stop"</code> の chunk と <code>data: [DONE]</code> を送出します。</p>
+      <pre><code>data: {"id":"cmpl-…","object":"text_completion","created":1786000000,"model":"my-profile","choices":[{"index":0,"text":"東京は","finish_reason":null,"logprobs":null}]}
+
+data: {"id":"cmpl-…","object":"text_completion","created":1786000000,"model":"my-profile","choices":[{"index":0,"text":"","finish_reason":"stop","logprobs":null}]}
+
+data: [DONE]</code></pre>
+    </section>
+
+    <section class="card" id="anthropic">
+      <h2>7-3. <span class="method post">POST</span>/v1/messages（Anthropic Messages API）</h2>
+      <p>Anthropic Messages API 互換。Anthropic 公式 SDK / クライアントの base URL をこのサーバーに向けて利用できます（<code>x-api-key</code> / <code>anthropic-version</code> ヘッダーは受理しますが無視されます）。<code>system</code>・マルチターン・思考（<code>thinking</code> ブロック）・画像 / 音声入力・基本的な <code>tool_use</code> / <code>tool_result</code> の往復に対応します。既定は非ストリーミング（<code>stream:false</code>）で、<code>max_tokens</code> は必須です。</p>
+      <h3>リクエスト</h3>
+      <table>
+        <thead><tr><th>フィールド</th><th>型</th><th>説明</th></tr></thead>
+        <tbody>
+          <tr><td><code>model</code></td><td>string</td><td>プロファイル名。実在の Claude モデル名（例 <code>claude-3-5-sonnet</code>）を送っても、ローカルの現行モデルに解決されます。</td></tr>
+          <tr><td><code>max_tokens</code></td><td>int</td><td><strong>必須。</strong>欠落時は <code>400</code>。</td></tr>
+          <tr><td><code>messages</code></td><td>array</td><td>必須。<code>{role, content}</code> の配列。<code>role</code> は <code>user</code> / <code>assistant</code>。<code>content</code> は文字列、または <code>text</code> / <code>image</code> / <code>audio</code> / <code>tool_use</code> / <code>tool_result</code> ブロック配列（<a href="#multimodal">16 章</a>）。</td></tr>
+          <tr><td><code>system</code></td><td>string | array?</td><td>任意。システムプロンプト（文字列またはテキストブロック配列）。</td></tr>
+          <tr><td><code>stream</code></td><td>bool</td><td>既定 <code>false</code>。<code>true</code> で名前付き SSE イベント。</td></tr>
+          <tr><td><code>thinking</code></td><td>object?</td><td><code>{"type":"enabled"|"disabled"}</code>（<a href="#thinking">15 章</a>）。</td></tr>
+          <tr><td><code>tools</code> / <code>tool_choice</code></td><td>array / object?</td><td>任意。Anthropic 形式（<code>name</code> / <code>description</code> / <code>input_schema</code>）。<code>tool_choice</code> は <code>auto</code> / <code>any</code> / <code>tool</code>（<a href="#tools">17 章</a>）。</td></tr>
+          <tr><td><code>temperature</code> / <code>top_p</code> / <code>top_k</code></td><td>number</td><td>任意。サンプリング上書き（<a href="#params">13 章</a>）。</td></tr>
+        </tbody>
+      </table>
+      <h3>非ストリーミング応答</h3>
+      <pre><code>curl http://localhost:11434/v1/messages -d '{
+  "model": "my-profile",
+  "max_tokens": 256,
+  "messages": [
+    {"role": "user", "content": "富士山の標高は？"}
+  ]
+}'</code></pre>
+      <pre><code>{
+  "id": "msg_988412deab264f1abf8904b938f389a7",
+  "type": "message",
+  "role": "assistant",
+  "model": "my-profile",
+  "content": [
+    { "type": "text", "text": "3,776 m です。" }
+  ],
+  "stop_reason": "end_turn",
+  "stop_sequence": null,
+  "usage": { "input_tokens": 15, "output_tokens": 8 }
+}</code></pre>
+      <p class="note">思考を有効にすると、<code>content</code> の先頭に <code>{"type":"thinking","thinking":"…"}</code> ブロックが入り、続けて <code>{"type":"text","text":"…"}</code> が入ります。ツール呼び出し時は <code>{"type":"tool_use","id":…,"name":…,"input":{…}}</code> ブロックと <code>stop_reason:"tool_use"</code> を返します。</p>
+      <h3>ストリーミング応答（名前付き SSE イベント）</h3>
+      <p>Anthropic 準拠のイベント列を送出します。テキストは <code>text_delta</code>、思考は <code>thinking_delta</code>、ツール引数は <code>input_json_delta</code> として流れます。</p>
+      <pre><code>event: message_start
+data: {"type":"message_start","message":{"id":"msg_…","type":"message","role":"assistant","model":"my-profile","content":[],"stop_reason":null,"stop_sequence":null,"usage":{"input_tokens":15,"output_tokens":0}}}
+
+event: content_block_start
+data: {"type":"content_block_start","index":0,"content_block":{"type":"text","text":""}}
+
+event: content_block_delta
+data: {"type":"content_block_delta","index":0,"delta":{"type":"text_delta","text":"3,776 m です。"}}
+
+event: content_block_stop
+data: {"type":"content_block_stop","index":0}
+
+event: message_delta
+data: {"type":"message_delta","delta":{"stop_reason":"end_turn","stop_sequence":null},"usage":{"output_tokens":8}}
+
+event: message_stop
+data: {"type":"message_stop"}</code></pre>
+      <h3>トークン数の見積り: <code>POST /v1/messages/count_tokens</code></h3>
+      <p>生成を行わず、プロンプトの入力トークン数だけを返します。</p>
+      <pre><code>curl http://localhost:11434/v1/messages/count_tokens -d '{
+  "model": "my-profile",
+  "messages": [{"role": "user", "content": "hello world"}]
+}'</code></pre>
+      <pre><code>{ "input_tokens": 4 }</code></pre>
+      <p class="note">エラーは Anthropic 形式（<code>{"type":"error","error":{"type":…,"message":…}}</code>）で返します。<code>max_tokens</code> 欠落は <code>invalid_request_error</code>（<code>400</code>）です。</p>
     </section>
 
     <section class="card" id="models">
@@ -566,7 +677,7 @@ curl http://localhost:11434/v1/chat/completions -d '{
 
     <section class="card" id="multimodal">
       <h2>16. マルチモーダル入力</h2>
-      <p><code>/api/chat</code> と <code>/v1/chat/completions</code> では、<code>content</code> をパーツ配列にすることで画像・音声を渡せます。ロード中のモデルが vision / audio に対応している必要があり、非対応の場合は <code>400</code> を返します（対応状況は <code>/v1/models</code> の <code>modalities</code> で確認できます）。</p>
+      <p><code>/api/chat</code> と <code>/v1/chat/completions</code> では、<code>content</code> をパーツ配列にすることで画像・音声を渡せます。Anthropic の <code>/v1/messages</code> でも同様に、<code>content</code> ブロック配列に画像 / 音声を含められます（下表）。いずれもロード中のモデルが vision / audio に対応している必要があり、非対応の場合は <code>400</code> を返します（対応状況は <code>/v1/models</code> の <code>modalities</code> で確認できます）。mmproj / projector を伴うモデルをロードしてください。</p>
       <table>
         <thead><tr><th>type</th><th>説明</th></tr></thead>
         <tbody>
@@ -575,6 +686,7 @@ curl http://localhost:11434/v1/chat/completions -d '{
           <tr><td><code>input_audio</code></td><td><code>input_audio.data</code>（base64）と <code>input_audio.format</code>（<code>"wav"</code> または <code>"mp3"</code>）。</td></tr>
         </tbody>
       </table>
+      <p class="note"><strong>Anthropic <code>/v1/messages</code> のブロック:</strong> 画像は <code>{"type":"image","source":{"type":"base64","media_type":"image/jpeg","data":"…"}}</code>（<code>source.type:"url"</code> も可）。音声はローカル拡張として <code>{"type":"audio","source":{"data":"&lt;base64&gt;","format":"wav"}}</code> を受け付けます。内部では OpenAI 形式の <code>image_url</code> / <code>input_audio</code> に変換して同じ mmproj 経路で処理します。</p>
       <p class="note"><strong>対応画像形式:</strong> JPEG / PNG / BMP / GIF など、ネイティブ側デコーダ（stb_image）が読める形式のみです。Android の標準保存形式である <strong>HEIC / HEIF・WebP・AVIF は非対応</strong>で、送信すると <code>400</code> とその旨のメッセージを返します。事前に JPEG / PNG へ変換してください。</p>
       <pre><code>curl http://localhost:11434/v1/chat/completions -d '{
   "model": "my-vision-profile",
@@ -601,7 +713,8 @@ curl http://localhost:11434/v1/chat/completions -d '{
 
     <section class="card" id="tools">
       <h2>17. ツール / Function Calling</h2>
-      <p>リクエストに <code>tools</code> を渡すか、アプリの「MCP 設定」で共有 MCP / Function Definitions を有効にすると、内部ツール実行ループに切り替わります。<code>/api/generate</code>・<code>/api/chat</code>・<code>/v1/chat/completions</code> のいずれでも利用できます。</p>
+      <p>リクエストに <code>tools</code> を渡すか、アプリの「MCP 設定」で共有 MCP / Function Definitions を有効にすると、内部ツール実行ループに切り替わります。<code>/api/generate</code>・<code>/api/chat</code>・<code>/v1/chat/completions</code>・<code>/v1/messages</code> のいずれでも利用できます。</p>
+      <p class="note"><strong>Anthropic <code>/v1/messages</code>:</strong> ツールは Anthropic 形式（<code>name</code> / <code>description</code> / <code>input_schema</code>）で渡し、<code>tool_choice</code> は <code>auto</code> / <code>any</code> / <code>tool</code> を受け付けます。応答はアシスタントの <code>tool_use</code> ブロック（<code>stop_reason:"tool_use"</code>）で返り、次ターンでユーザーの <code>tool_result</code> ブロックを送ることで往復します。共有 MCP を有効にした場合は MCP ツールがサーバー側で自動実行されます（リクエストで渡した <code>tools</code> はクライアント実行型です）。</p>
       <ul>
         <li><code>tools</code> は OpenAI 互換の配列です。配列以外を渡すと <code>400</code> になります。</li>
         <li><code>tool_choice</code> と <code>parallel_tool_calls</code> を受け取ります。</li>
@@ -710,6 +823,30 @@ import json; print(json.loads(resp.choices[0].message.content))</code></pre>
     input=["東京の天気", "大阪の天気"],
 )
 print(len(vec.data), len(vec.data[0].embedding))</code></pre>
+
+      <h3>Anthropic Python SDK</h3>
+      <pre><code>from anthropic import Anthropic
+
+client = Anthropic(
+    base_url="http://localhost:11434",  # /v1/messages を提供
+    api_key="not-needed",               # 認証は不要（無視されます）
+)
+
+msg = client.messages.create(
+    model="my-profile",
+    max_tokens=256,                     # 必須
+    messages=[{"role": "user", "content": "こんにちは"}],
+)
+print(msg.content[0].text)
+print(msg.usage.input_tokens, msg.usage.output_tokens)</code></pre>
+
+      <h3>Anthropic Messages（curl / SSE）</h3>
+      <pre><code>curl -N http://localhost:11434/v1/messages -d '{
+  "model": "my-profile",
+  "max_tokens": 256,
+  "stream": true,
+  "messages": [{"role": "user", "content": "俳句を1つ"}]
+}'</code></pre>
 
       <h3>Ollama 公式 Python クライアント</h3>
       <pre><code>from ollama import Client

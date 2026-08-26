@@ -52,13 +52,13 @@
     <section class="card">
       <p class="eyebrow">Android / llama.cpp / GGUF</p>
       <h1>LLM AI Server with llama.cpp</h1>
-      <p class="lead">LLM AI Server with llama.cpp は、Android 端末上で GGUF モデルを読み込み、推論設定・プロンプトテンプレート・共有 MCP / Function Definitions 設定・ログ確認・Ollama/OpenAI 互換 API と同梱 WebUI の公開までを一つのアプリで扱えるローカル LLM 検証ツールです。</p>
+      <p class="lead">LLM AI Server with llama.cpp は、Android 端末上で GGUF モデルを読み込み、推論設定・プロンプトテンプレート・共有 MCP / Function Definitions 設定・ログ確認・Ollama/OpenAI/Anthropic 互換 API と同梱 WebUI の公開までを一つのアプリで扱えるローカル LLM 検証ツールです。</p>
       <p class="doc-links">文書: <a href="/llama-tester/manual.html">操作マニュアル</a> | <a href="/llama-tester/api-reference.html">API リファレンス</a> | <a href="/llama-tester/technical-spec.html">技術仕様</a> | <a href="/llama-tester/technical-spec-llama-jni-cmake.html">llama.cpp / JNI / CMake 深掘り</a> | <a href="/llama-tester/privacy.html#ja">プライバシーポリシー</a></p>
       <div class="highlight">
         <ul>
             <li>モデル URL からのダウンロードと、端末内 <code>.gguf</code> ファイルの取り込みに対応します。</li>
             <li>生成パラメータ、Think 設定、カスタム chat template、共有 MCP 設定、Function Definitions JSON を組み合わせて運用できます。</li>
-            <li>必要に応じて端末内で Ollama/OpenAI 互換 API と WebUI を同じポートで起動し、<code>/api/chat</code> や <code>/v1/chat/completions</code> を利用できます。</li>
+            <li>必要に応じて端末内で Ollama/OpenAI/Anthropic 互換 API と WebUI を同じポートで起動し、<code>/api/chat</code>、<code>/v1/chat/completions</code>、<code>/v1/completions</code>、<code>/v1/messages</code> などを利用できます。</li>
         </ul>
       </div>
     </section>
@@ -89,10 +89,11 @@
         <li><strong>詳細な推論制御</strong>: <code>n_ctx</code>、<code>n_threads</code>、コンピュートバックエンド（CPU / GPU）、オフロード層数、Top-p、Top-k、Penalty、Mirostat、DRY、Think、custom chat template まで調整できます。</li>
         <li><strong>MTP 投機デコード（実験的）</strong>: MTP ヘッドを内蔵するモデル（Qwen3.5-MTP, Gemma 4 など）で MTP（投機デコード, draft-mtp）をモデル別プロファイルで有効化できます。既定 OFF、<code>n_draft</code> 調整可、追加ファイル不要（自ヘッド使用）。対応環境では生成が高速化する場合があります。</li>
         <li><strong>共有 MCP / Function Calling 設定</strong>: モデル別プロファイルとは別に MCP Config JSON と Function Definitions JSON を保存でき、外部利用スイッチを有効にするとメイン画面、<code>/api/chat</code>、<code>/api/generate</code>、<code>/v1/chat/completions</code> でも共通利用されます。</li>
-        <li><strong>内蔵 Ollama/OpenAI 互換 API と WebUI</strong>: <code>/api/chat</code>、<code>/api/generate</code>、<code>/api/tags</code>、<code>/v1/chat/completions</code>、<code>/v1/models</code>、<code>/props</code>、<code>/slots</code> を同じポートで提供し、同時生成は 1 件、待機キューは最大 10 件・最大 60 秒です。</li>
+        <li><strong>内蔵 Ollama/OpenAI/Anthropic 互換 API と WebUI</strong>: <code>/api/chat</code>、<code>/api/generate</code>、<code>/api/tags</code>、<code>/v1/chat/completions</code>、<code>/v1/completions</code>、<code>/v1/messages</code>、<code>/v1/messages/count_tokens</code>、<code>/v1/models</code>、<code>/props</code>、<code>/slots</code> を同じポートで提供し、同時生成は 1 件、待機キューは最大 10 件・既定最大 600 秒（設定で変更可）です。</li>
+        <li><strong>Anthropic Messages API 互換</strong>: <code>/v1/messages</code>（ストリーミングは名前付き SSE イベント）と <code>/v1/messages/count_tokens</code> を提供し、system・マルチターン・thinking ブロック・画像/音声入力・基本的な tool_use / tool_result に対応します。Anthropic 公式 SDK の base URL をこのサーバーに向けて利用できます。</li>
         <li><strong>埋め込み・トークン数・モデル制御</strong>: <code>/api/embed</code>、<code>/api/embeddings</code>、<code>/v1/embeddings</code> で埋め込みベクトルを、<code>/api/tokenize</code>、<code>/v1/responses/input_tokens</code> でトークン数を取得でき、<code>/models/load</code>・<code>/models/unload</code> でモデルの常駐を制御できます。</li>
         <li><strong>構造化出力とトークン統計</strong>: <code>format</code> / <code>grammar</code> / <code>response_format</code>（JSON Schema・GBNF）で出力を制約でき、Ollama 形式の <code>eval_count</code> 系と OpenAI 形式の <code>usage</code> を返すため既存クライアントがそのまま動作します。</li>
-        <li><strong>マルチモーダル API 入力</strong>: <code>/api/chat</code> と <code>/v1/chat/completions</code> では <code>image_url</code> と <code>input_audio</code> を扱え、ロード済みモデルの vision/audio 対応状況に応じて利用できます。</li>
+        <li><strong>マルチモーダル API 入力</strong>: <code>/api/chat</code>・<code>/v1/chat/completions</code> の <code>image_url</code> / <code>input_audio</code>、および <code>/v1/messages</code> の <code>image</code> / <code>audio</code> ブロックで画像・音声を扱え、mmproj 対応モデルのロード状況に応じて利用できます。</li>
       </ul>
     </section>
 

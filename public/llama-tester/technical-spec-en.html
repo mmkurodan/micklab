@@ -361,7 +361,7 @@ ModelManager → LlamaNative → JNI → llama.cpp</pre>
       <ul>
         <li>Only one generation slot exists. The server is effectively single-generation at a time.</li>
         <li>If the model is busy, up to <code>10</code> waiting requests are queued.</li>
-        <li>Queued requests can wait up to <code>60</code> seconds before receiving a <code>503</code>.</li>
+        <li>Queued requests can wait up to <code>600</code> seconds by default (configurable via the "busy timeout" setting; <code>0</code> = unlimited) before receiving a <code>503</code>.</li>
         <li>If a model reset is pending, new requests are rejected and queued requests are aborted as unavailable.</li>
       </ul>
 

@@ -362,7 +362,7 @@ ModelManager → LlamaNative → JNI → llama.cpp</pre>
       <h3>7-2. 同時実行と待機キュー</h3>
       <ul>
         <li>推論 slot は 1 つだけです。実質 single-model / single-generation サーバーです。</li>
-        <li>すでに使用中なら最大 <code>10</code> 件まで待機キューに入り、最大 <code>60</code> 秒待ちます。</li>
+        <li>すでに使用中なら最大 <code>10</code> 件まで待機キューに入り、既定で最大 <code>600</code> 秒待ちます（設定の「ビジー時タイムアウト」で変更可能。<code>0</code> で無制限）。</li>
         <li>キュー超過または待機タイムアウトでは <code>503</code> を返します。</li>
         <li>モデル再初期化要求が入ると、新規要求は拒否され、待機中要求も reset in progress として打ち切られます。</li>
       </ul>

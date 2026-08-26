@@ -52,13 +52,13 @@
     <section class="card">
       <p class="eyebrow">Android / llama.cpp / GGUF</p>
       <h1>LLM AI Server with llama.cpp</h1>
-      <p class="lead">LLM AI Server with llama.cpp is an Android local-LLM testing app that lets you load GGUF models, tune inference and prompt-template settings, manage shared MCP / Function Definitions settings, inspect logs, and expose an Ollama/OpenAI-compatible API plus the bundled WebUI from one app.</p>
+      <p class="lead">LLM AI Server with llama.cpp is an Android local-LLM testing app that lets you load GGUF models, tune inference and prompt-template settings, manage shared MCP / Function Definitions settings, inspect logs, and expose an Ollama/OpenAI/Anthropic-compatible API plus the bundled WebUI from one app.</p>
       <p class="doc-links">Docs: <a href="/llama-tester/manual-en.html">User Manual</a> | <a href="/llama-tester/api-reference-en.html">API Reference</a> | <a href="/llama-tester/technical-spec-en.html">Technical Specification</a> | <a href="/llama-tester/technical-spec-llama-jni-cmake-en.html">llama.cpp / JNI / CMake Deep Dive</a> | <a href="/llama-tester/privacy.html#en">Privacy Policy</a></p>
       <div class="highlight">
         <ul>
             <li>Supports both model downloads from a URL and importing local <code>.gguf</code> files from the device.</li>
             <li>Lets you combine generation settings, Think behavior, custom chat templates, shared MCP settings, and Function Definitions JSON.</li>
-            <li>Can start an on-device Ollama/OpenAI-compatible API and WebUI on the same port, including endpoints such as <code>/api/chat</code> and <code>/v1/chat/completions</code>.</li>
+            <li>Can start an on-device Ollama/OpenAI/Anthropic-compatible API and WebUI on the same port, including endpoints such as <code>/api/chat</code>, <code>/v1/chat/completions</code>, <code>/v1/completions</code>, and <code>/v1/messages</code>.</li>
         </ul>
       </div>
     </section>
@@ -89,10 +89,11 @@
         <li><strong>Deep inference controls</strong>: Adjust <code>n_ctx</code>, <code>n_threads</code>, compute backend (CPU / GPU), offload layer count, Top-p, Top-k, penalties, Mirostat, DRY, Think behavior, and custom chat templates.</li>
         <li><strong>MTP speculative decoding (experimental)</strong>: For models that embed an MTP head (Qwen3.5-MTP, Gemma 4, etc.), enable MTP (draft-mtp) per model profile. Off by default, adjustable <code>n_draft</code>, no extra file needed (own head). Generation can be faster on supported setups.</li>
         <li><strong>Shared MCP / function-calling settings</strong>: Save MCP Config JSON and Function Definitions JSON separately from model profiles, then optionally enable them for the main prompt input, <code>/api/chat</code>, <code>/api/generate</code>, and <code>/v1/chat/completions</code>.</li>
-        <li><strong>Built-in Ollama/OpenAI-compatible API and WebUI</strong>: Provides <code>/api/chat</code>, <code>/api/generate</code>, <code>/api/tags</code>, <code>/v1/chat/completions</code>, <code>/v1/models</code>, <code>/props</code>, and <code>/slots</code> on the same port; only one generation runs at a time, with a queue of up to 10 requests for up to 60 seconds.</li>
+        <li><strong>Built-in Ollama/OpenAI/Anthropic-compatible API and WebUI</strong>: Provides <code>/api/chat</code>, <code>/api/generate</code>, <code>/api/tags</code>, <code>/v1/chat/completions</code>, <code>/v1/completions</code>, <code>/v1/messages</code>, <code>/v1/messages/count_tokens</code>, <code>/v1/models</code>, <code>/props</code>, and <code>/slots</code> on the same port; only one generation runs at a time, with a queue of up to 10 requests for up to 600 seconds by default (configurable).</li>
+        <li><strong>Anthropic Messages API compatible</strong>: Provides <code>/v1/messages</code> (streaming via named SSE events) and <code>/v1/messages/count_tokens</code>, supporting system prompts, multi-turn, thinking blocks, image/audio input, and basic tool_use / tool_result. Point an official Anthropic SDK's base URL at this server.</li>
         <li><strong>Embeddings, token counts, and model control</strong>: Get embedding vectors from <code>/api/embed</code>, <code>/api/embeddings</code>, and <code>/v1/embeddings</code>; token counts from <code>/api/tokenize</code> and <code>/v1/responses/input_tokens</code>; and control model residency with <code>/models/load</code> and <code>/models/unload</code>.</li>
         <li><strong>Structured output and token statistics</strong>: Constrain output with <code>format</code> / <code>grammar</code> / <code>response_format</code> (JSON Schema, GBNF), and get Ollama-style <code>eval_count</code> fields plus OpenAI-style <code>usage</code> so existing clients work unchanged.</li>
-        <li><strong>Multimodal API inputs</strong>: <code>/api/chat</code> and <code>/v1/chat/completions</code> can accept <code>image_url</code> and <code>input_audio</code> when the loaded model supports vision/audio.</li>
+        <li><strong>Multimodal API inputs</strong>: <code>/api/chat</code> and <code>/v1/chat/completions</code> accept <code>image_url</code> / <code>input_audio</code>, and <code>/v1/messages</code> accepts <code>image</code> / <code>audio</code> blocks, when a model with an mmproj is loaded (vision/audio).</li>
       </ul>
     </section>
 

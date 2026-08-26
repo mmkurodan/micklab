@@ -226,7 +226,8 @@
         <li>起動すると端末内で以下を提供します：
           <ul>
             <li><code>/api/chat</code>, <code>/api/generate</code>, <code>/api/tags</code></li>
-            <li><code>/v1/chat/completions</code>, <code>/v1/models</code></li>
+            <li><code>/v1/chat/completions</code>, <code>/v1/completions</code>, <code>/v1/models</code></li>
+            <li><code>/v1/messages</code>, <code>/v1/messages/count_tokens</code>（Anthropic 互換）</li>
             <li><code>/api/embed</code>, <code>/api/embeddings</code>, <code>/v1/embeddings</code>（埋め込み）</li>
             <li><code>/api/tokenize</code>, <code>/v1/responses/input_tokens</code>（トークン数）</li>
             <li><code>/models/load</code>, <code>/models/unload</code>（モデルの常駐制御）</li>
@@ -238,7 +239,7 @@
         <li>アプリ設定で保存したMCPコンフィグJSONは共通設定として <code>/props</code> 経由でWebUIにも渡され、WebUIのローカルMCP設定と合わせて利用されます。</li>
         <li>MCP の外部利用スイッチをオンにすると、共有MCP設定は WebUI に加えて、メイン画面のプロンプト入力、<code>/api/chat</code>、<code>/api/generate</code>、<code>/v1/chat/completions</code> の内部ツール実行にも利用されます。オフでは WebUI のみで利用されます。</li>
         <li>Function Calling の外部利用スイッチをオンにすると、Function Definitions JSON は共通の function calling 定義としてメイン画面のプロンプト入力、<code>/api/chat</code>、<code>/api/generate</code>、<code>/v1/chat/completions</code> に自動で追加されます。オフでは WebUI のみで利用されます。</li>
-        <li>同時生成は1件のみです。ビジー時は最大10件までキューに入り、最大60秒待機します。60秒超過またはキュー満杯時は503を返します。</li>
+        <li>同時生成は1件のみです。ビジー時は最大10件までキューに入り、既定で最大600秒待機します（設定の「ビジー時タイムアウト」で変更可能。0で無制限）。超過またはキュー満杯時は503を返します。</li>
         <li>Android 13以上では通知権限が必要な場合があります。</li>
         <li>各エンドポイントのリクエスト / レスポンス仕様と使用例は <a href="/llama-tester/api-reference.html">API リファレンス</a> を参照してください。</li>
       </ul>

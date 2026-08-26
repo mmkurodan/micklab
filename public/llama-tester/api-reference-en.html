@@ -59,11 +59,12 @@
   <main>
     <section class="card callout">
       <h1>API Reference</h1>
-      <p class="lead">Specification and usage examples for the HTTP API that LLM AI Server with llama.cpp exposes on the device. It covers the Ollama-compatible endpoints (<code>/api/*</code>), the OpenAI-compatible endpoints (<code>/v1/*</code>), the llama.cpp WebUI-compatible endpoints (<code>/props</code>, <code>/slots</code>, and more), and the app-specific model control endpoints (<code>/models/load</code>, <code>/models/unload</code>), based on the current <code>OllamaApiServer</code> implementation.</p>
+      <p class="lead">Specification and usage examples for the HTTP API that LLM AI Server with llama.cpp exposes on the device. It covers the Ollama-compatible endpoints (<code>/api/*</code>), the OpenAI-compatible endpoints (<code>/v1/chat/completions</code>, <code>/v1/completions</code>, and more), the Anthropic Messages API-compatible endpoints (<code>/v1/messages</code>, <code>/v1/messages/count_tokens</code>), the llama.cpp WebUI-compatible endpoints (<code>/props</code>, <code>/slots</code>, and more), and the app-specific model control endpoints (<code>/models/load</code>, <code>/models/unload</code>), based on the current <code>OllamaApiServer</code> implementation.</p>
       <p class="note">Related docs: <a href="/llama-tester/manual-en.html">User Manual</a> | <a href="/llama-tester/technical-spec-en.html">Technical Specification</a> | <a href="/llama-tester/privacy.html#en">Privacy Policy</a></p>
       <div>
         <span class="pill">Ollama-compatible</span>
         <span class="pill">OpenAI-compatible</span>
+        <span class="pill">Anthropic-compatible</span>
         <span class="pill">SSE / NDJSON streaming</span>
         <span class="pill">Embeddings</span>
         <span class="pill">Structured Output</span>
@@ -83,6 +84,8 @@
         <a href="#chat">5. POST /api/chat</a>
         <a href="#tags">6. /api/tags</a>
         <a href="#openai">7. POST /v1/chat/completions</a>
+        <a href="#completions">7-2. POST /v1/completions</a>
+        <a href="#anthropic">7-3. POST /v1/messages (Anthropic)</a>
         <a href="#models">8. /v1/models &amp; /models</a>
         <a href="#embeddings">9. Embeddings</a>
         <a href="#tokens">10. Token counting</a>
@@ -119,10 +122,11 @@
         </thead>
         <tbody>
           <tr><td>Ollama-compatible</td><td><code>POST /api/generate</code>, <code>POST /api/chat</code>, <code>GET/POST /api/tags</code>, <code>POST /api/embed</code>, <code>POST /api/embeddings</code> (legacy), <code>POST /api/tokenize</code>. Response shape is <code>{model, created_at, response|message, done}</code>. The final chunk carries <code>total_duration</code>, <code>load_duration</code>, <code>prompt_eval_count</code>, <code>prompt_eval_duration</code>, <code>eval_count</code>, and <code>eval_duration</code> (nanoseconds). Tool paths add <code>done_reason</code>, <code>tool_calls</code>, and <code>reasoning_content</code>.</td></tr>
-          <tr><td>OpenAI-compatible</td><td><code>POST /v1/chat/completions</code> (SSE streaming terminated by <code>data: [DONE]</code>), <code>GET /v1/models</code>, <code>POST /v1/embeddings</code>, <code>POST /v1/responses/input_tokens</code>. Responses include <code>id</code> (<code>chatcmpl-…</code>), <code>created</code>, <code>object</code>, <code>choices[].message</code>/<code>delta</code>, <code>finish_reason</code>, and — for non-streaming calls — <code>usage</code>.</td></tr>
+          <tr><td>OpenAI-compatible</td><td><code>POST /v1/chat/completions</code> (SSE streaming terminated by <code>data: [DONE]</code>), <code>POST /v1/completions</code> (legacy Completions, <code>object: "text_completion"</code>), <code>GET /v1/models</code>, <code>POST /v1/embeddings</code>, <code>POST /v1/responses/input_tokens</code>. Responses include <code>id</code> (<code>chatcmpl-…</code> / <code>cmpl-…</code>), <code>created</code>, <code>object</code>, <code>choices[].message</code>/<code>delta</code>/<code>text</code>, <code>finish_reason</code>, and — for non-streaming calls — <code>usage</code>.</td></tr>
+          <tr><td>Anthropic-compatible</td><td><code>POST /v1/messages</code> (Messages API; streaming uses named SSE events <code>message_start</code> / <code>content_block_*</code> / <code>message_delta</code> / <code>message_stop</code>), <code>POST /v1/messages/count_tokens</code>. Supports <code>system</code>, multi-turn, thinking (<code>thinking</code> blocks), image/audio input, and basic <code>tool_use</code> / <code>tool_result</code>. Responses are a <code>content[]</code> block array (<code>text</code> / <code>thinking</code> / <code>tool_use</code>) with <code>stop_reason</code> and <code>usage</code> (<code>input_tokens</code> / <code>output_tokens</code>).</td></tr>
           <tr><td>llama.cpp WebUI-compatible</td><td><code>GET /props</code>, <code>GET /slots</code>, <code>GET /health</code> (<code>/v1/health</code>), <code>GET /models</code>, and bundled WebUI serving.</td></tr>
-          <tr><td>Extensions (app-specific)</td><td><code>POST /models/load</code> and <code>POST /models/unload</code> for explicit model control, multimodal inputs (<code>image_url</code> / <code>input_audio</code>), shared MCP / Function Definitions settings, <code>reasoning_content</code>, sampler-chain ordering via <code>samplers</code>, and an option to append performance metrics to the output text.</td></tr>
-          <tr><td>Not implemented (caveats)</td><td>Model repository management (<code>/api/show</code>, <code>/api/pull</code>, <code>/api/push</code>, <code>/api/create</code>, <code>/api/copy</code>, <code>/api/delete</code>, <code>/api/ps</code>, <code>/api/version</code>), <code>/v1/completions</code> (legacy completions), the full <code>/v1/responses</code> API, <code>logprobs</code>, and multiple candidates (<code>n &gt; 1</code>) are not supported. Streaming (SSE) responses do not carry <code>usage</code> (<code>stream_options.include_usage</code> is ignored), and the <code>usage</code> object on <code>/v1/embeddings</code> is a placeholder of <code>0</code>.</td></tr>
+          <tr><td>Extensions (app-specific)</td><td><code>POST /models/load</code> and <code>POST /models/unload</code> for explicit model control, multimodal inputs (<code>image_url</code> / <code>input_audio</code>; Anthropic <code>image</code> / <code>audio</code> blocks), shared MCP / Function Definitions settings, <code>reasoning_content</code>, sampler-chain ordering via <code>samplers</code>, and an option to append performance metrics to the output text.</td></tr>
+          <tr><td>Not implemented (caveats)</td><td>Model repository management (<code>/api/show</code>, <code>/api/pull</code>, <code>/api/push</code>, <code>/api/create</code>, <code>/api/copy</code>, <code>/api/delete</code>, <code>/api/ps</code>, <code>/api/version</code>), the full <code>/v1/responses</code> API, <code>logprobs</code>, and multiple candidates (<code>n &gt; 1</code>) are not supported. Streaming (SSE) responses do not carry <code>usage</code> (<code>stream_options.include_usage</code> is ignored), and the <code>usage</code> object on <code>/v1/embeddings</code> is a placeholder of <code>0</code>. <code>stop</code> / <code>stop_sequences</code> are accepted but not enforced.</td></tr>
         </tbody>
       </table>
       <p class="note">Separately from those statistics fields, enabling "Show Performance Metrics" appends token counts, elapsed time, speed, and device temperature as text at the end of the generated body (an extra delta for OpenAI, an extra chunk for Ollama).</p>
@@ -132,7 +136,7 @@
       <h2>3. Common behavior</h2>
       <h3>3-1. Concurrency and busy queue</h3>
       <ul>
-        <li>There is a single inference slot (single generation). Additional requests during generation are queued (up to <code>10</code>) and wait up to <code>60</code> seconds.</li>
+        <li>There is a single inference slot (single generation). Additional requests during generation are queued (up to <code>10</code>) and wait up to <code>600</code> seconds by default (configurable via the "busy timeout" setting; <code>0</code> = unlimited).</li>
         <li>Queue overflow or wait timeout returns <code>503</code>.</li>
         <li>While a model reset is in progress, new requests are rejected and queued requests are aborted (<code>503</code>).</li>
         <li>Embedding, tokenize, and model-load requests acquire the same slot as generation.</li>
@@ -330,6 +334,113 @@ data: {"id":"chatcmpl-4f0a…","object":"chat.completion.chunk","created":178600
 
 data: [DONE]</code></pre>
       <p class="note">Note: streaming chunks do not include <code>usage</code> (<code>stream_options.include_usage</code> is not supported). If you need token statistics, use <code>stream: false</code>, or the Ollama-side <code>/api/chat</code>, whose final chunk carries <code>eval_count</code> and friends.</p>
+    </section>
+
+    <section class="card" id="completions">
+      <h2>7-2. <span class="method post">POST</span>/v1/completions</h2>
+      <p>OpenAI legacy Completions compatible. The <code>prompt</code> is fed to the model verbatim (no chat template) for plain text completion. The response uses <code>object: "text_completion"</code> with the text on <code>choices[].text</code>. This protocol does not carry multimodal input (use chat / Messages for image or audio).</p>
+      <h3>Request</h3>
+      <table>
+        <thead><tr><th>Field</th><th>Type</th><th>Description</th></tr></thead>
+        <tbody>
+          <tr><td><code>model</code></td><td>string</td><td>Profile name. When empty/omitted it resolves to the currently loaded model, else the default profile.</td></tr>
+          <tr><td><code>prompt</code></td><td>string | string[]</td><td>Required. A string, or an array of strings (joined by newlines). Empty/missing returns <code>400</code>.</td></tr>
+          <tr><td><code>stream</code></td><td>bool</td><td>Defaults to <code>false</code>. <code>true</code> for SSE.</td></tr>
+          <tr><td><code>max_tokens</code> / <code>n_predict</code></td><td>int</td><td>Generation token cap (§13).</td></tr>
+          <tr><td>sampling / <code>grammar</code></td><td>number, etc.</td><td><code>temperature</code>, <code>top_p</code>, <code>top_k</code>, <code>samplers</code>, and more (§13); GBNF <code>grammar</code> (§14).</td></tr>
+        </tbody>
+      </table>
+      <h3>Non-streaming response</h3>
+      <pre><code>curl http://localhost:11434/v1/completions -d '{
+  "model": "my-profile",
+  "prompt": "Introduce Tokyo in three lines",
+  "max_tokens": 128,
+  "stream": false
+}'</code></pre>
+      <pre><code>{
+  "id": "cmpl-2b7d4a9f8c3e1b6d2a7f0e5c4f0a1c2e",
+  "object": "text_completion",
+  "created": 1786000000,
+  "model": "my-profile",
+  "choices": [
+    { "index": 0, "text": "Tokyo is the capital of Japan. …", "finish_reason": "stop", "logprobs": null }
+  ],
+  "usage": { "prompt_tokens": 12, "completion_tokens": 40, "total_tokens": 52 }
+}</code></pre>
+      <h3>Streaming response (SSE)</h3>
+      <p>Each chunk uses <code>object: "text_completion"</code> with a partial string on <code>choices[].text</code>. A final chunk carries <code>finish_reason: "stop"</code>, followed by <code>data: [DONE]</code>.</p>
+      <pre><code>data: {"id":"cmpl-…","object":"text_completion","created":1786000000,"model":"my-profile","choices":[{"index":0,"text":"Tokyo is","finish_reason":null,"logprobs":null}]}
+
+data: {"id":"cmpl-…","object":"text_completion","created":1786000000,"model":"my-profile","choices":[{"index":0,"text":"","finish_reason":"stop","logprobs":null}]}
+
+data: [DONE]</code></pre>
+    </section>
+
+    <section class="card" id="anthropic">
+      <h2>7-3. <span class="method post">POST</span>/v1/messages (Anthropic Messages API)</h2>
+      <p>Anthropic Messages API compatible. Point an Anthropic SDK / client's base URL at this server (the <code>x-api-key</code> / <code>anthropic-version</code> headers are accepted but ignored). Supports <code>system</code>, multi-turn, thinking (<code>thinking</code> blocks), image/audio input, and basic <code>tool_use</code> / <code>tool_result</code> round-trips. Defaults to non-streaming (<code>stream:false</code>); <code>max_tokens</code> is required.</p>
+      <h3>Request</h3>
+      <table>
+        <thead><tr><th>Field</th><th>Type</th><th>Description</th></tr></thead>
+        <tbody>
+          <tr><td><code>model</code></td><td>string</td><td>Profile name. Sending a real Claude model name (e.g. <code>claude-3-5-sonnet</code>) still resolves to the locally loaded model.</td></tr>
+          <tr><td><code>max_tokens</code></td><td>int</td><td><strong>Required.</strong> Missing returns <code>400</code>.</td></tr>
+          <tr><td><code>messages</code></td><td>array</td><td>Required. Array of <code>{role, content}</code>. <code>role</code> is <code>user</code> / <code>assistant</code>. <code>content</code> is a string or an array of <code>text</code> / <code>image</code> / <code>audio</code> / <code>tool_use</code> / <code>tool_result</code> blocks (§16).</td></tr>
+          <tr><td><code>system</code></td><td>string | array?</td><td>Optional system prompt (string or array of text blocks).</td></tr>
+          <tr><td><code>stream</code></td><td>bool</td><td>Defaults to <code>false</code>. <code>true</code> for named SSE events.</td></tr>
+          <tr><td><code>thinking</code></td><td>object?</td><td><code>{"type":"enabled"|"disabled"}</code> (§15).</td></tr>
+          <tr><td><code>tools</code> / <code>tool_choice</code></td><td>array / object?</td><td>Optional. Anthropic format (<code>name</code> / <code>description</code> / <code>input_schema</code>). <code>tool_choice</code> is <code>auto</code> / <code>any</code> / <code>tool</code> (§17).</td></tr>
+          <tr><td><code>temperature</code> / <code>top_p</code> / <code>top_k</code></td><td>number</td><td>Optional sampling overrides (§13).</td></tr>
+        </tbody>
+      </table>
+      <h3>Non-streaming response</h3>
+      <pre><code>curl http://localhost:11434/v1/messages -d '{
+  "model": "my-profile",
+  "max_tokens": 256,
+  "messages": [
+    {"role": "user", "content": "How tall is Mount Fuji?"}
+  ]
+}'</code></pre>
+      <pre><code>{
+  "id": "msg_988412deab264f1abf8904b938f389a7",
+  "type": "message",
+  "role": "assistant",
+  "model": "my-profile",
+  "content": [
+    { "type": "text", "text": "It is 3,776 m." }
+  ],
+  "stop_reason": "end_turn",
+  "stop_sequence": null,
+  "usage": { "input_tokens": 15, "output_tokens": 8 }
+}</code></pre>
+      <p class="note">With thinking enabled, <code>content</code> starts with a <code>{"type":"thinking","thinking":"…"}</code> block followed by <code>{"type":"text","text":"…"}</code>. Tool calls return a <code>{"type":"tool_use","id":…,"name":…,"input":{…}}</code> block with <code>stop_reason:"tool_use"</code>.</p>
+      <h3>Streaming response (named SSE events)</h3>
+      <p>Emits Anthropic-style events. Text arrives as <code>text_delta</code>, thinking as <code>thinking_delta</code>, and tool arguments as <code>input_json_delta</code>.</p>
+      <pre><code>event: message_start
+data: {"type":"message_start","message":{"id":"msg_…","type":"message","role":"assistant","model":"my-profile","content":[],"stop_reason":null,"stop_sequence":null,"usage":{"input_tokens":15,"output_tokens":0}}}
+
+event: content_block_start
+data: {"type":"content_block_start","index":0,"content_block":{"type":"text","text":""}}
+
+event: content_block_delta
+data: {"type":"content_block_delta","index":0,"delta":{"type":"text_delta","text":"It is 3,776 m."}}
+
+event: content_block_stop
+data: {"type":"content_block_stop","index":0}
+
+event: message_delta
+data: {"type":"message_delta","delta":{"stop_reason":"end_turn","stop_sequence":null},"usage":{"output_tokens":8}}
+
+event: message_stop
+data: {"type":"message_stop"}</code></pre>
+      <h3>Token counting: <code>POST /v1/messages/count_tokens</code></h3>
+      <p>Returns only the input token count for the prompt, without generating.</p>
+      <pre><code>curl http://localhost:11434/v1/messages/count_tokens -d '{
+  "model": "my-profile",
+  "messages": [{"role": "user", "content": "hello world"}]
+}'</code></pre>
+      <pre><code>{ "input_tokens": 4 }</code></pre>
+      <p class="note">Errors use the Anthropic shape (<code>{"type":"error","error":{"type":…,"message":…}}</code>). A missing <code>max_tokens</code> is an <code>invalid_request_error</code> (<code>400</code>).</p>
     </section>
 
     <section class="card" id="models">
@@ -566,7 +677,7 @@ curl http://localhost:11434/v1/chat/completions -d '{
 
     <section class="card" id="multimodal">
       <h2>16. Multimodal inputs</h2>
-      <p>On <code>/api/chat</code> and <code>/v1/chat/completions</code> you can pass images and audio by making <code>content</code> an array of parts. The loaded model must support vision / audio; otherwise the request returns <code>400</code>. Check support via <code>modalities</code> in <code>/v1/models</code>.</p>
+      <p>On <code>/api/chat</code> and <code>/v1/chat/completions</code> you can pass images and audio by making <code>content</code> an array of parts. Anthropic's <code>/v1/messages</code> likewise accepts image / audio blocks inside its <code>content</code> array (see below). In all cases the loaded model must support vision / audio; otherwise the request returns <code>400</code>. Check support via <code>modalities</code> in <code>/v1/models</code>, and load a model that has an mmproj / projector.</p>
       <table>
         <thead><tr><th>type</th><th>Description</th></tr></thead>
         <tbody>
@@ -575,6 +686,7 @@ curl http://localhost:11434/v1/chat/completions -d '{
           <tr><td><code>input_audio</code></td><td><code>input_audio.data</code> (base64) and <code>input_audio.format</code> (<code>"wav"</code> or <code>"mp3"</code>).</td></tr>
         </tbody>
       </table>
+      <p class="note"><strong>Anthropic <code>/v1/messages</code> blocks:</strong> images use <code>{"type":"image","source":{"type":"base64","media_type":"image/jpeg","data":"…"}}</code> (<code>source.type:"url"</code> also works). Audio is accepted as a local extension: <code>{"type":"audio","source":{"data":"&lt;base64&gt;","format":"wav"}}</code>. Internally these are converted to the OpenAI <code>image_url</code> / <code>input_audio</code> parts and processed through the same mmproj path.</p>
       <p class="note"><strong>Supported image formats:</strong> only what the native decoder (stb_image) can read — JPEG, PNG, BMP, GIF, and similar. <strong>HEIC/HEIF, WebP, and AVIF — the default capture formats on modern Android — are not supported</strong> and return <code>400</code> with an explanatory message. Convert to JPEG or PNG first.</p>
       <pre><code>curl http://localhost:11434/v1/chat/completions -d '{
   "model": "my-vision-profile",
@@ -601,7 +713,8 @@ curl http://localhost:11434/v1/chat/completions -d '{
 
     <section class="card" id="tools">
       <h2>17. Tools / Function Calling</h2>
-      <p>Passing <code>tools</code> in the request — or enabling shared MCP / Function Definitions in the app's MCP settings — switches generation to the internal tool-execution loop. It works on <code>/api/generate</code>, <code>/api/chat</code>, and <code>/v1/chat/completions</code>.</p>
+      <p>Passing <code>tools</code> in the request — or enabling shared MCP / Function Definitions in the app's MCP settings — switches generation to the internal tool-execution loop. It works on <code>/api/generate</code>, <code>/api/chat</code>, <code>/v1/chat/completions</code>, and <code>/v1/messages</code>.</p>
+      <p class="note"><strong>Anthropic <code>/v1/messages</code>:</strong> tools use the Anthropic format (<code>name</code> / <code>description</code> / <code>input_schema</code>), and <code>tool_choice</code> accepts <code>auto</code> / <code>any</code> / <code>tool</code>. Responses come back as an assistant <code>tool_use</code> block (<code>stop_reason:"tool_use"</code>); send a user <code>tool_result</code> block on the next turn to complete the round-trip. When shared MCP is enabled, MCP tools are executed server-side automatically (tools passed in the request are client-executed).</p>
       <ul>
         <li><code>tools</code> is an OpenAI-compatible array; a non-array value returns <code>400</code>.</li>
         <li><code>tool_choice</code> and <code>parallel_tool_calls</code> are accepted.</li>
@@ -710,6 +823,30 @@ import json; print(json.loads(resp.choices[0].message.content))</code></pre>
     input=["weather in Tokyo", "weather in Osaka"],
 )
 print(len(vec.data), len(vec.data[0].embedding))</code></pre>
+
+      <h3>Anthropic Python SDK</h3>
+      <pre><code>from anthropic import Anthropic
+
+client = Anthropic(
+    base_url="http://localhost:11434",  # serves /v1/messages
+    api_key="not-needed",               # auth is ignored
+)
+
+msg = client.messages.create(
+    model="my-profile",
+    max_tokens=256,                     # required
+    messages=[{"role": "user", "content": "Hello"}],
+)
+print(msg.content[0].text)
+print(msg.usage.input_tokens, msg.usage.output_tokens)</code></pre>
+
+      <h3>Anthropic Messages (curl / SSE)</h3>
+      <pre><code>curl -N http://localhost:11434/v1/messages -d '{
+  "model": "my-profile",
+  "max_tokens": 256,
+  "stream": true,
+  "messages": [{"role": "user", "content": "Write a haiku"}]
+}'</code></pre>
 
       <h3>Official Ollama Python client</h3>
       <pre><code>from ollama import Client
