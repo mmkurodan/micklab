@@ -85,7 +85,7 @@
           <h3>Application menu</h3>
           <p>The following tools are currently available. Select a card to open its product page or demo.</p>
           <div id="apps" class="apps" style="margin-top:12px">
-            <a class="card" href="/llama-tester-en.html"><img src="/llama-tester/ic_launcher.png" alt="LLM AI Server with llama.cpp icon" class="card-icon"><h3>LLM AI Server with llama.cpp</h3><p>Validation tool combining GGUF local inference, GPU backend support, on-device API/WebUI, and MCP integration</p></a>
+            <a class="card" href="/llama-tester-en.html"><img src="/llama-tester/ic_launcher.png" alt="LLM AI Server with llama.cpp icon" class="card-icon"><h3>LLM AI Server with llama.cpp</h3><p>Validation tool combining GGUF local inference, vision (Qwen3-VL), GPU backend support, on-device API/WebUI, and MCP integration</p></a>
             <a class="card" href="/llama-chat-en.html"><h3>Dual AI Chat</h3><p>Chat app for Ollama-compatible APIs</p></a>
             <a class="card" href="/reversy-en.html"><h3>Dual AI Reversy</h3><p>Reversi app with independent Human / CPU / AI control for Black and White</p></a>
             <a class="card" href="/claritypdf-en.html"><img src="/claritypdf/ic_launcher.png" alt="ClarityPDF icon" class="card-icon"><h3>ClarityPDF</h3><p>On-device PDF create/edit/convert with OCR / AI-OCR (summary and custom prompts)</p></a>
@@ -99,6 +99,7 @@
       <div class="card">
         <h3>Latest experiment notes</h3>
         <ul>
+          <li>LLM AI Server with llama.cpp: new default vision model Qwen3-VL with automatic context expansion for large images/long prompts (GPU→CPU fallback); smarter model search (model/size/quantization pull-downs, device-suitability rating, direct mmproj download); updated to llama.cpp b10621 (v0.3.0), added <code>/api/diagnostics</code>, and over-limit inputs now return a proper server error</li>
           <li>ClarityPDF: added the product page, user manual, and bilingual privacy policy (PDF create/edit, convert/compose, OCR / AI-OCR, summary and AI prompts)</li>
           <li>LLM AI Server with llama.cpp: updated screenshots to the latest JPEGs and fully revised the user manual to match the current app (collapsible UI, status header, Direct Run section, GPU compute backend, mmproj, MAINTAIN MODEL, and more)</li>
           <li>Local LLM (GGUF) inference viewer: download GGUF and run actual inference inside the browser</li>
