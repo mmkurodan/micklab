@@ -10,8 +10,8 @@ const runBtn = document.getElementById("runBtn");
 const responseEl = document.getElementById("response");
 
 const MODEL_URL =
-  "https://huggingface.co/Qwen/Qwen2.5-1.5B-Instruct-GGUF/resolve/main/qwen2.5-1.5b-instruct-q4_k_m.gguf?download=true";
-const MODEL_NAME = "qwen2.5-1.5b-instruct-q4_k_m.gguf";
+  "https://huggingface.co/LiquidAI/LFM2.5-350M-GGUF/resolve/main/LFM2.5-350M-Q4_K_M.gguf?download=true";
+const MODEL_NAME = "LFM2.5-350M-Q4_K_M.gguf";
 const DEFAULT_MODEL_ALIAS = "default";
 const OLLAMA_ENDPOINT_RE = /\/api\/(tags|generate|chat)$/;
 const API_CHECK_PATH = "/api/tags";
@@ -45,6 +45,7 @@ const uiText = {
     downloadModelFailed: (status) => `モデルのダウンロードに失敗しました (${status})`,
     indexedDbCache: (name, size) => `IndexedDBキャッシュを使用: ${name} (${size})`,
     downloadingModel: (name) => `モデルをダウンロード中: ${name}`,
+    downloadingModelProgress: (name, progress) => `モデルをダウンロード中: ${name} — ${progress}`,
     downloadComplete: (name, size) => `ダウンロード完了。IndexedDBに保存: ${name} (${size})`,
     preparingModel: "モデル準備中...",
     initializingInference: "推論エンジンを初期化中...",
@@ -80,6 +81,7 @@ const uiText = {
     downloadModelFailed: (status) => `Failed to download the model (${status})`,
     indexedDbCache: (name, size) => `Using IndexedDB cache: ${name} (${size})`,
     downloadingModel: (name) => `Downloading model: ${name}`,
+    downloadingModelProgress: (name, progress) => `Downloading model: ${name} — ${progress}`,
     downloadComplete: (name, size) => `Download complete. Saved to IndexedDB: ${name} (${size})`,
     preparingModel: "Preparing model...",
     initializingInference: "Initializing inference engine...",
@@ -444,36 +446,70 @@ async function putCachedModel(record) {
   });
 }
 
-async function downloadModelFromUrl(url) {
+async function downloadModelToBlob(url, onProgress) {
   const response = await fetch(url, { cache: "no-store" });
   if (!response.ok) {
     throw new Error(uiText.downloadModelFailed(response.status));
   }
-  return response.arrayBuffer();
+
+  // Stream the body and assemble a Blob from the received chunks. Building the
+  // Blob incrementally avoids allocating one large contiguous ArrayBuffer,
+  // which iOS Safari (WKWebView) is prone to reject for bigger models, and lets
+  // us surface download progress on slow mobile connections.
+  if (!response.body || typeof response.body.getReader !== "function") {
+    return response.blob();
+  }
+
+  const total = Number(response.headers.get("content-length")) || 0;
+  const reader = response.body.getReader();
+  const chunks = [];
+  let received = 0;
+  for (;;) {
+    const { done, value } = await reader.read();
+    if (done) {
+      break;
+    }
+    chunks.push(value);
+    received += value.byteLength;
+    if (typeof onProgress === "function") {
+      onProgress(received, total);
+    }
+  }
+
+  return new Blob(chunks, { type: "application/octet-stream" });
 }
 
-async function resolveModelBytes() {
+async function resolveModelBlob() {
   const cached = await getCachedModel(MODEL_CACHE_KEY);
-  if (cached && cached.bytes) {
+  if (cached && (cached.blob || cached.bytes)) {
+    const blob =
+      cached.blob instanceof Blob
+        ? cached.blob
+        : new Blob([cached.bytes], { type: "application/octet-stream" });
     setStatus(
       modelStatusEl,
-      uiText.indexedDbCache(MODEL_NAME, formatBytes(cached.size || cached.bytes.byteLength))
+      uiText.indexedDbCache(MODEL_NAME, formatBytes(cached.size || blob.size))
     );
-    return { bytes: cached.bytes, source: "cache" };
+    return { blob, source: "cache" };
   }
 
   setStatus(modelStatusEl, uiText.downloadingModel(MODEL_NAME));
-  const bytes = await downloadModelFromUrl(MODEL_URL);
+  const blob = await downloadModelToBlob(MODEL_URL, (received, total) => {
+    const progress = total
+      ? `${Math.floor((received / total) * 100)}% (${formatBytes(received)} / ${formatBytes(total)})`
+      : formatBytes(received);
+    setStatus(modelStatusEl, uiText.downloadingModelProgress(MODEL_NAME, progress));
+  });
   await putCachedModel({
     id: MODEL_CACHE_KEY,
     name: MODEL_NAME,
     url: MODEL_URL,
-    size: bytes.byteLength,
+    size: blob.size,
     updatedAt: Date.now(),
-    bytes,
+    blob,
   });
-  setStatus(modelStatusEl, uiText.downloadComplete(MODEL_NAME, formatBytes(bytes.byteLength)));
-  return { bytes, source: "download" };
+  setStatus(modelStatusEl, uiText.downloadComplete(MODEL_NAME, formatBytes(blob.size)));
+  return { blob, source: "download" };
 }
 
 async function loadModel() {
@@ -481,21 +517,20 @@ async function loadModel() {
   runBtn.disabled = true;
   setStatus(modelStatusEl, uiText.preparingModel);
   try {
-    const { bytes, source } = await resolveModelBytes();
+    const { blob, source } = await resolveModelBlob();
     if (state.wllama) {
       await state.wllama.exit();
       state.wllama = null;
     }
 
     setStatus(modelStatusEl, uiText.initializingInference);
-    const blob = new Blob([bytes], { type: "application/octet-stream" });
     state.wllama = new Wllama(WLLAMA_ASSETS, { logger: LoggerWithoutDebug });
     await state.wllama.loadModel([blob], { n_ctx: 2048 });
 
     state.model = {
       key: MODEL_CACHE_KEY,
       name: MODEL_NAME,
-      size: bytes.byteLength,
+      size: blob.size,
       updatedAt: Date.now(),
       source,
     };

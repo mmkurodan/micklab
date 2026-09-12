@@ -58,9 +58,9 @@
 
     <div id="gpuStatus" class="status">Initializing inference engine...</div>
 
-    <label class="field">1) Fetch the fixed model (Qwen2.5-1.5B-Instruct-GGUF)</label>
+    <label class="field">1) Fetch the fixed model (LFM2.5-350M-GGUF / Q4_K_M)</label>
     <button id="loadModelBtn" class="button-strong" type="button" disabled>Download and load model</button>
-    <p class="traffic-note">* The first run and periodic refreshes require about 1 GB of traffic.</p>
+    <p class="traffic-note">* The first run downloads about 230 MB (later runs reuse the IndexedDB cache). Works on iPhone/iPad too.</p>
     <div id="modelStatus" class="status">Model not loaded yet (press the button to download it or reuse the cache).</div>
 
     <label class="field api-hidden">1.5) Enable API (Service Worker)</label>
