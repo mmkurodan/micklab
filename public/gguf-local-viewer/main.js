@@ -569,7 +569,8 @@ async function runModelCompletion(messages, onToken) {
   }
 
   return state.wllama.createChatCompletion(messages, {
-    nPredict: 256,
+    // -1: 生成トークン数を制限しない（EOS かコンテキスト上限まで生成）
+    nPredict: -1,
     useCache: false,
     sampling: {
       temp: 0.7,
