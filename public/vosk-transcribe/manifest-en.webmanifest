@@ -1,0 +1,19 @@
+{
+  "name": "VOSK Local Speech-to-Text — Mick Lab",
+  "short_name": "VOSK STT",
+  "description": "Browser app that keeps a VOSK small model on-device and transcribes speech continuously, offline.",
+  "lang": "en",
+  "dir": "ltr",
+  "start_url": "/vosk-transcribe/index-en.html",
+  "scope": "/vosk-transcribe/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#0b0c0f",
+  "theme_color": "#0b0c0f",
+  "categories": ["productivity", "utilities"],
+  "icons": [
+    { "src": "/vosk-transcribe/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "/vosk-transcribe/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "/vosk-transcribe/icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}

@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>VOSK ローカル音声文字起こし — Mick Lab</title>
+  <meta name="description" content="VOSK の small モデルをブラウザにダウンロードして端末内で連続的に音声を文字起こしします。モデルはローカル保持・オフライン動作。PWA対応でiPhone/Androidのホーム画面に追加できます。">
+  <link rel="alternate" hreflang="ja" href="/vosk-transcribe/index.html">
+  <link rel="alternate" hreflang="en" href="/vosk-transcribe/index-en.html">
+
+  <link rel="manifest" href="/vosk-transcribe/manifest.webmanifest">
+  <meta name="theme-color" content="#0b0c0f">
+  <link rel="icon" href="/vosk-transcribe/favicon-32.png" sizes="32x32" type="image/png">
+  <link rel="apple-touch-icon" href="/vosk-transcribe/apple-touch-icon.png">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="VOSK 文字起こし">
+  <style>
+    :root { --bg:#0b0c0f; --card:#12161c; --line:#2b313a; --fg:#e6eef8; --muted:#a7b2c5; --accent:#7c5cff; --error:#ff6b6b; --warn:#ff8a2a; --ok:#3ad29f; }
+    * { box-sizing: border-box; }
+    body { margin: 0; padding: 16px; background: var(--bg); color: var(--fg); font-family: system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif; }
+    a { color: var(--accent); text-decoration: none; }
+    .page-nav { width: 100%; max-width: 760px; margin: 0 auto 16px; display: flex; justify-content: space-between; align-items: center; gap: 16px; flex-wrap: wrap; }
+    .nav-links, .lang-switch { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; }
+    .back { font-size: 0.95rem; }
+    .lang-switch { color: var(--muted); font-size: 0.9rem; }
+    .lang-switch a[aria-current="page"] { color: var(--fg); font-weight: 700; }
+    .app { width: 100%; max-width: 760px; margin: 0 auto; padding: 16px; background: var(--card); border: 1px solid var(--line); border-radius: 12px; }
+    h1 { margin-top: 0; font-size: 1.2rem; }
+    p { margin: 0 0 12px; color: var(--muted); line-height: 1.5; }
+    .field { display: block; margin: 12px 0 8px; color: var(--muted); }
+    select, textarea, button {
+      width: 100%;
+      margin-top: 8px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #0f1318;
+      color: var(--fg);
+      font: inherit;
+      padding: 10px;
+    }
+    textarea { min-height: 180px; resize: vertical; line-height: 1.6; }
+    button { cursor: pointer; background: #1b2230; }
+    button:disabled { cursor: not-allowed; opacity: 0.6; }
+    .button-strong { background: var(--warn); border-color: #ffc48f; color: #151515; font-weight: 700; }
+    .row { display: flex; gap: 10px; }
+    .row > button { margin-top: 8px; }
+    .traffic-note { margin-top: 8px; color: #ffd8b5; }
+    .status { margin: 8px 0; padding: 10px; border-radius: 8px; border: 1px solid var(--line); background: #0d1117; color: var(--muted); white-space: pre-wrap; }
+    .status.error { border-color: rgba(255,107,107,0.6); color: var(--error); }
+    .recbar { display: flex; align-items: center; gap: 10px; margin: 8px 0; }
+    #recState { font-weight: 700; color: var(--muted); }
+    #recState.live { color: var(--error); }
+    #partial { min-height: 1.6em; margin: 4px 0 8px; padding: 8px 10px; border-radius: 8px; border: 1px dashed var(--line); background: #0d1117; color: var(--muted); font-style: italic; }
+    .foot-note { font-size: 0.85rem; }
+  </style>
+</head>
+<body>
+  <header class="page-nav">
+    <div class="nav-links">
+      <a class="back" href="/">← ホームへ戻る</a>
+    </div>
+    <nav class="lang-switch" aria-label="Language switch">
+      <a href="/vosk-transcribe/index.html" aria-current="page">日本語</a>
+      <span>|</span>
+      <a href="/vosk-transcribe/index-en.html">English</a>
+    </nav>
+  </header>
+  <main class="app">
+    <h1>VOSK ローカル音声文字起こし</h1>
+    <p>VOSK の small モデルをブラウザにダウンロードし、端末内（オフライン）で連続的に音声を文字起こしします。LLMビューアと同じく<strong>モデルはローカルに保持</strong>し、音声はサーバーへ送信しません。PWA対応で iPhone / Android のホーム画面に追加できます。</p>
+
+    <label class="field" for="langSelect">1) 認識する言語を選択</label>
+    <select id="langSelect" aria-label="認識言語">
+      <option value="ja-JP" selected>日本語 (ja-JP) — vosk-model-small-ja-0.22</option>
+      <option value="en-US">English (en-US) — vosk-model-small-en-us-0.15</option>
+    </select>
+
+    <label class="field">2) モデルを取得（ローカルにダウンロード）</label>
+    <button id="loadModelBtn" class="button-strong" type="button">モデルを取得して読み込む</button>
+    <p class="traffic-note">※ 初回のみ約40〜50MBの通信が発生します（以降はブラウザ内キャッシュを再利用し、オフラインでも動作します）。iPhone/iPad/Android でも動作します。</p>
+    <div id="modelStatus" class="status">モデルを初期化中...</div>
+
+    <label class="field">3) 文字起こし</label>
+    <div class="recbar">
+      <span id="recState">待機中</span>
+    </div>
+    <div class="row">
+      <button id="startBtn" type="button" disabled>● 開始</button>
+      <button id="stopBtn" type="button" disabled>■ 停止</button>
+    </div>
+    <div id="partial" aria-live="polite"></div>
+    <textarea id="transcript" placeholder="ここに文字起こし結果が追記されます（手動で編集できます）。" aria-label="文字起こし結果"></textarea>
+    <div class="row">
+      <button id="copyBtn" type="button">コピー</button>
+      <button id="clearBtn" type="button">クリア</button>
+    </div>
+
+    <p class="foot-note">音声認識は <a href="https://github.com/ccoreilly/vosk-browser" rel="noopener" target="_blank">vosk-browser</a>（Kaldi/VOSK を WebAssembly 化）を使用し、すべて端末内で処理されます。ホーム画面に追加すると、ブラウザUIなしのアプリとして起動できます。</p>
+  </main>
+
+  <script type="module" src="./main.js"></script>
+</body>
+</html>

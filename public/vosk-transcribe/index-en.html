@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>VOSK Local Speech-to-Text — Mick Lab</title>
+  <meta name="description" content="Download a VOSK small model into the browser and continuously transcribe speech on-device. The model stays local and works offline. PWA-ready: add it to your iPhone/Android home screen.">
+  <link rel="alternate" hreflang="ja" href="/vosk-transcribe/index.html">
+  <link rel="alternate" hreflang="en" href="/vosk-transcribe/index-en.html">
+
+  <link rel="manifest" href="/vosk-transcribe/manifest-en.webmanifest">
+  <meta name="theme-color" content="#0b0c0f">
+  <link rel="icon" href="/vosk-transcribe/favicon-32.png" sizes="32x32" type="image/png">
+  <link rel="apple-touch-icon" href="/vosk-transcribe/apple-touch-icon.png">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="VOSK STT">
+  <style>
+    :root { --bg:#0b0c0f; --card:#12161c; --line:#2b313a; --fg:#e6eef8; --muted:#a7b2c5; --accent:#7c5cff; --error:#ff6b6b; --warn:#ff8a2a; --ok:#3ad29f; }
+    * { box-sizing: border-box; }
+    body { margin: 0; padding: 16px; background: var(--bg); color: var(--fg); font-family: system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif; }
+    a { color: var(--accent); text-decoration: none; }
+    .page-nav { width: 100%; max-width: 760px; margin: 0 auto 16px; display: flex; justify-content: space-between; align-items: center; gap: 16px; flex-wrap: wrap; }
+    .nav-links, .lang-switch { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; }
+    .back { font-size: 0.95rem; }
+    .lang-switch { color: var(--muted); font-size: 0.9rem; }
+    .lang-switch a[aria-current="page"] { color: var(--fg); font-weight: 700; }
+    .app { width: 100%; max-width: 760px; margin: 0 auto; padding: 16px; background: var(--card); border: 1px solid var(--line); border-radius: 12px; }
+    h1 { margin-top: 0; font-size: 1.2rem; }
+    p { margin: 0 0 12px; color: var(--muted); line-height: 1.5; }
+    .field { display: block; margin: 12px 0 8px; color: var(--muted); }
+    select, textarea, button {
+      width: 100%;
+      margin-top: 8px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #0f1318;
+      color: var(--fg);
+      font: inherit;
+      padding: 10px;
+    }
+    textarea { min-height: 180px; resize: vertical; line-height: 1.6; }
+    button { cursor: pointer; background: #1b2230; }
+    button:disabled { cursor: not-allowed; opacity: 0.6; }
+    .button-strong { background: var(--warn); border-color: #ffc48f; color: #151515; font-weight: 700; }
+    .row { display: flex; gap: 10px; }
+    .row > button { margin-top: 8px; }
+    .traffic-note { margin-top: 8px; color: #ffd8b5; }
+    .status { margin: 8px 0; padding: 10px; border-radius: 8px; border: 1px solid var(--line); background: #0d1117; color: var(--muted); white-space: pre-wrap; }
+    .status.error { border-color: rgba(255,107,107,0.6); color: var(--error); }
+    .recbar { display: flex; align-items: center; gap: 10px; margin: 8px 0; }
+    #recState { font-weight: 700; color: var(--muted); }
+    #recState.live { color: var(--error); }
+    #partial { min-height: 1.6em; margin: 4px 0 8px; padding: 8px 10px; border-radius: 8px; border: 1px dashed var(--line); background: #0d1117; color: var(--muted); font-style: italic; }
+    .foot-note { font-size: 0.85rem; }
+  </style>
+</head>
+<body>
+  <header class="page-nav">
+    <div class="nav-links">
+      <a class="back" href="/index-en.html">← Home</a>
+    </div>
+    <nav class="lang-switch" aria-label="Language switch">
+      <a href="/vosk-transcribe/index.html">日本語</a>
+      <span>|</span>
+      <a href="/vosk-transcribe/index-en.html" aria-current="page">English</a>
+    </nav>
+  </header>
+  <main class="app">
+    <h1>VOSK Local Speech-to-Text</h1>
+    <p>Download a VOSK small model into the browser and continuously transcribe speech on-device (offline). Like the LLM viewer, <strong>the model stays local</strong> and audio is never sent to a server. It is PWA-ready, so you can add it to your iPhone / Android home screen.</p>
+
+    <label class="field" for="langSelect">1) Choose the recognition language</label>
+    <select id="langSelect" aria-label="Recognition language">
+      <option value="ja-JP">日本語 (ja-JP) — vosk-model-small-ja-0.22</option>
+      <option value="en-US" selected>English (en-US) — vosk-model-small-en-us-0.15</option>
+    </select>
+
+    <label class="field">2) Fetch the model (download locally)</label>
+    <button id="loadModelBtn" class="button-strong" type="button">Fetch and load model</button>
+    <p class="traffic-note">* The first run downloads about 40–50 MB (later runs reuse the in-browser cache and work offline). Works on iPhone/iPad/Android too.</p>
+    <div id="modelStatus" class="status">Initializing model...</div>
+
+    <label class="field">3) Transcription</label>
+    <div class="recbar">
+      <span id="recState">Idle</span>
+    </div>
+    <div class="row">
+      <button id="startBtn" type="button" disabled>● Start</button>
+      <button id="stopBtn" type="button" disabled>■ Stop</button>
+    </div>
+    <div id="partial" aria-live="polite"></div>
+    <textarea id="transcript" placeholder="Transcription is appended here (you can edit it manually)." aria-label="Transcription result"></textarea>
+    <div class="row">
+      <button id="copyBtn" type="button">Copy</button>
+      <button id="clearBtn" type="button">Clear</button>
+    </div>
+
+    <p class="foot-note">Speech recognition uses <a href="https://github.com/ccoreilly/vosk-browser" rel="noopener" target="_blank">vosk-browser</a> (Kaldi/VOSK compiled to WebAssembly) and runs entirely on your device. Add it to the home screen to launch it as a standalone app without browser UI.</p>
+  </main>
+
+  <script type="module" src="./main.js"></script>
+</body>
+</html>
