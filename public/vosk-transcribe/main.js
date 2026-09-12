@@ -21,6 +21,9 @@ const MODELS = {
 
 const DEFAULT_LANG = "ja-JP";
 
+// この時間(ms)以上無音が続いたあとの発話は、直前に改行を入れて段落を分ける。
+const SILENCE_GAP_MS = 1500;
+
 const locale = document.documentElement.lang.toLowerCase().startsWith("en") ? "en" : "ja";
 const uiText = {
   ja: {
@@ -199,15 +202,32 @@ async function startRecording() {
     const cfg = MODELS[state.modelLang];
     const recognizer = new state.model.KaldiRecognizer(audioContext.sampleRate);
     recognizer.setWords(false);
+
+    // 無音区間の検出用。直近の発話イベント時刻を記録し、次の発話開始までの
+    // 空白がしきい値を超えたら、その確定結果の手前に改行を入れる。
+    let lastSpeechAt = performance.now();
+    let pendingNewline = false;
+
     recognizer.on("result", (message) => {
       const text = normalizeText(message?.result?.text, cfg.joiner);
       if (text) {
-        appendFinal(text, cfg.joiner);
+        appendFinal(text, cfg.joiner, pendingNewline);
+        pendingNewline = false;
       }
+      lastSpeechAt = performance.now();
       partialEl.textContent = "";
     });
     recognizer.on("partialresult", (message) => {
-      partialEl.textContent = normalizeText(message?.result?.partial, cfg.joiner);
+      const partial = normalizeText(message?.result?.partial, cfg.joiner);
+      if (partial) {
+        // 直前の発話から一定時間空いていれば、新しい発話とみなし段落を分ける。
+        const now = performance.now();
+        if (now - lastSpeechAt > SILENCE_GAP_MS && transcriptEl.value.trim()) {
+          pendingNewline = true;
+        }
+        lastSpeechAt = now;
+      }
+      partialEl.textContent = partial;
     });
     state.recognizer = recognizer;
 
@@ -271,10 +291,13 @@ function stopRecording() {
   if (state.model) startBtn.disabled = false;
 }
 
-function appendFinal(text, joiner) {
+function appendFinal(text, joiner, newParagraph = false) {
   const current = transcriptEl.value;
   if (!current) {
     transcriptEl.value = text;
+  } else if (newParagraph) {
+    // 無音区間のあとの発話は改行して段落を分ける。
+    transcriptEl.value = current + "\n" + text;
   } else {
     const sep = joiner === "" ? "" : joiner;
     transcriptEl.value = current + sep + text;
