@@ -1,0 +1,19 @@
+{
+  "name": "Local LLM (GGUF) Inference Viewer — Mick Lab",
+  "short_name": "GGUF Viewer",
+  "description": "PWA that downloads a GGUF model into the browser, keeps it in IndexedDB, and runs inference on-device. Includes an Ollama-compatible API.",
+  "lang": "en",
+  "dir": "ltr",
+  "start_url": "/gguf-local-viewer/index-en.html",
+  "scope": "/gguf-local-viewer/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#0b0c0f",
+  "theme_color": "#0b0c0f",
+  "categories": ["productivity", "utilities"],
+  "icons": [
+    { "src": "/gguf-local-viewer/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "/gguf-local-viewer/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "/gguf-local-viewer/icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}

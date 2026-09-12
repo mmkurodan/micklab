@@ -1,0 +1,19 @@
+{
+  "name": "ローカルLLM（GGUF）推論ビューア — Mick Lab",
+  "short_name": "GGUF ビューア",
+  "description": "GGUF モデルをブラウザにダウンロードして IndexedDB に保持し、端末内で実推論する PWA。Ollama 互換 API 付き。",
+  "lang": "ja",
+  "dir": "ltr",
+  "start_url": "/gguf-local-viewer/index.html",
+  "scope": "/gguf-local-viewer/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#0b0c0f",
+  "theme_color": "#0b0c0f",
+  "categories": ["productivity", "utilities"],
+  "icons": [
+    { "src": "/gguf-local-viewer/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "/gguf-local-viewer/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "/gguf-local-viewer/icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}
