@@ -16,7 +16,7 @@
     }
     *{box-sizing:border-box}
     body{margin:0;background:linear-gradient(180deg,var(--bg),#070708);color:#e6eef8;font-family:Inter,system-ui,Segoe UI,Roboto,"Helvetica Neue",Arial}
-    header{display:flex;align-items:center;justify-content:space-between;padding:20px 32px;border-bottom:1px solid rgba(255,255,255,0.03);backdrop-filter: blur(6px)}
+    header{display:flex;align-items:center;justify-content:space-between;padding:20px 32px;border-bottom:1px solid rgba(255,255,255,0.03);backdrop-filter: blur(6px);position:sticky;top:0;background:rgba(11,12,15,0.72);z-index:10}
     .brand{display:flex;align-items:center;gap:12px}
     .header-actions{display:flex;align-items:center;gap:18px;flex-wrap:wrap;justify-content:flex-end}
     .logo{width:44px;height:44px;border-radius:8px;background:linear-gradient(135deg,var(--accent),#00d4ff);display:flex;align-items:center;justify-content:center;font-weight:700;color:#071020}
@@ -25,7 +25,7 @@
     nav a{color:var(--muted);text-decoration:none;margin-left:18px;font-weight:500}
     nav a:hover{color:#fff}
     .lang-switch{display:flex;align-items:center;gap:10px;color:var(--muted);font-size:14px}
-    .lang-switch a{margin-left:0}
+    .lang-switch a{margin-left:0;text-decoration:none;color:var(--muted)}
     .lang-switch a[aria-current="page"]{color:#fff;font-weight:700}
     main{max-width:1100px;margin:48px auto;padding:0 20px}
     .hero{display:flex;gap:32px;align-items:center}
@@ -33,13 +33,24 @@
     h1{font-size:40px;margin:0 0 12px}
     p.lead{color:var(--muted);margin:0 0 20px;line-height:1.6}
     .cta{display:inline-block;background:var(--accent);color:#071020;padding:12px 18px;border-radius:8px;text-decoration:none;font-weight:600}
-    .apps{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:18px;margin-top:28px}
-    .card{background:var(--card);padding:18px;border-radius:12px;border:1px solid rgba(255,255,255,0.03)}
-    .card h3{margin:0 0 10px}
-    .card p{margin:0;color:var(--muted);font-size:14px}
+    /* カテゴリ */
+    .cat{margin-top:44px}
+    .cat-head{display:flex;align-items:baseline;gap:12px;margin:0 0 4px;padding-left:12px;border-left:3px solid var(--accent)}
+    .cat-head h2{font-size:20px;margin:0}
+    .cat-head .count{color:var(--muted);font-size:13px}
+    .cat-sub{color:var(--muted);font-size:13px;margin:0 0 16px;padding-left:12px}
+    .apps{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:18px;margin-top:14px}
+    a.card{display:block;text-decoration:none;color:inherit;transition:border-color .15s ease, transform .15s ease}
+    a.card:hover{border-color:rgba(124,92,255,0.5);transform:translateY(-2px)}
+    .card{background:var(--card);padding:18px;border-radius:12px;border:1px solid rgba(255,255,255,0.05)}
+    .card h3{margin:0 0 10px;font-size:16px}
+    .card p{margin:0;color:var(--muted);font-size:14px;line-height:1.55}
     .card-icon{width:48px;height:48px;border-radius:10px;object-fit:cover;display:block;margin-bottom:10px}
+    .badge{display:inline-block;font-size:11px;font-weight:700;letter-spacing:.04em;color:#b7a9ff;background:rgba(124,92,255,0.12);border:1px solid rgba(124,92,255,0.25);border-radius:999px;padding:2px 9px;margin-bottom:10px}
+    .notes-list{margin:0;padding-left:20px;color:var(--muted);line-height:1.6}
+    .notes-list li+li{margin-top:8px}
     footer{max-width:1100px;margin:60px auto 40px;padding:0 20px;color:var(--muted);font-size:13px;text-align:center}
-    @media (max-width:700px){header{padding:20px}.header-actions{justify-content:flex-start}.hero{flex-direction:column;align-items:flex-start}h1{font-size:28px}}
+    @media (max-width:700px){header{padding:16px 18px}.header-actions{justify-content:flex-start}.hero{flex-direction:column;align-items:flex-start}h1{font-size:28px}.hero-right{width:100%!important}}
   </style>
 </head>
 <body>
@@ -52,14 +63,12 @@
       </div>
     </div>
     <div class="header-actions">
-      <nav>
+      <nav aria-label="カテゴリ">
         <a href="/">ホーム</a>
-        <a href="/llama-tester.html">LLM AI Server with llama.cpp</a>
-        <a href="/llama-chat.html">Dual AI Chat</a>
-        <a href="/reversy.html">Dual AI Reversy</a>
-        <a href="/claritypdf.html">ClarityPDF</a>
-        <a href="/android-ci.html">開発/CI</a>
-        <a href="#apps">Apps</a>
+        <a href="#android-llm">LLM 実行・学習</a>
+        <a href="#android-apps">AI アプリ</a>
+        <a href="#web-pwa">ブラウザ / PWA</a>
+        <a href="#dev">開発・CI</a>
       </nav>
       <div class="lang-switch" aria-label="Language switch">
         <a href="/" aria-current="page">日本語</a>
@@ -72,34 +81,66 @@
     <section class="hero">
       <div class="hero-left">
         <h1>Mick Lab — 実験と実装の場所</h1>
-        <p class="lead">Mick Lab のアプリは、Androidスマホのみで設計・実装・検証・公開まで完結しています。モバイル単体で生成AIアプリを継続開発する実践を公開しています。</p>
-        <div class="card" style="margin-top:14px">
+        <p class="lead">Mick Lab のアプリは、Androidスマホのみで設計・実装・検証・公開まで完結しています。モバイル単体で生成AIアプリを継続開発する実践を公開しています。用途ごとにカテゴリ分けした一覧から、各アプリの詳細ページへ移動できます。</p>
+        <a class="cta" href="#android-llm">アプリ一覧を見る</a>
+      </div>
+      <div class="hero-right" style="width:340px">
+        <div class="card">
+          <span class="badge">Android のみで開発</span>
           <h3>Androidスマホ単体での開発体制</h3>
           <p>PCに依存せず、LLM AI Server with llama.cpp / Dual AI Chat / Dual AI Reversy を含む全アプリを Android 端末上で開発しています。</p>
-          <p style="margin-top:10px"><a href="/android-ci.html">Userland + Termux + Copilot CLI + 独自スクリプトによる GitHub CI 運用の詳細を見る</a></p>
-        </div>
-
-      </div>
-      <div class="hero-right" style="width:320px">
-        <div class="card">
-          <h3>アプリケーションメニュー</h3>
-          <p>以下は現在利用可能なツールです。クリックして詳細や実験ページへ移動できます。</p>
-          <div id="apps" class="apps" style="margin-top:12px">
-            <a class="card" href="/llama-tester.html"><img src="/llama-tester/ic_launcher.png" alt="LLM AI Server with llama.cpp アイコン" class="card-icon"><h3>LLM AI Server with llama.cpp</h3><p>GGUF ローカル推論・ビジョン(Qwen3-VL)・GPU バックエンド対応・ローカル API / WebUI・MCP 連携をまとめた検証ツール</p></a>
-            <a class="card" href="/llama-chat.html"><h3>Dual AI Chat</h3><p>Ollama互換APIを使用したチャットアプリ</p></a>
-            <a class="card" href="/reversy.html"><h3>Dual AI Reversy</h3><p>黒白を個別に Human / CPU / AI へ切り替えられるリバーシアプリ</p></a>
-            <a class="card" href="/claritypdf.html"><img src="/claritypdf/ic_launcher.png" alt="ClarityPDF アイコン" class="card-icon"><h3>ClarityPDF</h3><p>端末内で完結する PDF 作成・編集・変換と OCR / AI-OCR（要約・任意プロンプト）アプリ</p></a>
-            <a class="card" href="/android-ci.html"><h3>開発/CI 解説</h3><p>Userland / Termux と Copilot CLI による Android 開発と GitHub 連携の構成</p></a>
-            <a class="card" href="/gguf-local-viewer/index.html"><h3>ローカルLLM（GGUF）推論ビューア</h3><p>指定URLのGGUFをダウンロードしてIndexedDBに保存し、ブラウザ内で実推論を行うデモ</p></a>
-            <a class="card" href="/vosk-transcribe/index.html"><img src="/vosk-transcribe/icon-192.png" alt="VOSK 音声文字起こし アイコン" class="card-icon"><h3>VOSK ローカル音声文字起こし</h3><p>VOSKのsmallモデルを端末内に保持し、オフラインで連続的に音声を文字起こしするPWA（日本語/英語）</p></a>
-          </div>
+          <p style="margin-top:10px"><a href="/android-ci.html">Userland + Termux + Copilot CLI + 独自スクリプトによる GitHub CI 運用の詳細 →</a></p>
         </div>
       </div>
     </section>
-    <section style="margin-top:40px">
+
+    <!-- ── カテゴリ: LLM 実行・学習（Android） ── -->
+    <section class="cat" id="android-llm">
+      <div class="cat-head"><h2>LLM 実行・学習（Android）</h2><span class="count">2 アプリ</span></div>
+      <p class="cat-sub">端末内での GGUF 推論サーバと、学習データ生成〜オンデバイス学習ツール。</p>
+      <div class="apps">
+        <a class="card" href="/llama-tester.html"><img src="/llama-tester/ic_launcher.png" alt="LLM AI Server with llama.cpp アイコン" class="card-icon"><h3>LLM AI Server with llama.cpp</h3><p>GGUF ローカル推論・ビジョン(Qwen3-VL)・GPU バックエンド対応・ローカル API / WebUI・MCP 連携をまとめた検証ツール</p></a>
+        <a class="card" href="/gguf.html"><img src="/gguf/ic_launcher.png" alt="GGUF Generator アイコン" class="card-icon"><h3>GGUF Generator</h3><p>Q/A 学習データ生成から、小型 GGUF の新規作成・追加学習・LoRA までを端末内で行うオンデバイス学習ツール</p></a>
+      </div>
+    </section>
+
+    <!-- ── カテゴリ: AI アプリ（Android） ── -->
+    <section class="cat" id="android-apps">
+      <div class="cat-head"><h2>AI アプリ（Android）</h2><span class="count">3 アプリ</span></div>
+      <p class="cat-sub">生成AIを活用したエンドユーザー向けアプリ。</p>
+      <div class="apps">
+        <a class="card" href="/llama-chat.html"><h3>Dual AI Chat</h3><p>Ollama互換APIを使用したチャットアプリ。2つのAIによる対話を楽しめます。</p></a>
+        <a class="card" href="/reversy.html"><h3>Dual AI Reversy</h3><p>黒白を個別に Human / CPU / AI へ切り替えられるリバーシアプリ</p></a>
+        <a class="card" href="/claritypdf.html"><img src="/claritypdf/ic_launcher.png" alt="ClarityPDF アイコン" class="card-icon"><h3>ClarityPDF</h3><p>端末内で完結する PDF 作成・編集・変換と OCR / AI-OCR（要約・任意プロンプト）アプリ</p></a>
+      </div>
+    </section>
+
+    <!-- ── カテゴリ: ブラウザ / PWA ── -->
+    <section class="cat" id="web-pwa">
+      <div class="cat-head"><h2>ブラウザ / PWA</h2><span class="count">2 アプリ</span></div>
+      <p class="cat-sub">インストール不要、ブラウザ内・オフラインで動作する Web アプリ。</p>
+      <div class="apps">
+        <a class="card" href="/gguf-local-viewer/index.html"><h3>ローカルLLM（GGUF）推論ビューア</h3><p>指定URLのGGUFをダウンロードしてIndexedDBに保存し、ブラウザ内で実推論を行うデモ</p></a>
+        <a class="card" href="/vosk-transcribe/index.html"><img src="/vosk-transcribe/icon-192.png" alt="VOSK 音声文字起こし アイコン" class="card-icon"><h3>VOSK ローカル音声文字起こし</h3><p>VOSKのsmallモデルを端末内に保持し、オフラインで連続的に音声を文字起こしするPWA（日本語/英語）</p></a>
+      </div>
+    </section>
+
+    <!-- ── カテゴリ: 開発・CI ── -->
+    <section class="cat" id="dev">
+      <div class="cat-head"><h2>開発・CI</h2><span class="count">解説</span></div>
+      <p class="cat-sub">Android 端末のみで生成AIアプリを開発・公開する体制の解説。</p>
+      <div class="apps">
+        <a class="card" href="/android-ci.html"><h3>開発/CI 解説</h3><p>Userland / Termux と Copilot CLI による Android 開発と GitHub 連携の構成</p></a>
+      </div>
+    </section>
+
+    <!-- ── 実験ノート ── -->
+    <section class="cat" id="notes">
+      <div class="cat-head"><h2>最新の実験ノート</h2></div>
+      <p class="cat-sub">直近の更新・実験の記録。</p>
       <div class="card">
-        <h3>最新の実験ノート</h3>
-        <ul>
+        <ul class="notes-list">
+          <li>GGUF Generator：製品ページ、操作マニュアル、日英併記の Privacy Policy を追加（学習データ生成・新規GGUF作成/追加学習・LFM2 LoRA・キーワード評価を反映）</li>
           <li>LLM AI Server with llama.cpp：ビジョン既定を Qwen3-VL に刷新し、大きな画像・長文でコンテキストを自動拡張（GPU→CPU フォールバック）。モデル検索を強化（モデル/サイズ/量子化プルダウン＋端末適合度＋mmproj 直接ダウンロード）。llama.cpp を b10621 (v0.3.0) に更新、<code>/api/diagnostics</code> を追加し、上限超過入力はサーバーエラーで返却</li>
           <li>ClarityPDF：製品ページ、操作マニュアル、日英併記の Privacy Policy を追加（PDF 作成・編集、変換・構成、OCR / AI-OCR、要約・AI プロンプトを反映）</li>
           <li>LLM AI Server with llama.cpp：スクリーンショットを最新の JPEG に差し替え、操作マニュアルを現行実装に合わせて全面改訂（折りたたみ式 UI・ステータスヘッダー・ダイレクト実行セクション・GPU バックエンド・mmproj・MAINTAIN MODEL 等を反映）</li>

@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>GGUF Generator — Mick Lab</title>
+  <link rel="alternate" hreflang="ja" href="/gguf.html">
+  <link rel="alternate" hreflang="en" href="/gguf-en.html">
+  <link rel="icon" href="/gguf/ic_launcher.png" type="image/png">
+  <style>
+    :root{--bg:#08080a;--card:#0f1114;--muted:#9aa3b2;--accent:#7c5cff;--line:rgba(255,255,255,0.08)}
+    *{box-sizing:border-box}
+    body{margin:0;background:var(--bg);color:#e6eef8;font-family:Inter,system-ui,Segoe UI,Roboto,Arial;line-height:1.65}
+    header{padding:18px 24px;border-bottom:1px solid rgba(255,255,255,0.03);display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap}
+    a{color:var(--accent);text-decoration:none}
+    main{max-width:1040px;margin:28px auto;padding:20px}
+    .card{background:var(--card);padding:20px;border-radius:14px;border:1px solid rgba(255,255,255,0.03);margin-bottom:18px}
+    .eyebrow{margin:0 0 8px;color:#b7a9ff;font-size:13px;font-weight:700;letter-spacing:.08em;text-transform:uppercase}
+    h1{margin:0 0 12px;font-size:34px;line-height:1.15}
+    h2{margin:0 0 12px;font-size:22px}
+    p{margin:0 0 12px}
+    ul{margin:0;padding-left:20px;color:var(--muted)}
+    li+li{margin-top:8px}
+    .lead{color:#eef4ff;font-size:17px}
+    .doc-links,.note{color:var(--muted);font-size:14px}
+    .highlight{background:linear-gradient(90deg,rgba(124,92,255,0.08),rgba(0,212,255,0.03));border:1px solid var(--line);border-radius:12px;padding:14px 16px}
+    .highlight ul{color:#e6eef8;font-weight:600}
+    .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px}
+    figure{margin:0}
+    img{width:100%;border-radius:10px;display:block}
+    figcaption{margin-top:8px;color:var(--muted);font-size:13px}
+    .lang-switch{display:flex;align-items:center;gap:10px;color:var(--muted);font-size:14px}
+    .lang-switch a[aria-current="page"]{color:#fff;font-weight:700}
+    .nav-links{display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+    .back{font-size:14px}
+    code{background:rgba(255,255,255,0.05);padding:2px 6px;border-radius:4px}
+    @media (max-width:700px){main{padding:16px}h1{font-size:28px}}
+  </style>
+</head>
+<body>
+  <header>
+    <div class="nav-links">
+      <a class="back" href="/index-en.html">← Back to home</a>
+    </div>
+    <nav class="lang-switch" aria-label="Language switch">
+      <a href="/gguf.html">日本語</a>
+      <span>|</span>
+      <a href="/gguf-en.html" aria-current="page">English</a>
+    </nav>
+  </header>
+  <main>
+    <section class="card">
+      <p class="eyebrow">Android / On-device Training / GGUF</p>
+      <h1>GGUF Generator</h1>
+      <p class="lead">GGUF Generator is an Android on-device training tool that takes you from generating Q/A training data all the way to training a small model, exporting GGUF, and LoRA fine-tuning — all in one app. Generate training pairs from keywords, URLs, Wikipedia, or an LLM prompt, then create or refine GGUF models (F32/F16/Q8_0) directly on the device.</p>
+      <p class="doc-links">Docs: <a href="/gguf/manual-en.html">User Manual</a> | <a href="/gguf/privacy.html#en">Privacy Policy</a></p>
+      <div class="highlight">
+        <ul>
+            <li>Generates Q/A training pairs with RAG evaluation from input sources: Brave Search / Wikipedia / a specified URL / an LLM theme prompt.</li>
+            <li>Supports data augmentation (translation expansion, paraphrase amplification), pair editing, and JSONL export.</li>
+            <li>Runs three on-device training modes — new GGUF creation, refine (continued training), and LFM2 LoRA (pure-C native) — and exports GGUF.</li>
+        </ul>
+      </div>
+    </section>
+
+    <section class="card">
+      <h2>Screenshots</h2>
+      <div class="grid">
+        <figure>
+          <img src="/gguf/sm101.jpg" alt="GGUF Generator training screen">
+          <figcaption>Status header and processing log with pair generation, training (new/refine/LoRA), and GGUF export in a single screen.</figcaption>
+        </figure>
+        <figure>
+          <img src="/gguf/sm102.jpg" alt="GGUF Generator direct-run screen">
+          <figcaption>Connect to the common LLM server (Ollama-compatible), pick generation and embedding models, and run.</figcaption>
+        </figure>
+      </div>
+    </section>
+
+    <section class="card">
+      <h2>Key Features</h2>
+      <ul>
+        <li><strong>On-device training-data generation</strong>: From an input source (Brave Search / Wikipedia / URL / LLM theme prompt), it performs full-text chunking, RAG evaluation, and multi-pair generation to build Q/A training data (JSONL). Supports background execution with stop and resume.</li>
+        <li><strong>Augmentation &amp; editing</strong>: Amplify existing pairs via translation expansion (multilingual) and paraphrasing. Edit pairs directly; the edited result becomes the "latest" and feeds subsequent augmentation and training.</li>
+        <li><strong>New GGUF creation</strong>: Train a small Transformer (pre-RMSNorm, RoPE, SwiGLU, tied output) from scratch on-device and export <code>F32 / F16 / Q8_0</code> GGUF. Staged target losses let you tune training strength (generalization ↔ memorization).</li>
+        <li><strong>Refine (continued training)</strong>: Select an existing base GGUF, continue training, and export the updated GGUF. Model dimensions are inherited from the base.</li>
+        <li><strong>LFM2 LoRA (pure-C native)</strong>: Train a LoRA on an existing LFM2 GGUF in pure C, and export both a llama.cpp-compatible adapter GGUF and a merged full GGUF (loadable standalone).</li>
+        <li><strong>Keyword evaluation &amp; early stopping</strong>: Evaluate via manual keywords or automatic token extraction (top-surprisal) and stop training early once the pass rate reaches the threshold (shared across new / refine / LoRA).</li>
+        <li><strong>Ollama-compatible server integration</strong>: Connects to the LLM server URL in common settings (default <code>http://127.0.0.1:11434</code>), using <code>/api/tags</code> to fetch models, <code>/api/generate</code> to generate, and <code>/api/tokenize</code> to tokenize. Can also start an external app's local API server.</li>
+        <li><strong>Fully on-device</strong>: Outputs (JSONL / GGUF) are saved to the device's Downloads / Documents / app storage. No tracking or analytics are collected.</li>
+      </ul>
+    </section>
+
+    <section class="card">
+      <h2>Operational Notes</h2>
+      <ul>
+        <li>Pair generation and augmentation involve communication with the user-configured LLM server (on-device by default), the Brave Search API, Wikipedia, or a specified URL. Content sent and destinations depend on your input and actions.</li>
+        <li>On-device training is CPU- and memory-intensive. For long runs, granting notification permission and battery-optimization exemption is recommended.</li>
+        <li>Quantization has dimension constraints (Q8_0 requires multiples of 32). Model dimensions for new creation may be automatically rounded or reduced.</li>
+      </ul>
+    </section>
+  </main>
+  <script defer src="/browser-api-register.js"></script>
+</body>
+</html>

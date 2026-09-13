@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>プライバシーポリシー — GGUF Generator — Mick Lab</title>
+  <style>
+    :root{--bg:#08080a;--card:#0f1114;--muted:#9aa3b2;--accent:#7c5cff;--line:rgba(255,255,255,0.08)}
+    *{box-sizing:border-box}
+    body{margin:0;background:var(--bg);color:#e6eef8;font-family:Inter,system-ui,Segoe UI,Roboto,Arial;line-height:1.7}
+    header{padding:18px 24px;border-bottom:1px solid rgba(255,255,255,0.03);display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap}
+    a{color:var(--accent);text-decoration:none}
+    main{max-width:1040px;margin:28px auto;padding:20px}
+    .card{background:var(--card);padding:20px;border-radius:14px;border:1px solid rgba(255,255,255,0.03)}
+    .nav-links,.lang-switch{display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+    .back{font-size:14px}
+    .lang-switch{color:var(--muted);font-size:14px}
+    h1{margin:0 0 12px;font-size:32px}
+    h2{margin:0 0 10px;font-size:24px}
+    h3{margin:20px 0 8px;font-size:18px}
+    p{margin:0 0 12px}
+    ul{margin:0;padding-left:22px;color:var(--muted)}
+    li+li{margin-top:8px}
+    .updated,.lead{color:var(--muted)}
+    code{background:rgba(255,255,255,0.05);padding:2px 6px;border-radius:4px}
+    hr{border:0;border-top:1px solid var(--line);margin:32px 0}
+  </style>
+</head>
+<body>
+  <header>
+    <div class="nav-links">
+      <a class="back" href="/">← ホームへ戻る</a>
+      <a class="back" href="/gguf.html">← GGUF Generator</a>
+    </div>
+    <nav class="lang-switch" aria-label="Privacy languages">
+      <a href="#ja">日本語</a>
+      <span>|</span>
+      <a href="#en">English</a>
+    </nav>
+  </header>
+  <main>
+    <div class="card">
+      <h1>プライバシーポリシー / Privacy Policy</h1>
+      <p class="updated">最終更新日 / Last updated: 2026-09-13</p>
+      <p class="lead">このページには日本語版と英語版を掲載しています。 / This page includes both Japanese and English versions.</p>
+
+      <section id="ja">
+        <h2>日本語</h2>
+
+        <h3>1. 収集する情報</h3>
+        <p>本アプリ「GGUF Generator」は、解析情報・広告識別子などのトラッキングを一切収集しません。処理は原則として端末内で完結します。以下の情報を端末内に保存します。</p>
+        <ul>
+          <li>設定情報（LLM サーバ URL、生成/埋め込みモデル、生成件数・閾値などの各種パラメータ、学習ハイパーパラメータ、Brave APIキー、既定の保存先）</li>
+          <li>生成物（Q/A 学習データの <code>.jsonl</code>、学習結果の <code>.gguf</code>、LoRA アダプタ / 統合版 GGUF）。既定では端末の Downloads / Documents またはアプリ保存領域に保存されます。</li>
+          <li>処理ログ（アプリ内の処理状況・エラー情報）</li>
+        </ul>
+        <p>利用者が入力したテキスト（キーワード、テーマ、URL、資料本文、学習ペア、プロンプト等）は、生成・学習処理のために利用されます。</p>
+
+        <h3>2. 通信</h3>
+        <p>本アプリは、利用者が設定・操作した場合にのみ、次の宛先へ通信します。送信内容・宛先は利用者の入力と選択に依存します。</p>
+        <ul>
+          <li><strong>LLM AI サーバ</strong>（既定 <code>http://127.0.0.1:11434</code> = 端末内）: プロンプトや資料テキストを送信して応答を取得します（<code>/api/generate</code>、<code>/api/tags</code>、<code>/api/tokenize</code> など）。既定は端末内のため、インターネットを経由しません。</li>
+          <li><strong>Brave Search API</strong>: 入力キーワードを検索クエリとして送信します（API キー利用時）。</li>
+          <li><strong>Wikipedia</strong>: 入力キーワードで記事を取得します。</li>
+          <li><strong>利用者が指定した URL</strong>: 本文取得のためアクセスします。</li>
+          <li>ローカルのファイル取り込み（<code>.jsonl</code> / <code>.gguf</code> の選択）は端末内で完結し、外部サーバー通信は行いません。</li>
+        </ul>
+        <p>本アプリの開発者が、利用者のデータを収集・保管・第三者提供することはありません。</p>
+
+        <h3>3. 権限</h3>
+        <ul>
+          <li>インターネット / ネットワーク状態: 上記の外部通信のため。</li>
+          <li>ストレージ: 生成物の保存・読み込みのため。</li>
+          <li>通知 / フォアグラウンドサービス / WakeLock / 電池最適化除外: バックグラウンドでのペア生成・学習を継続するため。</li>
+        </ul>
+
+        <h3>4. 利用目的</h3>
+        <p>上記データは、アプリの動作、学習データ生成、端末内学習、GGUF 出力、表示のためにのみ使用します。外部送信・第三者提供・利用者を追跡する目的での保存は行いません。</p>
+
+        <h3>5. 保存期間</h3>
+        <p>設定・生成物・ログは、利用者が削除するかアプリのデータを消去するまで端末内に保持されます。ログはアプリ内の「クリア」で削除できます。</p>
+
+        <h3>6. お問い合わせ</h3>
+        <p>ご不明点がある場合は、以下までお問い合わせください。<br>micklab2026@gmail.com</p>
+      </section>
+
+      <hr>
+
+      <section id="en">
+        <h2>English</h2>
+
+        <h3>1. Information Collected</h3>
+        <p>This application ("GGUF Generator") does not collect any tracking data such as analytics or advertising identifiers. Processing is, in principle, completed on the device. The following data is stored locally on the device:</p>
+        <ul>
+          <li>Configuration data (LLM server URL, generation/embedding models, parameters such as sample count and thresholds, training hyperparameters, Brave API key, default save location)</li>
+          <li>Outputs (Q/A training data <code>.jsonl</code>, trained <code>.gguf</code>, LoRA adapter / merged GGUF). By default these are saved to the device's Downloads / Documents or the app storage area.</li>
+          <li>Processing logs (in-app operational status and error information)</li>
+        </ul>
+        <p>Text entered by the user (keywords, themes, URLs, source text, training pairs, prompts, etc.) is used for generation and training processing.</p>
+
+        <h3>2. Communication</h3>
+        <p>The app communicates with the following destinations only when configured and operated by the user. The content sent and the destinations depend on your input and choices.</p>
+        <ul>
+          <li><strong>LLM AI server</strong> (default <code>http://127.0.0.1:11434</code>, i.e. on-device): sends prompts and source text to obtain responses (<code>/api/generate</code>, <code>/api/tags</code>, <code>/api/tokenize</code>, etc.). Because the default is on-device, it does not go over the internet.</li>
+          <li><strong>Brave Search API</strong>: sends the input keyword as a search query (when an API key is used).</li>
+          <li><strong>Wikipedia</strong>: fetches articles by the input keyword.</li>
+          <li><strong>A URL specified by the user</strong>: accessed to retrieve its text.</li>
+          <li>Local file import (selecting <code>.jsonl</code> / <code>.gguf</code>) is completed on the device and involves no external server communication.</li>
+        </ul>
+        <p>The developer of this app does not collect, store, or provide user data to third parties.</p>
+
+        <h3>3. Permissions</h3>
+        <ul>
+          <li>Internet / network state: for the external communication above.</li>
+          <li>Storage: for saving and reading outputs.</li>
+          <li>Notifications / foreground service / WakeLock / battery-optimization exemption: to keep pair generation and training running in the background.</li>
+        </ul>
+
+        <h3>4. Purpose of Use</h3>
+        <p>The data above is used solely for application functionality, training-data generation, on-device training, GGUF export, and display. It is not transmitted externally, shared with third parties, or stored for the purpose of tracking users.</p>
+
+        <h3>5. Retention Period</h3>
+        <p>Settings, outputs, and logs are retained on the device until the user deletes them or clears the application data. Logs can be deleted using the "Clear" option in the app.</p>
+
+        <h3>6. Contact</h3>
+        <p>If you have any questions, please contact:<br>micklab2026@gmail.com</p>
+      </section>
+    </div>
+  </main>
+</body>
+</html>

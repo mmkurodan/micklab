@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>User Manual — GGUF Generator — Mick Lab</title>
+  <style>
+    :root{--bg:#08080a;--card:#0f1114;--muted:#9aa3b2;--accent:#7c5cff;--line:rgba(255,255,255,0.08)}
+    *{box-sizing:border-box}
+    body{margin:0;background:var(--bg);color:#e6eef8;font-family:Inter,system-ui,Segoe UI,Roboto,Arial;line-height:1.7}
+    header{padding:18px 24px;border-bottom:1px solid rgba(255,255,255,0.03);display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap}
+    a{color:var(--accent);text-decoration:none}
+    main{max-width:1040px;margin:28px auto;padding:20px}
+    .card{background:var(--card);padding:20px;border-radius:14px;border:1px solid rgba(255,255,255,0.03);margin-bottom:18px}
+    .nav-links,.lang-switch{display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+    .back{font-size:14px}
+    .lang-switch{color:var(--muted);font-size:14px}
+    h1{margin:0 0 12px;font-size:32px}
+    h2{margin:0 0 10px;font-size:22px}
+    h3{margin:18px 0 8px;font-size:17px}
+    p{margin:0 0 12px}
+    ul,ol{margin:0;padding-left:22px;color:var(--muted)}
+    li+li{margin-top:8px}
+    code{background:rgba(255,255,255,0.05);padding:2px 6px;border-radius:4px}
+  </style>
+</head>
+<body>
+  <header>
+    <div class="nav-links">
+      <a class="back" href="/index-en.html">← Back to home</a>
+      <a class="back" href="/gguf-en.html">← GGUF Generator</a>
+    </div>
+    <nav class="lang-switch" aria-label="Language switch">
+      <a href="/gguf/manual.html">日本語</a>
+      <span>|</span>
+      <a href="/gguf/manual-en.html" aria-current="page">English</a>
+    </nav>
+  </header>
+  <main>
+    <div class="card">
+      <h1>User Manual</h1>
+      <p>GGUF Generator takes you from training-data generation to on-device training and GGUF export in a single app. The screen has a fixed status/log area at the top and collapsible sections below.</p>
+    </div>
+
+    <div class="card">
+      <h2>1. Common Settings</h2>
+      <ul>
+        <li>Set the LLM AI server URL (default <code>http://127.0.0.1:11434</code>) and tap "Fetch" to load the model list (also fetched automatically at startup).</li>
+        <li>Select the generation model (LLM) and embedding model (RAG). "Start Server" can launch an external local API server; the status tile shows connectivity.</li>
+        <li>Choose the default save location (Downloads / Documents). Individual file references use the standard system dialog.</li>
+      </ul>
+    </div>
+
+    <div class="card">
+      <h2>2. Pair Generation</h2>
+      <ol>
+        <li><strong>Input source</strong>: Choose Brave Search / Wikipedia / a URL / an LLM theme prompt, and enter a keyword or URL. Only the fields relevant to the source are shown.</li>
+        <li><strong>Run</strong>: Run "Generate (FG)" (in-app) or "Generate (BG)" (background). Results are saved even if you stop. You can also append to an existing JSONL.</li>
+        <li><strong>Generation options</strong> (optional): Tune sample count and acceptance threshold, and edit the prompt sent to the LLM.</li>
+        <li><strong>Additional processing: augmentation</strong> (optional): Expand the current pairs via translation expansion (multilingual) or paraphrase amplification.</li>
+        <li><strong>Post-processing</strong>: Edit pairs, copy output, or save JSONL. The edited result becomes the "latest" and feeds subsequent augmentation and training.</li>
+      </ol>
+    </div>
+
+    <div class="card">
+      <h2>3. Early Stopping &amp; Evaluation (optional, shared across all training modes)</h2>
+      <ul>
+        <li>When "Enable early stopping / evaluation" is on, training stops early once the pass rate reaches the threshold (default 60%).</li>
+        <li>Choose how expected values are specified: manual keywords ("input =&gt; keywordA|keywordB", one per line) or automatic token extraction (top-surprisal).</li>
+        <li>You can set the pass threshold, evaluation interval, max generated tokens, and number of evaluation cases.</li>
+      </ul>
+    </div>
+
+    <div class="card">
+      <h2>4. Training &amp; GGUF Export</h2>
+      <p>Specify the training data (uses the latest generated/edited result if none selected) and the save location, then pick a training method from the two subsections.</p>
+      <h3>GGUF new creation / refine</h3>
+      <ul>
+        <li>Select "New creation" or "Refine (continued training)" at the top.</li>
+        <li><strong>New creation</strong>: Set model dimensions, staged target losses, and template, then train a small model from scratch and export <code>F32 / F16 / Q8_0</code> GGUF.</li>
+        <li><strong>Refine</strong>: Select a base GGUF and continue training (dimensions inherited from the base).</li>
+      </ul>
+      <h3>LoRA (LFM2, on-device, pure-C native)</h3>
+      <ul>
+        <li>Select a base LFM2 GGUF and set rank / alpha / lr / epochs / targets to train a LoRA.</li>
+        <li>Exports a llama.cpp-compatible adapter GGUF and a merged full GGUF (loadable standalone). You can also set the merged model card (name / description).</li>
+      </ul>
+    </div>
+
+    <div class="card">
+      <h2>Tips</h2>
+      <ul>
+        <li>For staged target losses, larger values mean weaker training (generalization) and smaller values mean stronger training (memorization).</li>
+        <li>On-device training is CPU- and memory-intensive. For long runs, grant notification permission and battery-optimization exemption.</li>
+        <li>Check progress in the log area at the top.</li>
+      </ul>
+    </div>
+  </main>
+</body>
+</html>

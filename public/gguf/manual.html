@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>操作マニュアル — GGUF Generator — Mick Lab</title>
+  <style>
+    :root{--bg:#08080a;--card:#0f1114;--muted:#9aa3b2;--accent:#7c5cff;--line:rgba(255,255,255,0.08)}
+    *{box-sizing:border-box}
+    body{margin:0;background:var(--bg);color:#e6eef8;font-family:Inter,system-ui,Segoe UI,Roboto,Arial;line-height:1.7}
+    header{padding:18px 24px;border-bottom:1px solid rgba(255,255,255,0.03);display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap}
+    a{color:var(--accent);text-decoration:none}
+    main{max-width:1040px;margin:28px auto;padding:20px}
+    .card{background:var(--card);padding:20px;border-radius:14px;border:1px solid rgba(255,255,255,0.03);margin-bottom:18px}
+    .nav-links,.lang-switch{display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+    .back{font-size:14px}
+    .lang-switch{color:var(--muted);font-size:14px}
+    h1{margin:0 0 12px;font-size:32px}
+    h2{margin:0 0 10px;font-size:22px}
+    h3{margin:18px 0 8px;font-size:17px}
+    p{margin:0 0 12px}
+    ul,ol{margin:0;padding-left:22px;color:var(--muted)}
+    li+li{margin-top:8px}
+    code{background:rgba(255,255,255,0.05);padding:2px 6px;border-radius:4px}
+  </style>
+</head>
+<body>
+  <header>
+    <div class="nav-links">
+      <a class="back" href="/">← ホームへ戻る</a>
+      <a class="back" href="/gguf.html">← GGUF Generator</a>
+    </div>
+    <nav class="lang-switch" aria-label="Language switch">
+      <a href="/gguf/manual.html" aria-current="page">日本語</a>
+      <span>|</span>
+      <a href="/gguf/manual-en.html">English</a>
+    </nav>
+  </header>
+  <main>
+    <div class="card">
+      <h1>操作マニュアル</h1>
+      <p>GGUF Generator は、学習データ生成 → 端末内学習 → GGUF 出力を一つのアプリで行います。画面は上部の固定ステータス／ログと、折りたたみ式の各セクションで構成されます。</p>
+    </div>
+
+    <div class="card">
+      <h2>① 共通設定</h2>
+      <ul>
+        <li>LLM AI サーバ URL（既定 <code>http://127.0.0.1:11434</code>）を設定し、「取得」でモデル一覧を読み込みます（起動時にも自動取得）。</li>
+        <li>生成モデル（LLM）と埋め込みモデル（RAG）を選択します。「サーバ起動」で外部のローカル API サーバを起動できます。状態タイルで接続可否を確認できます。</li>
+        <li>デフォルト保存先（Downloads / Documents）を指定します。個別のファイル参照は標準ダイアログで選択します。</li>
+      </ul>
+    </div>
+
+    <div class="card">
+      <h2>② ペア生成</h2>
+      <ol>
+        <li><strong>入力ソース</strong>: Brave 検索 / Wikipedia / URL 指定 / LLM テーマ指示 から選び、キーワードや URL を入力します。ソースに応じて必要な入力欄だけが表示されます。</li>
+        <li><strong>実行</strong>: 「ペア生成(FG)」（アプリ内）または「ペア生成(BG)」（バックグラウンド継続）を実行します。停止しても成果は保存されます。既存 JSONL への追記も可能です。</li>
+        <li><strong>生成オプション</strong>（任意）: 生成件数・採用閾値などの調整と、LLM へ渡すプロンプトの編集を行います。</li>
+        <li><strong>追加処理: データ拡張</strong>（任意）: 翻訳展開（多言語化）や言い換え増幅で現在のペアを拡張します。</li>
+        <li><strong>実行後処理</strong>: 「ペアを編集」で内容を修正、「出力コピー」「JSONL保存」で保存します。編集結果は最新として以後の拡張・学習に反映されます。</li>
+      </ol>
+    </div>
+
+    <div class="card">
+      <h2>③ 早期停止・評価（任意・全学習モード共通）</h2>
+      <ul>
+        <li>「早期停止・評価を有効にする」をオンにすると、評価が合格閾値（既定 60%）に達した時点で学習を早期終了します。</li>
+        <li>期待値の指定方法は、手動キーワード（「入力 => キーワードA|キーワードB」を 1 行 1 件）または トークン自動抽出（surprisal 上位）から選べます。</li>
+        <li>合格閾値・評価間隔・生成最大トークン・評価件数を指定できます。</li>
+      </ul>
+    </div>
+
+    <div class="card">
+      <h2>④ 学習・GGUF 出力</h2>
+      <p>学習データ（未選択なら直近の生成／編集結果）と保存先を指定し、2 つのサブセクションから学習方式を選びます。</p>
+      <h3>GGUF 新規作成・修正</h3>
+      <ul>
+        <li>先頭で「新規作成」または「修正（追加学習）」を選択します。</li>
+        <li><strong>新規作成</strong>: モデル寸法・段階目標ロス・テンプレートを設定し、小型モデルをゼロから学習して <code>F32 / F16 / Q8_0</code> GGUF を出力します。</li>
+        <li><strong>修正</strong>: 基点 GGUF を選択して継続学習します（寸法は基点から継承）。</li>
+      </ul>
+      <h3>LoRA（LFM2・端末内 / 純Cネイティブ）</h3>
+      <ul>
+        <li>基点 LFM2 GGUF を選び、rank / alpha / lr / epochs / targets を指定して LoRA を学習します。</li>
+        <li>llama.cpp 互換アダプタ GGUF と、統合版フル GGUF（単独ロード可）を出力します。統合版のモデルカード（name / description）も設定できます。</li>
+      </ul>
+    </div>
+
+    <div class="card">
+      <h2>ヒント</h2>
+      <ul>
+        <li>段階目標ロスは、値が大きいほど弱学習（汎化）、小さいほど強学習（暗記）になります。</li>
+        <li>端末内学習は CPU・メモリを多く使用します。長時間学習では通知権限・電池最適化除外の許可を推奨します。</li>
+        <li>処理状況は上部のログで確認できます。</li>
+      </ul>
+    </div>
+  </main>
+</body>
+</html>

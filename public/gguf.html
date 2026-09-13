@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>GGUF Generator — Mick Lab</title>
+  <link rel="alternate" hreflang="ja" href="/gguf.html">
+  <link rel="alternate" hreflang="en" href="/gguf-en.html">
+  <link rel="icon" href="/gguf/ic_launcher.png" type="image/png">
+  <style>
+    :root{--bg:#08080a;--card:#0f1114;--muted:#9aa3b2;--accent:#7c5cff;--line:rgba(255,255,255,0.08)}
+    *{box-sizing:border-box}
+    body{margin:0;background:var(--bg);color:#e6eef8;font-family:Inter,system-ui,Segoe UI,Roboto,Arial;line-height:1.65}
+    header{padding:18px 24px;border-bottom:1px solid rgba(255,255,255,0.03);display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap}
+    a{color:var(--accent);text-decoration:none}
+    main{max-width:1040px;margin:28px auto;padding:20px}
+    .card{background:var(--card);padding:20px;border-radius:14px;border:1px solid rgba(255,255,255,0.03);margin-bottom:18px}
+    .eyebrow{margin:0 0 8px;color:#b7a9ff;font-size:13px;font-weight:700;letter-spacing:.08em;text-transform:uppercase}
+    h1{margin:0 0 12px;font-size:34px;line-height:1.15}
+    h2{margin:0 0 12px;font-size:22px}
+    p{margin:0 0 12px}
+    ul{margin:0;padding-left:20px;color:var(--muted)}
+    li+li{margin-top:8px}
+    .lead{color:#eef4ff;font-size:17px}
+    .doc-links,.note{color:var(--muted);font-size:14px}
+    .highlight{background:linear-gradient(90deg,rgba(124,92,255,0.08),rgba(0,212,255,0.03));border:1px solid var(--line);border-radius:12px;padding:14px 16px}
+    .highlight ul{color:#e6eef8;font-weight:600}
+    .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px}
+    figure{margin:0}
+    img{width:100%;border-radius:10px;display:block}
+    figcaption{margin-top:8px;color:var(--muted);font-size:13px}
+    .lang-switch{display:flex;align-items:center;gap:10px;color:var(--muted);font-size:14px}
+    .lang-switch a[aria-current="page"]{color:#fff;font-weight:700}
+    .nav-links{display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+    .back{font-size:14px}
+    code{background:rgba(255,255,255,0.05);padding:2px 6px;border-radius:4px}
+    @media (max-width:700px){main{padding:16px}h1{font-size:28px}}
+  </style>
+</head>
+<body>
+  <header>
+    <div class="nav-links">
+      <a class="back" href="/">← ホームへ戻る</a>
+    </div>
+    <nav class="lang-switch" aria-label="Language switch">
+      <a href="/gguf.html" aria-current="page">日本語</a>
+      <span>|</span>
+      <a href="/gguf-en.html">English</a>
+    </nav>
+  </header>
+  <main>
+    <section class="card">
+      <p class="eyebrow">Android / On-device Training / GGUF</p>
+      <h1>GGUF Generator</h1>
+      <p class="lead">GGUF Generator は、学習用の Q/A データ生成から、小型モデルの端末内学習・GGUF 出力・LoRA 追加学習までを一つの Android アプリで完結できるオンデバイス学習ツールです。キーワードや URL、Wikipedia、LLM への指示から学習ペアを生成し、そのまま端末内で GGUF（F32/F16/Q8_0）を作成・修正できます。</p>
+      <p class="doc-links">文書: <a href="/gguf/manual.html">操作マニュアル</a> | <a href="/gguf/privacy.html#ja">プライバシーポリシー</a></p>
+      <div class="highlight">
+        <ul>
+            <li>Brave 検索 / Wikipedia / 指定 URL / LLM テーマ指示 を入力ソースに、RAG 評価付きで Q/A 学習ペアを生成します。</li>
+            <li>翻訳展開・言い換え増幅によるデータ拡張、ペア編集、JSONL 保存に対応します。</li>
+            <li>端末内で「新規 GGUF 作成」「修正（追加学習）」「LFM2 LoRA（純Cネイティブ）」の 3 方式の学習を実行し、GGUF を出力します。</li>
+        </ul>
+      </div>
+    </section>
+
+    <section class="card">
+      <h2>スクリーンショット</h2>
+      <div class="grid">
+        <figure>
+          <img src="/gguf/sm101.jpg" alt="GGUF Generator の学習画面">
+          <figcaption>ステータスヘッダーと処理ログ、ペア生成・学習（新規/修正/LoRA）・GGUF 出力を 1 画面で操作できます。</figcaption>
+        </figure>
+        <figure>
+          <img src="/gguf/sm102.jpg" alt="GGUF Generator のダイレクト実行画面">
+          <figcaption>共通設定の LLM サーバ（Ollama 互換）と接続し、生成モデル・埋め込みモデルを選択して実行できます。</figcaption>
+        </figure>
+      </div>
+    </section>
+
+    <section class="card">
+      <h2>主な特徴</h2>
+      <ul>
+        <li><strong>オンデバイス学習データ生成</strong>: 入力ソース（Brave 検索 / Wikipedia / URL 指定 / LLM テーマ指示）から、本文チャンク化・RAG 評価・複数ペア生成までを行い、Q/A 学習データ（JSONL）を作成します。バックグラウンド実行と停止・再開に対応します。</li>
+        <li><strong>データ拡張・編集</strong>: 生成済みペアを対象に、翻訳展開（多言語化）と言い換え増幅でバリエーションを増やせます。ペア編集画面で内容を直接修正でき、編集結果を「最新」として以後の拡張・学習に反映します。</li>
+        <li><strong>新規 GGUF 作成</strong>: 小型 Transformer（pre-RMSNorm・RoPE・SwiGLU・tied 出力）を端末内でゼロから学習し、<code>F32 / F16 / Q8_0</code> の GGUF を出力します。段階目標ロスの指定で学習の強さ（汎化↔暗記）を調整できます。</li>
+        <li><strong>修正（追加学習）</strong>: 既存の基点 GGUF を選択して継続学習し、更新した GGUF を出力します。モデル寸法は基点から継承します。</li>
+        <li><strong>LFM2 LoRA（純Cネイティブ）</strong>: 既存 LFM2 GGUF へ LoRA を純 C で学習し、llama.cpp 互換アダプタ GGUF と、基点へ焼き込んだ統合版フル GGUF（単独ロード可）の両方を出力します。</li>
+        <li><strong>キーワード評価・早期停止</strong>: 手動キーワード、またはトークン自動抽出（surprisal 上位）による評価で、合格率が閾値に達したら学習を早期停止できます（新規作成 / 修正 / LoRA 共通）。</li>
+        <li><strong>Ollama 互換サーバ連携</strong>: 共通設定の LLM サーバ URL（既定 <code>http://127.0.0.1:11434</code>）へ接続し、<code>/api/tags</code> でモデル取得、<code>/api/generate</code> で生成、<code>/api/tokenize</code> でトークナイズを利用します。外部アプリのローカル API サーバ起動にも対応します。</li>
+        <li><strong>端末内完結</strong>: 生成物（JSONL / GGUF）は端末の Downloads / Documents / アプリ領域へ保存します。トラッキングや解析情報の収集は行いません。</li>
+      </ul>
+    </section>
+
+    <section class="card">
+      <h2>運用メモ</h2>
+      <ul>
+        <li>ペア生成・データ拡張は、利用者が設定した LLM サーバ（既定は端末内）や、Brave Search API・Wikipedia・指定 URL への通信を伴います。送信内容・宛先は利用者の入力と操作に依存します。</li>
+        <li>端末内学習は CPU・メモリを多く使用します。長時間の学習では通知権限・電池最適化除外の許可が推奨されます。</li>
+        <li>量子化には次元制約があります（Q8_0 は 32 の倍数）。新規作成時のモデル寸法は自動で丸め・縮小されることがあります。</li>
+      </ul>
+    </section>
+  </main>
+  <script defer src="/browser-api-register.js"></script>
+</body>
+</html>

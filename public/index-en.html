@@ -16,7 +16,7 @@
     }
     *{box-sizing:border-box}
     body{margin:0;background:linear-gradient(180deg,var(--bg),#070708);color:#e6eef8;font-family:Inter,system-ui,Segoe UI,Roboto,"Helvetica Neue",Arial}
-    header{display:flex;align-items:center;justify-content:space-between;padding:20px 32px;border-bottom:1px solid rgba(255,255,255,0.03);backdrop-filter: blur(6px)}
+    header{display:flex;align-items:center;justify-content:space-between;padding:20px 32px;border-bottom:1px solid rgba(255,255,255,0.03);backdrop-filter: blur(6px);position:sticky;top:0;background:rgba(11,12,15,0.72);z-index:10}
     .brand{display:flex;align-items:center;gap:12px}
     .header-actions{display:flex;align-items:center;gap:18px;flex-wrap:wrap;justify-content:flex-end}
     .logo{width:44px;height:44px;border-radius:8px;background:linear-gradient(135deg,var(--accent),#00d4ff);display:flex;align-items:center;justify-content:center;font-weight:700;color:#071020}
@@ -25,7 +25,7 @@
     nav a{color:var(--muted);text-decoration:none;margin-left:18px;font-weight:500}
     nav a:hover{color:#fff}
     .lang-switch{display:flex;align-items:center;gap:10px;color:var(--muted);font-size:14px}
-    .lang-switch a{margin-left:0}
+    .lang-switch a{margin-left:0;text-decoration:none;color:var(--muted)}
     .lang-switch a[aria-current="page"]{color:#fff;font-weight:700}
     main{max-width:1100px;margin:48px auto;padding:0 20px}
     .hero{display:flex;gap:32px;align-items:center}
@@ -33,13 +33,24 @@
     h1{font-size:40px;margin:0 0 12px}
     p.lead{color:var(--muted);margin:0 0 20px;line-height:1.6}
     .cta{display:inline-block;background:var(--accent);color:#071020;padding:12px 18px;border-radius:8px;text-decoration:none;font-weight:600}
-    .apps{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:18px;margin-top:28px}
-    .card{background:var(--card);padding:18px;border-radius:12px;border:1px solid rgba(255,255,255,0.03)}
-    .card h3{margin:0 0 10px}
-    .card p{margin:0;color:var(--muted);font-size:14px}
+    /* Categories */
+    .cat{margin-top:44px}
+    .cat-head{display:flex;align-items:baseline;gap:12px;margin:0 0 4px;padding-left:12px;border-left:3px solid var(--accent)}
+    .cat-head h2{font-size:20px;margin:0}
+    .cat-head .count{color:var(--muted);font-size:13px}
+    .cat-sub{color:var(--muted);font-size:13px;margin:0 0 16px;padding-left:12px}
+    .apps{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:18px;margin-top:14px}
+    a.card{display:block;text-decoration:none;color:inherit;transition:border-color .15s ease, transform .15s ease}
+    a.card:hover{border-color:rgba(124,92,255,0.5);transform:translateY(-2px)}
+    .card{background:var(--card);padding:18px;border-radius:12px;border:1px solid rgba(255,255,255,0.05)}
+    .card h3{margin:0 0 10px;font-size:16px}
+    .card p{margin:0;color:var(--muted);font-size:14px;line-height:1.55}
     .card-icon{width:48px;height:48px;border-radius:10px;object-fit:cover;display:block;margin-bottom:10px}
+    .badge{display:inline-block;font-size:11px;font-weight:700;letter-spacing:.04em;color:#b7a9ff;background:rgba(124,92,255,0.12);border:1px solid rgba(124,92,255,0.25);border-radius:999px;padding:2px 9px;margin-bottom:10px}
+    .notes-list{margin:0;padding-left:20px;color:var(--muted);line-height:1.6}
+    .notes-list li+li{margin-top:8px}
     footer{max-width:1100px;margin:60px auto 40px;padding:0 20px;color:var(--muted);font-size:13px;text-align:center}
-    @media (max-width:700px){header{padding:20px}.header-actions{justify-content:flex-start}.hero{flex-direction:column;align-items:flex-start}h1{font-size:28px}}
+    @media (max-width:700px){header{padding:16px 18px}.header-actions{justify-content:flex-start}.hero{flex-direction:column;align-items:flex-start}h1{font-size:28px}.hero-right{width:100%!important}}
   </style>
 </head>
 <body>
@@ -52,14 +63,12 @@
       </div>
     </div>
     <div class="header-actions">
-      <nav>
+      <nav aria-label="Categories">
         <a href="/index-en.html">Home</a>
-        <a href="/llama-tester-en.html">LLM AI Server with llama.cpp</a>
-        <a href="/llama-chat-en.html">Dual AI Chat</a>
-        <a href="/reversy-en.html">Dual AI Reversy</a>
-        <a href="/claritypdf-en.html">ClarityPDF</a>
-        <a href="/android-ci-en.html">Development / CI</a>
-        <a href="#apps">Apps</a>
+        <a href="#android-llm">LLM run &amp; train</a>
+        <a href="#android-apps">AI apps</a>
+        <a href="#web-pwa">Browser / PWA</a>
+        <a href="#dev">Dev / CI</a>
       </nav>
       <div class="lang-switch" aria-label="Language switch">
         <a href="/">日本語</a>
@@ -72,34 +81,66 @@
     <section class="hero">
       <div class="hero-left">
         <h1>Mick Lab — where experiments become working apps</h1>
-        <p class="lead">Every Mick Lab app is designed, implemented, tested, and published using only an Android phone. This site documents a practical workflow for continuously developing generative AI apps on mobile alone.</p>
-        <div class="card" style="margin-top:14px">
+        <p class="lead">Every Mick Lab app is designed, implemented, tested, and published using only an Android phone. Browse the apps by category and open each product page for details.</p>
+        <a class="cta" href="#android-llm">Browse the apps</a>
+      </div>
+      <div class="hero-right" style="width:340px">
+        <div class="card">
+          <span class="badge">Built on Android only</span>
           <h3>Android-only development stack</h3>
           <p>All apps, including LLM AI Server with llama.cpp, Dual AI Chat, and Dual AI Reversy, are developed directly on Android without relying on a PC.</p>
-          <p style="margin-top:10px"><a href="/android-ci-en.html">See how Userland + Termux + Copilot CLI + custom scripts are used for GitHub CI operations</a></p>
-        </div>
-
-      </div>
-      <div class="hero-right" style="width:320px">
-        <div class="card">
-          <h3>Application menu</h3>
-          <p>The following tools are currently available. Select a card to open its product page or demo.</p>
-          <div id="apps" class="apps" style="margin-top:12px">
-            <a class="card" href="/llama-tester-en.html"><img src="/llama-tester/ic_launcher.png" alt="LLM AI Server with llama.cpp icon" class="card-icon"><h3>LLM AI Server with llama.cpp</h3><p>Validation tool combining GGUF local inference, vision (Qwen3-VL), GPU backend support, on-device API/WebUI, and MCP integration</p></a>
-            <a class="card" href="/llama-chat-en.html"><h3>Dual AI Chat</h3><p>Chat app for Ollama-compatible APIs</p></a>
-            <a class="card" href="/reversy-en.html"><h3>Dual AI Reversy</h3><p>Reversi app with independent Human / CPU / AI control for Black and White</p></a>
-            <a class="card" href="/claritypdf-en.html"><img src="/claritypdf/ic_launcher.png" alt="ClarityPDF icon" class="card-icon"><h3>ClarityPDF</h3><p>On-device PDF create/edit/convert with OCR / AI-OCR (summary and custom prompts)</p></a>
-            <a class="card" href="/android-ci-en.html"><h3>Development / CI notes</h3><p>Android development and GitHub integration with Userland, Termux, and Copilot CLI</p></a>
-            <a class="card" href="/gguf-local-viewer/index-en.html"><h3>Local LLM (GGUF) inference viewer</h3><p>Demo that downloads a GGUF from a fixed URL, stores it in IndexedDB, and runs inference in the browser</p></a>
-            <a class="card" href="/vosk-transcribe/index-en.html"><img src="/vosk-transcribe/icon-192.png" alt="VOSK speech-to-text icon" class="card-icon"><h3>VOSK local speech-to-text</h3><p>PWA that keeps a VOSK small model on-device and transcribes speech continuously, offline (Japanese/English)</p></a>
-          </div>
+          <p style="margin-top:10px"><a href="/android-ci-en.html">See how Userland + Termux + Copilot CLI + custom scripts run GitHub CI →</a></p>
         </div>
       </div>
     </section>
-    <section style="margin-top:40px">
+
+    <!-- ── Category: LLM run & train (Android) ── -->
+    <section class="cat" id="android-llm">
+      <div class="cat-head"><h2>LLM run &amp; train (Android)</h2><span class="count">2 apps</span></div>
+      <p class="cat-sub">On-device GGUF inference server, plus a training-data generation and on-device training tool.</p>
+      <div class="apps">
+        <a class="card" href="/llama-tester-en.html"><img src="/llama-tester/ic_launcher.png" alt="LLM AI Server with llama.cpp icon" class="card-icon"><h3>LLM AI Server with llama.cpp</h3><p>Validation tool combining GGUF local inference, vision (Qwen3-VL), GPU backend support, on-device API/WebUI, and MCP integration</p></a>
+        <a class="card" href="/gguf-en.html"><img src="/gguf/ic_launcher.png" alt="GGUF Generator icon" class="card-icon"><h3>GGUF Generator</h3><p>On-device tool that goes from Q/A training-data generation to creating, continued-training, and LoRA fine-tuning small GGUF models</p></a>
+      </div>
+    </section>
+
+    <!-- ── Category: AI apps (Android) ── -->
+    <section class="cat" id="android-apps">
+      <div class="cat-head"><h2>AI apps (Android)</h2><span class="count">3 apps</span></div>
+      <p class="cat-sub">End-user apps powered by generative AI.</p>
+      <div class="apps">
+        <a class="card" href="/llama-chat-en.html"><h3>Dual AI Chat</h3><p>Chat app for Ollama-compatible APIs, with two AIs conversing.</p></a>
+        <a class="card" href="/reversy-en.html"><h3>Dual AI Reversy</h3><p>Reversi app with independent Human / CPU / AI control for Black and White</p></a>
+        <a class="card" href="/claritypdf-en.html"><img src="/claritypdf/ic_launcher.png" alt="ClarityPDF icon" class="card-icon"><h3>ClarityPDF</h3><p>On-device PDF create/edit/convert with OCR / AI-OCR (summary and custom prompts)</p></a>
+      </div>
+    </section>
+
+    <!-- ── Category: Browser / PWA ── -->
+    <section class="cat" id="web-pwa">
+      <div class="cat-head"><h2>Browser / PWA</h2><span class="count">2 apps</span></div>
+      <p class="cat-sub">Install-free web apps that run in the browser, offline.</p>
+      <div class="apps">
+        <a class="card" href="/gguf-local-viewer/index-en.html"><h3>Local LLM (GGUF) inference viewer</h3><p>Demo that downloads a GGUF from a fixed URL, stores it in IndexedDB, and runs inference in the browser</p></a>
+        <a class="card" href="/vosk-transcribe/index-en.html"><img src="/vosk-transcribe/icon-192.png" alt="VOSK speech-to-text icon" class="card-icon"><h3>VOSK local speech-to-text</h3><p>PWA that keeps a VOSK small model on-device and transcribes speech continuously, offline (Japanese/English)</p></a>
+      </div>
+    </section>
+
+    <!-- ── Category: Dev / CI ── -->
+    <section class="cat" id="dev">
+      <div class="cat-head"><h2>Dev / CI</h2><span class="count">Guide</span></div>
+      <p class="cat-sub">How generative AI apps are developed and published using only an Android device.</p>
+      <div class="apps">
+        <a class="card" href="/android-ci-en.html"><h3>Development / CI notes</h3><p>Android development and GitHub integration with Userland, Termux, and Copilot CLI</p></a>
+      </div>
+    </section>
+
+    <!-- ── Experiment notes ── -->
+    <section class="cat" id="notes">
+      <div class="cat-head"><h2>Latest experiment notes</h2></div>
+      <p class="cat-sub">Recent updates and experiments.</p>
       <div class="card">
-        <h3>Latest experiment notes</h3>
-        <ul>
+        <ul class="notes-list">
+          <li>GGUF Generator: added the product page, user manual, and bilingual privacy policy (training-data generation, new GGUF creation / continued training, LFM2 LoRA, keyword evaluation)</li>
           <li>LLM AI Server with llama.cpp: new default vision model Qwen3-VL with automatic context expansion for large images/long prompts (GPU→CPU fallback); smarter model search (model/size/quantization pull-downs, device-suitability rating, direct mmproj download); updated to llama.cpp b10621 (v0.3.0), added <code>/api/diagnostics</code>, and over-limit inputs now return a proper server error</li>
           <li>ClarityPDF: added the product page, user manual, and bilingual privacy policy (PDF create/edit, convert/compose, OCR / AI-OCR, summary and AI prompts)</li>
           <li>LLM AI Server with llama.cpp: updated screenshots to the latest JPEGs and fully revised the user manual to match the current app (collapsible UI, status header, Direct Run section, GPU compute backend, mmproj, MAINTAIN MODEL, and more)</li>
