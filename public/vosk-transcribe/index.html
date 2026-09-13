@@ -82,7 +82,15 @@
     <p class="traffic-note">※ 初回のみ約40〜50MBの通信が発生します（以降はブラウザ内キャッシュを再利用し、オフラインでも動作します）。iPhone/iPad/Android でも動作します。</p>
     <div id="modelStatus" class="status">モデルを初期化中...</div>
 
-    <label class="field">3) 文字起こし</label>
+    <label class="field" for="sourceSelect">3) 入力ソースを選択</label>
+    <select id="sourceSelect" aria-label="入力ソース">
+      <option value="mic" selected>マイク（自分の声・周囲の音）</option>
+      <option value="system">端末内の音声（画面/タブ共有・デスクトップのみ）</option>
+      <option value="both">マイク＋端末内音声（両方同時・デスクトップのみ）</option>
+    </select>
+    <p class="traffic-note">※ 「端末内の音声」は画面共有の仕組みを利用します。開始時に表示される共有ダイアログで<strong>「音声を共有」をON</strong>にしてください。デスクトップの Chrome / Edge で動作し、iPhone/iPad など多くのモバイル環境では利用できません。</p>
+
+    <label class="field">4) 文字起こし</label>
     <div class="recbar">
       <span id="recState">待機中</span>
     </div>

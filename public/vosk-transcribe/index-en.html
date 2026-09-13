@@ -82,7 +82,15 @@
     <p class="traffic-note">* The first run downloads about 40–50 MB (later runs reuse the in-browser cache and work offline). Works on iPhone/iPad/Android too.</p>
     <div id="modelStatus" class="status">Initializing model...</div>
 
-    <label class="field">3) Transcription</label>
+    <label class="field" for="sourceSelect">3) Choose the input source</label>
+    <select id="sourceSelect" aria-label="Input source">
+      <option value="mic" selected>Microphone (your voice / ambient sound)</option>
+      <option value="system">Device audio (screen/tab share, desktop only)</option>
+      <option value="both">Microphone + device audio (both at once, desktop only)</option>
+    </select>
+    <p class="traffic-note">* "Device audio" uses the screen-sharing mechanism. When you start, turn on <strong>"Share audio"</strong> in the share dialog. It works in desktop Chrome / Edge and is unavailable on most mobile environments such as iPhone/iPad.</p>
+
+    <label class="field">4) Transcription</label>
     <div class="recbar">
       <span id="recState">Idle</span>
     </div>

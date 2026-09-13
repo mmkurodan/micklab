@@ -37,6 +37,11 @@ const uiText = {
     loadModelFirst: "先にモデルを取得してください。",
     micDenied: "マイクを利用できません（権限が拒否されたか、非対応です）: ",
     listening: "認識中... マイクに向かって話してください。",
+    listeningSystem: "認識中... 端末内で再生される音声を文字起こしします。",
+    listeningBoth: "認識中... マイクと端末内音声の両方を文字起こしします。",
+    systemDenied: "端末内音声を取得できません（共有がキャンセルされたか、非対応です）: ",
+    noSystemAudioTrack: "音声トラックがありません。共有ダイアログで「音声を共有」をONにしてください。",
+    systemUnsupported: "この環境では端末内音声の取得に対応していません（デスクトップの Chrome / Edge をお使いください）。",
     stopped: "停止しました。",
     recording: "● 認識中",
     idle: "待機中",
@@ -57,6 +62,11 @@ const uiText = {
     loadModelFirst: "Fetch the model first.",
     micDenied: "Microphone unavailable (permission denied or unsupported): ",
     listening: "Listening... please speak into the microphone.",
+    listeningSystem: "Listening... transcribing audio played on this device.",
+    listeningBoth: "Listening... transcribing both the microphone and device audio.",
+    systemDenied: "Cannot capture device audio (sharing cancelled or unsupported): ",
+    noSystemAudioTrack: 'No audio track. Turn on "Share audio" in the share dialog.',
+    systemUnsupported: "This environment does not support capturing device audio (please use desktop Chrome / Edge).",
     stopped: "Stopped.",
     recording: "● Listening",
     idle: "Idle",
@@ -68,7 +78,15 @@ const uiText = {
   },
 }[locale];
 
+// 入力ソースの種類と、認識中に表示するステータス文言の対応。
+const SOURCE_MODES = {
+  mic: { listening: uiText.listening },
+  system: { listening: uiText.listeningSystem },
+  both: { listening: uiText.listeningBoth },
+};
+
 const langSelectEl = document.getElementById("langSelect");
+const sourceSelectEl = document.getElementById("sourceSelect");
 const loadModelBtn = document.getElementById("loadModelBtn");
 const modelStatusEl = document.getElementById("modelStatus");
 const startBtn = document.getElementById("startBtn");
@@ -84,8 +102,8 @@ const state = {
   modelLang: null,
   recognizer: null,
   audioContext: null,
-  mediaStream: null,
-  source: null,
+  mediaStreams: [],
+  sources: [],
   processor: null,
   recording: false,
 };
@@ -176,21 +194,47 @@ async function startRecording() {
     setStatus(modelStatusEl, uiText.noSecure, true);
     return;
   }
-  if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+
+  const sourceMode = sourceSelectEl && sourceSelectEl.value in SOURCE_MODES
+    ? sourceSelectEl.value
+    : "mic";
+  const useMic = sourceMode === "mic" || sourceMode === "both";
+  const useSystem = sourceMode === "system" || sourceMode === "both";
+
+  if (useMic && (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia)) {
     setStatus(modelStatusEl, uiText.micDenied + "getUserMedia", true);
+    return;
+  }
+  if (useSystem && (!navigator.mediaDevices || !navigator.mediaDevices.getDisplayMedia)) {
+    setStatus(modelStatusEl, uiText.systemUnsupported, true);
     return;
   }
 
   startBtn.disabled = true;
   try {
-    const stream = await navigator.mediaDevices.getUserMedia({
-      audio: {
-        echoCancellation: true,
-        noiseSuppression: true,
-        channelCount: 1,
-      },
+    // 内部音声（画面共有）を先に取得する。共有ダイアログはユーザー操作直後に
+    // 出す必要があるため、マイク取得より前に行う。
+    if (useSystem) {
+      state.mediaStreams.push(await getSystemAudioStream());
+    }
+    if (useMic) {
+      state.mediaStreams.push(await navigator.mediaDevices.getUserMedia({
+        audio: {
+          echoCancellation: true,
+          noiseSuppression: true,
+          channelCount: 1,
+        },
+      }));
+    }
+
+    // 画面共有バーの「共有を停止」などでトラックが終了したら録音も止める。
+    state.mediaStreams.forEach((stream) => {
+      stream.getAudioTracks().forEach((track) => {
+        track.addEventListener("ended", () => {
+          if (state.recording) stopRecording();
+        }, { once: true });
+      });
     });
-    state.mediaStream = stream;
 
     const AudioCtx = window.AudioContext || window.webkitAudioContext;
     const audioContext = new AudioCtx();
@@ -231,7 +275,6 @@ async function startRecording() {
     });
     state.recognizer = recognizer;
 
-    const source = audioContext.createMediaStreamSource(stream);
     // ScriptProcessorNode: 非推奨だが iOS Safari を含め広く動作する。
     const processor = audioContext.createScriptProcessor(4096, 1, 1);
     processor.onaudioprocess = (event) => {
@@ -241,22 +284,46 @@ async function startRecording() {
         // 認識器が停止した後の残余イベントは無視する。
       }
     };
-    source.connect(processor);
+    // 各入力ソースを同じ processor に接続すると Web Audio が自動的に加算合成する。
+    state.mediaStreams.forEach((stream) => {
+      const node = audioContext.createMediaStreamSource(stream);
+      node.connect(processor);
+      state.sources.push(node);
+    });
     // 出力バッファは書き込まないため無音。フィードバックは発生しない。
     processor.connect(audioContext.destination);
-    state.source = source;
     state.processor = processor;
 
     state.recording = true;
     recStateEl.textContent = uiText.recording;
     recStateEl.classList.add("live");
     stopBtn.disabled = false;
-    setStatus(modelStatusEl, uiText.listening);
+    setStatus(modelStatusEl, SOURCE_MODES[sourceMode].listening);
   } catch (error) {
-    setStatus(modelStatusEl, uiText.micDenied + getErrorMessage(error), true);
+    const prefix = useSystem ? uiText.systemDenied : uiText.micDenied;
+    setStatus(modelStatusEl, prefix + getErrorMessage(error), true);
     stopRecording();
     startBtn.disabled = false;
   }
+}
+
+// 端末内音声を取得する。getDisplayMedia は音声のみの指定が拒否されやすいため
+// video も要求し、取得できた映像トラックは即座に停止して音声だけを使う。
+async function getSystemAudioStream() {
+  const stream = await navigator.mediaDevices.getDisplayMedia({
+    video: true,
+    audio: {
+      echoCancellation: false,
+      noiseSuppression: false,
+      autoGainControl: false,
+    },
+  });
+  stream.getVideoTracks().forEach((track) => track.stop());
+  if (stream.getAudioTracks().length === 0) {
+    stream.getTracks().forEach((track) => track.stop());
+    throw new Error(uiText.noSystemAudioTrack);
+  }
+  return stream;
 }
 
 function stopRecording() {
@@ -267,10 +334,10 @@ function stopRecording() {
     try { state.processor.disconnect(); } catch (_e) {}
     state.processor = null;
   }
-  if (state.source) {
-    try { state.source.disconnect(); } catch (_e) {}
-    state.source = null;
-  }
+  state.sources.forEach((node) => {
+    try { node.disconnect(); } catch (_e) {}
+  });
+  state.sources = [];
   if (state.recognizer) {
     try { state.recognizer.remove(); } catch (_e) {}
     state.recognizer = null;
@@ -279,10 +346,10 @@ function stopRecording() {
     try { state.audioContext.close(); } catch (_e) {}
     state.audioContext = null;
   }
-  if (state.mediaStream) {
-    state.mediaStream.getTracks().forEach((track) => track.stop());
-    state.mediaStream = null;
-  }
+  state.mediaStreams.forEach((stream) => {
+    stream.getTracks().forEach((track) => track.stop());
+  });
+  state.mediaStreams = [];
 
   partialEl.textContent = "";
   recStateEl.textContent = uiText.idle;
