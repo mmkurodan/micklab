@@ -25,7 +25,7 @@
     .doc-links,.note{color:var(--muted);font-size:14px}
     .highlight{background:linear-gradient(90deg,rgba(124,92,255,0.08),rgba(0,212,255,0.03));border:1px solid var(--line);border-radius:12px;padding:14px 16px}
     .highlight ul{color:#e6eef8;font-weight:600}
-    .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px}
+    .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:14px}
     figure{margin:0}
     img{width:100%;border-radius:10px;display:block}
     figcaption{margin-top:8px;color:var(--muted);font-size:13px}
@@ -34,6 +34,7 @@
     .nav-links{display:flex;align-items:center;gap:14px;flex-wrap:wrap}
     .back{font-size:14px}
     code{background:rgba(255,255,255,0.05);padding:2px 6px;border-radius:4px}
+    .badge{display:inline-block;background:rgba(124,92,255,0.18);color:#b7a9ff;border:1px solid rgba(124,92,255,0.35);border-radius:6px;padding:2px 9px;font-size:12px;font-weight:700;letter-spacing:.04em;margin-left:8px;vertical-align:middle}
     @media (max-width:700px){main{padding:16px}h1{font-size:28px}}
   </style>
 </head>
@@ -52,13 +53,14 @@
     <section class="card">
       <p class="eyebrow">Android / On-device Training / GGUF</p>
       <h1>GGUF Generator</h1>
-      <p class="lead">GGUF Generator は、学習用の Q/A データ生成から、小型モデルの端末内学習・GGUF 出力・LoRA 追加学習までを一つの Android アプリで完結できるオンデバイス学習ツールです。キーワードや URL、Wikipedia、LLM への指示から学習ペアを生成し、そのまま端末内で GGUF（F32/F16/Q8_0）を作成・修正できます。</p>
-      <p class="doc-links">文書: <a href="/gguf/manual.html">操作マニュアル</a> | <a href="/gguf/privacy.html#ja">プライバシーポリシー</a></p>
+      <p class="lead">GGUF Generator は、チャット対話による即時学習からデータ自動生成・量子化まで、GGUF モデルのオンデバイス作成・再学習・管理を一つの Android アプリで完結します。インタラクティブモードでは会話の中でモデルをリアルタイムに育て、生成した GGUF はそのまま再ロードして続きの学習が可能です。</p>
+      <p class="doc-links">文書: <a href="/gguf/manual.html">操作マニュアル</a> | <a href="/gguf/retrainable.html">Retrainable GGUF について</a> | <a href="/gguf/privacy.html#ja">プライバシーポリシー</a></p>
       <div class="highlight">
         <ul>
-            <li>Brave 検索 / Wikipedia / 指定 URL / LLM テーマ指示 を入力ソースに、RAG 評価付きで Q/A 学習ペアを生成します。</li>
-            <li>翻訳展開・言い換え増幅によるデータ拡張、ペア編集、JSONL 保存に対応します。</li>
-            <li>端末内で「新規 GGUF 作成」「修正（追加学習）」「LFM2 LoRA（純Cネイティブ）」の 3 方式の学習を実行し、GGUF を出力します。</li>
+          <li>チャット形式でリアルタイムに学習・確認できる <strong>インタラクティブモード</strong>（新規 GGUF / LoRA）。</li>
+          <li>Brave 検索 / Wikipedia / URL / LLM テーマから Q/A ペアを自動生成し、そのまま学習して GGUF を出力する <strong>自動モード</strong>。</li>
+          <li>GGUF を別量子化形式に変換する <strong>量子化変換</strong>（F32 / F16 / Q8_0 / Q4_K_M / Q2_K など）。</li>
+          <li>生成した GGUF は再ロードして追加学習が可能な <strong>Retrainable GGUF</strong> 形式で出力。</li>
         </ul>
       </div>
     </section>
@@ -67,12 +69,32 @@
       <h2>スクリーンショット</h2>
       <div class="grid">
         <figure>
-          <img src="/gguf/sm101.jpg" alt="GGUF Generator の学習画面">
-          <figcaption>ステータスヘッダーと処理ログ、ペア生成・学習（新規/修正/LoRA）・GGUF 出力を 1 画面で操作できます。</figcaption>
+          <img src="/gguf/Screenshot_20260920_170911.jpg" alt="ホーム画面">
+          <figcaption>ホーム画面。インタラクティブ（新規 GGUF / LoRA）、量子化、自動ペア生成、自動 GGUF 生成、設定の 6 モードを選択できます。</figcaption>
         </figure>
         <figure>
-          <img src="/gguf/sm102.jpg" alt="GGUF Generator のダイレクト実行画面">
-          <figcaption>共通設定の LLM サーバ（Ollama 互換）と接続し、生成モデル・埋め込みモデルを選択して実行できます。</figcaption>
+          <img src="/gguf/Screenshot_20260920_171050.jpg" alt="インタラクティブ学習（新規 GGUF）">
+          <figcaption>インタラクティブ（新規 GGUF）。NEW LEARN / RESPONSE LEARN / TRY INFERENCE でチャットしながらモデルを育て、不正解なら自動再注入して即修正します。</figcaption>
+        </figure>
+        <figure>
+          <img src="/gguf/Screenshot_20260920_171610.jpg" alt="インタラクティブ LoRA">
+          <figcaption>インタラクティブ（LoRA）。既存 LFM2 GGUF をロードし、会話の中で LoRA アダプタを即時学習します。アダプタ書き出しと状態保存・復元に対応します。</figcaption>
+        </figure>
+        <figure>
+          <img src="/gguf/Screenshot_20260920_171128.jpg" alt="量子化変換">
+          <figcaption>量子化変換。既存 GGUF を Q2_K / Q4_K_M / Q8_0 / F16 / F32 など複数の量子化形式に変換して書き出します。</figcaption>
+        </figure>
+        <figure>
+          <img src="/gguf/Screenshot_20260920_171210.jpg" alt="自動ペア生成">
+          <figcaption>自動ペア生成（Auto Pair Gen）。Wikipedia 検索・Brave 検索・URL・LLM テーマから Q/A ペアを自動生成します。</figcaption>
+        </figure>
+        <figure>
+          <img src="/gguf/Screenshot_20260920_171249.jpg" alt="自動 GGUF 生成">
+          <figcaption>自動 GGUF 生成（Auto GGUF Gen）。学習データ・早期停止設定・学習方式（GGUF 新規/修正 / LoRA）を指定してバッチ実行します。</figcaption>
+        </figure>
+        <figure>
+          <img src="/gguf/Screenshot_20260920_174333.jpg" alt="設定・ダイレクト実行">
+          <figcaption>設定画面。Ollama 互換サーバと接続し、Web AI Chat やダイレクト実行でモデルの動作を即確認できます（647 tok/s の例）。</figcaption>
         </figure>
       </div>
     </section>
@@ -80,13 +102,15 @@
     <section class="card">
       <h2>主な特徴</h2>
       <ul>
-        <li><strong>オンデバイス学習データ生成</strong>: 入力ソース（Brave 検索 / Wikipedia / URL 指定 / LLM テーマ指示）から、本文チャンク化・RAG 評価・複数ペア生成までを行い、Q/A 学習データ（JSONL）を作成します。バックグラウンド実行と停止・再開に対応します。</li>
-        <li><strong>データ拡張・編集</strong>: 生成済みペアを対象に、翻訳展開（多言語化）と言い換え増幅でバリエーションを増やせます。ペア編集画面で内容を直接修正でき、編集結果を「最新」として以後の拡張・学習に反映します。</li>
-        <li><strong>新規 GGUF 作成</strong>: 小型 Transformer（pre-RMSNorm・RoPE・SwiGLU・tied 出力）を端末内でゼロから学習し、<code>F32 / F16 / Q8_0</code> の GGUF を出力します。段階目標ロスの指定で学習の強さ（汎化↔暗記）を調整できます。</li>
-        <li><strong>修正（追加学習）</strong>: 既存の基点 GGUF を選択して継続学習し、更新した GGUF を出力します。モデル寸法は基点から継承します。</li>
-        <li><strong>LFM2 LoRA（純Cネイティブ）</strong>: 既存 LFM2 GGUF へ LoRA を純 C で学習し、llama.cpp 互換アダプタ GGUF と、基点へ焼き込んだ統合版フル GGUF（単独ロード可）の両方を出力します。</li>
-        <li><strong>キーワード評価・早期停止</strong>: 手動キーワード、またはトークン自動抽出（surprisal 上位）による評価で、合格率が閾値に達したら学習を早期停止できます（新規作成 / 修正 / LoRA 共通）。</li>
-        <li><strong>Ollama 互換サーバ連携</strong>: 共通設定の LLM サーバ URL（既定 <code>http://127.0.0.1:11434</code>）へ接続し、<code>/api/tags</code> でモデル取得、<code>/api/generate</code> で生成、<code>/api/tokenize</code> でトークナイズを利用します。外部アプリのローカル API サーバ起動にも対応します。</li>
+        <li><strong>インタラクティブ学習（新規 GGUF）</strong>: NEW LEARN（指示＋応答を新規ペアとして学習）/ RESPONSE LEARN（直前の出力への返答として学習）/ TRY INFERENCE（現在のモデルで推論確認）の 3 操作で、チャット画面上でモデルをリアルタイムに育てます。不正解の場合は自動で再注入学習します。LOAD GGUF でセッションを引き継ぎ、EXPORT GGUF で出力します。</li>
+        <li><strong>インタラクティブ LoRA</strong>: 既存 LFM2 GGUF へ LoRA を会話形式でリアルタイム追加学習します。SAVE STATE / RESTORE STATE でセッションを中断・再開でき、EXPORT ADAPTER で llama.cpp 互換アダプタ GGUF を書き出します。</li>
+        <li><strong>量子化変換</strong>: 既存 GGUF を F32 / F16 / Q8_0 / Q4_K_M / Q2_K などの量子化形式に変換します。1-D テンソル（norm ゲイン）は精度保持のため F32 を維持し、行長が非ブロック境界のマトリクスは自動的に F16 にフォールバックします。</li>
+        <li><strong>自動ペア生成（Auto Pair Gen）</strong>: Brave 検索 / Wikipedia / URL 指定 / LLM テーマ指示を入力ソースに RAG 評価付きで Q/A 学習ペアを生成します。フォアグラウンド（FG）・バックグラウンド（BG）実行と停止・再開に対応します。</li>
+        <li><strong>自動 GGUF 生成（Auto GGUF Gen）</strong>: 学習データ（JSONL）と学習方式（GGUF 新規作成・修正 / LFM2 LoRA）を指定してバッチ実行します。<code>F32 / F16 / Q8_0</code> GGUF を出力します。</li>
+        <li><strong>データ拡張・編集</strong>: 生成済みペアを対象に翻訳展開（多言語化）と言い換え増幅でバリエーションを増やせます。ペア編集結果は「最新」として以後の拡張・学習に反映されます。</li>
+        <li><strong>キーワード評価・早期停止</strong>: 手動キーワードまたはトークン自動抽出（surprisal 上位）による評価で、合格率が閾値に達したら学習を早期停止します（全学習モード共通）。</li>
+        <li><strong>Ollama 互換サーバ連携</strong>: 共通設定の LLM サーバ（既定 <code>http://127.0.0.1:11434</code>）へ接続し、<code>/api/tags</code> でモデル取得、<code>/api/generate</code> で生成、<code>/api/tokenize</code> でトークナイズを利用します。Web AI Chat でブラウザから直接チャットする機能も搭載します。</li>
+        <li><strong>Retrainable GGUF</strong>: アプリが出力する GGUF はそのまま再ロードして追加学習が可能です。<a href="/gguf/retrainable.html">詳細ページ</a>で仕組みと活用方法を解説しています。</li>
         <li><strong>端末内完結</strong>: 生成物（JSONL / GGUF）は端末の Downloads / Documents / アプリ領域へ保存します。トラッキングや解析情報の収集は行いません。</li>
       </ul>
     </section>

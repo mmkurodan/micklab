@@ -25,7 +25,7 @@
     .doc-links,.note{color:var(--muted);font-size:14px}
     .highlight{background:linear-gradient(90deg,rgba(124,92,255,0.08),rgba(0,212,255,0.03));border:1px solid var(--line);border-radius:12px;padding:14px 16px}
     .highlight ul{color:#e6eef8;font-weight:600}
-    .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px}
+    .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:14px}
     figure{margin:0}
     img{width:100%;border-radius:10px;display:block}
     figcaption{margin-top:8px;color:var(--muted);font-size:13px}
@@ -52,13 +52,14 @@
     <section class="card">
       <p class="eyebrow">Android / On-device Training / GGUF</p>
       <h1>GGUF Generator</h1>
-      <p class="lead">GGUF Generator is an Android on-device training tool that takes you from generating Q/A training data all the way to training a small model, exporting GGUF, and LoRA fine-tuning — all in one app. Generate training pairs from keywords, URLs, Wikipedia, or an LLM prompt, then create or refine GGUF models (F32/F16/Q8_0) directly on the device.</p>
-      <p class="doc-links">Docs: <a href="/gguf/manual-en.html">User Manual</a> | <a href="/gguf/privacy.html#en">Privacy Policy</a></p>
+      <p class="lead">GGUF Generator is an Android app that covers everything from real-time chat-based training to automated data generation and quantization — all on-device. Interactive mode lets you grow a model through conversation, and every exported GGUF can be reloaded and trained further as a Retrainable GGUF.</p>
+      <p class="doc-links">Docs: <a href="/gguf/manual-en.html">User Manual</a> | <a href="/gguf/retrainable-en.html">About Retrainable GGUF</a> | <a href="/gguf/privacy.html#en">Privacy Policy</a></p>
       <div class="highlight">
         <ul>
-            <li>Generates Q/A training pairs with RAG evaluation from input sources: Brave Search / Wikipedia / a specified URL / an LLM theme prompt.</li>
-            <li>Supports data augmentation (translation expansion, paraphrase amplification), pair editing, and JSONL export.</li>
-            <li>Runs three on-device training modes — new GGUF creation, refine (continued training), and LFM2 LoRA (pure-C native) — and exports GGUF.</li>
+          <li><strong>Interactive mode</strong> (New GGUF / LoRA) — teach the model in real time through a chat interface.</li>
+          <li><strong>Auto mode</strong> — generate Q/A pairs from Brave Search / Wikipedia / URL / LLM theme, then train and export GGUF automatically.</li>
+          <li><strong>Quantize</strong> — convert any GGUF to a different quantization type (F32 / F16 / Q8_0 / Q4_K_M / Q2_K, etc.).</li>
+          <li>All exported GGUFs are <strong>Retrainable</strong> — reload and keep training at any time.</li>
         </ul>
       </div>
     </section>
@@ -67,12 +68,32 @@
       <h2>Screenshots</h2>
       <div class="grid">
         <figure>
-          <img src="/gguf/sm101.jpg" alt="GGUF Generator training screen">
-          <figcaption>Status header and processing log with pair generation, training (new/refine/LoRA), and GGUF export in a single screen.</figcaption>
+          <img src="/gguf/Screenshot_20260920_170911.jpg" alt="Home screen">
+          <figcaption>Home screen. Choose from six modes: Interactive (New GGUF / LoRA), Quantize, Auto Pair Gen, Auto GGUF Gen, and Settings.</figcaption>
         </figure>
         <figure>
-          <img src="/gguf/sm102.jpg" alt="GGUF Generator direct-run screen">
-          <figcaption>Connect to the common LLM server (Ollama-compatible), pick generation and embedding models, and run.</figcaption>
+          <img src="/gguf/Screenshot_20260920_171050.jpg" alt="Interactive training — New GGUF">
+          <figcaption>Interactive (New GGUF). Use NEW LEARN / RESPONSE LEARN / TRY INFERENCE to teach the model through chat. Wrong answers trigger automatic re-injection for instant correction.</figcaption>
+        </figure>
+        <figure>
+          <img src="/gguf/Screenshot_20260920_171610.jpg" alt="Interactive LoRA">
+          <figcaption>Interactive (LoRA). Load an existing LFM2 GGUF and train a LoRA adapter through conversation. Save / restore session state and export a llama.cpp-compatible adapter.</figcaption>
+        </figure>
+        <figure>
+          <img src="/gguf/Screenshot_20260920_171128.jpg" alt="Quantize">
+          <figcaption>Quantize. Convert a GGUF to Q2_K, Q4_K_M, Q8_0, F16, F32, and more. 1-D tensors stay F32 for accuracy; non-block-aligned matrices fall back to F16 automatically.</figcaption>
+        </figure>
+        <figure>
+          <img src="/gguf/Screenshot_20260920_171210.jpg" alt="Auto Pair Gen">
+          <figcaption>Auto Pair Gen. Generate Q/A training pairs from Wikipedia search, Brave Search, a URL, or an LLM theme prompt, with configurable pair count and RAG threshold.</figcaption>
+        </figure>
+        <figure>
+          <img src="/gguf/Screenshot_20260920_171249.jpg" alt="Auto GGUF Gen">
+          <figcaption>Auto GGUF Gen. Pick training data, configure early stopping (manual keywords or top-surprisal auto-extraction), choose GGUF new/modify or LoRA mode, and run.</figcaption>
+        </figure>
+        <figure>
+          <img src="/gguf/Screenshot_20260920_174333.jpg" alt="Settings and Direct Run">
+          <figcaption>Settings / Direct Run. Connect to an Ollama-compatible server, open Web AI Chat in a browser, or send a prompt directly and see model output (647 tok/s shown).</figcaption>
         </figure>
       </div>
     </section>
@@ -80,14 +101,16 @@
     <section class="card">
       <h2>Key Features</h2>
       <ul>
-        <li><strong>On-device training-data generation</strong>: From an input source (Brave Search / Wikipedia / URL / LLM theme prompt), it performs full-text chunking, RAG evaluation, and multi-pair generation to build Q/A training data (JSONL). Supports background execution with stop and resume.</li>
-        <li><strong>Augmentation &amp; editing</strong>: Amplify existing pairs via translation expansion (multilingual) and paraphrasing. Edit pairs directly; the edited result becomes the "latest" and feeds subsequent augmentation and training.</li>
-        <li><strong>New GGUF creation</strong>: Train a small Transformer (pre-RMSNorm, RoPE, SwiGLU, tied output) from scratch on-device and export <code>F32 / F16 / Q8_0</code> GGUF. Staged target losses let you tune training strength (generalization ↔ memorization).</li>
-        <li><strong>Refine (continued training)</strong>: Select an existing base GGUF, continue training, and export the updated GGUF. Model dimensions are inherited from the base.</li>
-        <li><strong>LFM2 LoRA (pure-C native)</strong>: Train a LoRA on an existing LFM2 GGUF in pure C, and export both a llama.cpp-compatible adapter GGUF and a merged full GGUF (loadable standalone).</li>
-        <li><strong>Keyword evaluation &amp; early stopping</strong>: Evaluate via manual keywords or automatic token extraction (top-surprisal) and stop training early once the pass rate reaches the threshold (shared across new / refine / LoRA).</li>
-        <li><strong>Ollama-compatible server integration</strong>: Connects to the LLM server URL in common settings (default <code>http://127.0.0.1:11434</code>), using <code>/api/tags</code> to fetch models, <code>/api/generate</code> to generate, and <code>/api/tokenize</code> to tokenize. Can also start an external app's local API server.</li>
-        <li><strong>Fully on-device</strong>: Outputs (JSONL / GGUF) are saved to the device's Downloads / Documents / app storage. No tracking or analytics are collected.</li>
+        <li><strong>Interactive training — New GGUF</strong>: Three chat actions — NEW LEARN (new instruction + response pair), RESPONSE LEARN (learn from last model output as a reply), TRY INFERENCE (check what the model says now) — let you grow a model in real time. Bad answers are automatically re-injected for correction. LOAD GGUF resumes a previous session; EXPORT GGUF writes the result.</li>
+        <li><strong>Interactive LoRA</strong>: Fine-tune a LoRA on an existing LFM2 GGUF through conversation. SAVE STATE / RESTORE STATE let you pause and resume. EXPORT ADAPTER writes a llama.cpp-compatible adapter GGUF.</li>
+        <li><strong>Quantize</strong>: Convert any GGUF to F32 / F16 / Q8_0 / Q4_K_M / Q2_K and more. 1-D tensors (norm gains) stay F32 for accuracy; matrices whose row length is not block-aligned fall back to F16 automatically.</li>
+        <li><strong>Auto Pair Gen</strong>: Generate Q/A training pairs with RAG evaluation from Brave Search, Wikipedia, a URL, or an LLM theme prompt. Supports foreground (FG) and background (BG) execution with stop and resume.</li>
+        <li><strong>Auto GGUF Gen</strong>: Batch-train from a JSONL file using GGUF new creation, refine (continued training), or LFM2 LoRA mode. Exports <code>F32 / F16 / Q8_0</code> GGUF.</li>
+        <li><strong>Augmentation &amp; editing</strong>: Amplify existing pairs via translation expansion (multilingual) and paraphrasing. Edited results become the "latest" and feed subsequent augmentation and training.</li>
+        <li><strong>Keyword evaluation &amp; early stopping</strong>: Stop training early via manual keywords or automatic top-surprisal token extraction once the pass rate hits the threshold. Shared across all training modes.</li>
+        <li><strong>Ollama-compatible server integration</strong>: Connects to the LLM server URL in settings (default <code>http://127.0.0.1:11434</code>). Also serves a built-in Web AI Chat for browser-based chat with any loaded model.</li>
+        <li><strong>Retrainable GGUF</strong>: Every GGUF the app exports can be reloaded and trained further. <a href="/gguf/retrainable-en.html">Learn more</a> about the format and how to use it.</li>
+        <li><strong>Fully on-device</strong>: All outputs (JSONL / GGUF) are saved to the device's Downloads / Documents / app storage. No tracking or analytics collected.</li>
       </ul>
     </section>
 

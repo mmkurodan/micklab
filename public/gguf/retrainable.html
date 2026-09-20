@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Retrainable GGUF — GGUF Generator — Mick Lab</title>
+  <link rel="alternate" hreflang="ja" href="/gguf/retrainable.html">
+  <link rel="alternate" hreflang="en" href="/gguf/retrainable-en.html">
+  <link rel="icon" href="/gguf/ic_launcher.png" type="image/png">
+  <style>
+    :root{--bg:#08080a;--card:#0f1114;--muted:#9aa3b2;--accent:#7c5cff;--line:rgba(255,255,255,0.08)}
+    *{box-sizing:border-box}
+    body{margin:0;background:var(--bg);color:#e6eef8;font-family:Inter,system-ui,Segoe UI,Roboto,Arial;line-height:1.7}
+    header{padding:18px 24px;border-bottom:1px solid rgba(255,255,255,0.03);display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap}
+    a{color:var(--accent);text-decoration:none}
+    main{max-width:960px;margin:28px auto;padding:20px}
+    .card{background:var(--card);padding:24px;border-radius:14px;border:1px solid rgba(255,255,255,0.03);margin-bottom:18px}
+    .eyebrow{margin:0 0 8px;color:#b7a9ff;font-size:13px;font-weight:700;letter-spacing:.08em;text-transform:uppercase}
+    h1{margin:0 0 14px;font-size:32px;line-height:1.2}
+    h2{margin:0 0 12px;font-size:21px}
+    h3{margin:20px 0 8px;font-size:16px;color:#b7a9ff;font-weight:700;letter-spacing:.03em}
+    p{margin:0 0 12px}
+    ul,ol{margin:0 0 12px;padding-left:22px;color:var(--muted)}
+    li+li{margin-top:8px}
+    .lead{color:#eef4ff;font-size:17px;margin-bottom:14px}
+    .lang-switch{display:flex;align-items:center;gap:10px;color:var(--muted);font-size:14px}
+    .lang-switch a[aria-current="page"]{color:#fff;font-weight:700}
+    .nav-links{display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+    .back{font-size:14px}
+    code{background:rgba(255,255,255,0.06);padding:2px 7px;border-radius:4px;font-size:0.92em}
+    .highlight{background:linear-gradient(90deg,rgba(124,92,255,0.08),rgba(0,212,255,0.03));border:1px solid var(--line);border-radius:12px;padding:16px 20px;margin-bottom:14px}
+    .flow{display:flex;flex-wrap:wrap;gap:0;margin:16px 0}
+    .flow-step{flex:1 1 160px;background:rgba(255,255,255,0.03);border:1px solid var(--line);border-radius:10px;padding:14px 16px;min-width:140px}
+    .flow-step+.flow-step{margin-left:8px}
+    .flow-label{font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:#b7a9ff;margin-bottom:6px}
+    .flow-desc{font-size:13px;color:var(--muted)}
+    table{width:100%;border-collapse:collapse;font-size:14px}
+    th{text-align:left;padding:8px 12px;border-bottom:1px solid var(--line);color:#b7a9ff;font-weight:700;font-size:12px;letter-spacing:.04em;text-transform:uppercase}
+    td{padding:8px 12px;border-bottom:1px solid rgba(255,255,255,0.04);color:var(--muted)}
+    td:first-child{color:#e6eef8}
+    tr:last-child td{border-bottom:none}
+    .note{background:rgba(255,200,0,0.04);border:1px solid rgba(255,200,0,0.15);border-radius:8px;padding:12px 16px;font-size:14px;color:#f0d070;margin-top:14px}
+    @media (max-width:700px){main{padding:14px}h1{font-size:26px}.flow-step+.flow-step{margin-left:0;margin-top:8px}}
+  </style>
+</head>
+<body>
+  <header>
+    <div class="nav-links">
+      <a class="back" href="/">← ホームへ戻る</a>
+      <a class="back" href="/gguf.html">← GGUF Generator</a>
+    </div>
+    <nav class="lang-switch" aria-label="Language switch">
+      <a href="/gguf/retrainable.html" aria-current="page">日本語</a>
+      <span>|</span>
+      <a href="/gguf/retrainable-en.html">English</a>
+    </nav>
+  </header>
+  <main>
+    <section class="card">
+      <p class="eyebrow">GGUF Generator / 独自形式</p>
+      <h1>Retrainable GGUF</h1>
+      <p class="lead">GGUF Generator が出力する GGUF ファイルは、<strong>再ロードしてそのまま追加学習できる</strong>独自の「Retrainable GGUF」形式です。一般的な量子化 GGUF が推論専用であるのに対し、この形式はモデルの重みと学習に必要なメタデータを保持し、インタラクティブモードで即座に学習を再開できます。</p>
+    </section>
+
+    <section class="card">
+      <h2>通常の GGUF との違い</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>項目</th>
+            <th>通常の量子化 GGUF</th>
+            <th>Retrainable GGUF</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>主な用途</td>
+            <td>推論（テキスト生成）</td>
+            <td>推論 ＋ 追加学習</td>
+          </tr>
+          <tr>
+            <td>重みの精度</td>
+            <td>量子化（Q4/Q8 など）</td>
+            <td>F32（フル精度）または F16 / Q8_0</td>
+          </tr>
+          <tr>
+            <td>追加学習</td>
+            <td>通常不可</td>
+            <td>LOAD GGUF からそのまま再開</td>
+          </tr>
+          <tr>
+            <td>アーキテクチャ</td>
+            <td>LLaMA / Mistral / LFM2 など</td>
+            <td>GGUF Generator 独自の小型 Transformer</td>
+          </tr>
+          <tr>
+            <td>ファイルサイズ</td>
+            <td>パラメータ数・量子化に依存</td>
+            <td>パラメータ数・精度に依存（1M パラメータで F32 ≈ 数 MB）</td>
+          </tr>
+          <tr>
+            <td>llama.cpp 互換</td>
+            <td>互換</td>
+            <td>GGUF 形式として互換（ただしアーキテクチャは独自）</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section class="card">
+      <h2>インタラクティブモードでの再学習フロー</h2>
+      <p>Retrainable GGUF の最も典型的な使い方はインタラクティブ（新規 GGUF）モードです。</p>
+      <div class="flow">
+        <div class="flow-step">
+          <div class="flow-label">① 開始</div>
+          <div class="flow-desc">NEW で新規モデルを作成、または LOAD GGUF で既存の Retrainable GGUF を読み込む</div>
+        </div>
+        <div class="flow-step">
+          <div class="flow-label">② 学習</div>
+          <div class="flow-desc">NEW LEARN（新規ペア）/ RESPONSE LEARN（直前の応答を修正）でリアルタイムに重みを更新</div>
+        </div>
+        <div class="flow-step">
+          <div class="flow-label">③ 確認</div>
+          <div class="flow-desc">TRY INFERENCE でモデルの応答を即確認。不正解なら自動で再注入（Re-inject）して続行</div>
+        </div>
+        <div class="flow-step">
+          <div class="flow-label">④ 書き出し</div>
+          <div class="flow-desc">EXPORT GGUF で Retrainable GGUF を保存。次回は LOAD GGUF でそのまま再開</div>
+        </div>
+      </div>
+      <div class="note">
+        EXPORT GGUF は量子化形式（F32 / F16 / Q8_0）を選択して書き出します。F32 が最も再学習に適していますが、ファイルサイズが大きくなります。Q8_0 は精度と容量のバランスが良い選択肢です。
+      </div>
+    </section>
+
+    <section class="card">
+      <h2>アーキテクチャの特徴</h2>
+      <p>Retrainable GGUF が対象とするのは GGUF Generator が独自に設計した小型 Transformer です。主な構成は以下の通りです。</p>
+      <ul>
+        <li><strong>pre-RMSNorm</strong>: 各ブロック前に RMS 正規化を適用する標準構成</li>
+        <li><strong>RoPE（Rotary Position Embedding）</strong>: 位置エンコーディング</li>
+        <li><strong>SwiGLU</strong>: フィードフォワード層のゲーティング関数</li>
+        <li><strong>Tied 出力</strong>: 埋め込み行列と出力投影を共有してパラメータ数を削減</li>
+        <li><strong>モデル寸法</strong>: <code>dModel / ffDim / layers / ctx</code> を自由に設定可能。100 万パラメータ程度の極小モデルから動作確認済み</li>
+      </ul>
+      <p>このアーキテクチャは llama.cpp が認識できる GGUF メタデータで記述されるため、ファイル形式としては標準 GGUF と互換ですが、推論エンジン側に当該アーキテクチャのサポートが必要です。</p>
+    </section>
+
+    <section class="card">
+      <h2>修正モード（Auto GGUF Gen）での継続学習</h2>
+      <p>インタラクティブモード以外にも、<a href="/gguf.html">Auto GGUF Gen</a> の「修正（追加学習）」モードで既存の Retrainable GGUF を基点として継続学習することができます。</p>
+      <ul>
+        <li>基点 GGUF を選択すると、モデル寸法（dModel / ffDim / layers / ctx）は基点から自動で継承されます。</li>
+        <li>新しい学習データ（JSONL）を用意するだけで、既存の知識を保ちながら内容を追加・修正できます。</li>
+        <li>早期停止機能を使うことで、過学習のリスクを抑えながら効率よく学習できます。</li>
+      </ul>
+    </section>
+
+    <section class="card">
+      <h2>LoRA との使い分け</h2>
+      <p>GGUF Generator には LoRA 学習（LFM2 GGUF 対象）も搭載されています。Retrainable GGUF と LoRA はそれぞれ異なる用途に適しています。</p>
+      <table>
+        <thead>
+          <tr>
+            <th>観点</th>
+            <th>Retrainable GGUF（独自モデル）</th>
+            <th>LoRA（既存 LFM2 GGUF）</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>ベースモデル</td>
+            <td>なし（ゼロから作成）</td>
+            <td>既存の LFM2 GGUF が必要</td>
+          </tr>
+          <tr>
+            <td>学習対象</td>
+            <td>全重み</td>
+            <td>LoRA アダプタのみ</td>
+          </tr>
+          <tr>
+            <td>モデルの能力</td>
+            <td>学習データに特化した小型モデル</td>
+            <td>ベースモデルの能力＋追加ファインチューン</td>
+          </tr>
+          <tr>
+            <td>再利用性</td>
+            <td>LOAD GGUF で再学習</td>
+            <td>SAVE/RESTORE STATE でセッション再開</td>
+          </tr>
+          <tr>
+            <td>出力</td>
+            <td>単独ロード可能な GGUF</td>
+            <td>アダプタ GGUF ＋ 統合版フル GGUF の両方</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+  </main>
+  <script defer src="/browser-api-register.js"></script>
+</body>
+</html>
