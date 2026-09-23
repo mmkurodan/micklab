@@ -57,6 +57,8 @@ const uiText = {
     cleared: "文字起こしをクリアしました。",
     noSecure: "マイク入力には HTTPS 接続が必要です。",
     elapsed: (t) => `経過時間: ${t}`,
+    dlProgress: (recv, total, pct) => `ダウンロード中: ${recv} MB / ${total} MB (${pct}%)`,
+    dlExtracting: "ZIP を展開中（しばらくお待ちください）...",
   },
   en: {
     initModelStatus: 'Model not loaded. Choose a language and press "Fetch model".',
@@ -83,6 +85,8 @@ const uiText = {
     cleared: "Transcript cleared.",
     noSecure: "Microphone input requires an HTTPS connection.",
     elapsed: (t) => `Elapsed: ${t}`,
+    dlProgress: (recv, total, pct) => `Downloading: ${recv} MB / ${total} MB (${pct}%)`,
+    dlExtracting: "Extracting ZIP (please wait)...",
   },
 }[locale];
 
@@ -174,18 +178,60 @@ async function loadModel() {
     }
 
     const startedAt = Date.now();
+    const dlState = { received: 0, total: 0, done: false };
+
+    // Wrap window.fetch to intercept the ZIP download and track bytes.
+    const originalFetch = window.fetch;
+    window.fetch = async function (input, init) {
+      const url = typeof input === "string" ? input : input instanceof Request ? input.url : "";
+      if (url.endsWith(".zip")) {
+        const res = await originalFetch(input, init);
+        const contentLength = res.headers.get("Content-Length");
+        dlState.total = contentLength ? parseInt(contentLength, 10) : cfg.approxMB * 1024 * 1024;
+        const reader = res.body.getReader();
+        const stream = new ReadableStream({
+          async pull(controller) {
+            const { done, value } = await reader.read();
+            if (done) {
+              dlState.done = true;
+              controller.close();
+              return;
+            }
+            dlState.received += value.byteLength;
+            controller.enqueue(value);
+          },
+        });
+        return new Response(stream, { headers: res.headers, status: res.status, statusText: res.statusText });
+      }
+      return originalFetch(input, init);
+    };
+
     const timer = setInterval(() => {
       const sec = Math.floor((Date.now() - startedAt) / 1000);
       const mm = String(Math.floor(sec / 60)).padStart(2, "0");
       const ss = String(sec % 60).padStart(2, "0");
-      setStatus(modelStatusEl, uiText.downloading(cfg.label, cfg.approxMB) + "\n" + uiText.elapsed(`${mm}:${ss}`));
-    }, 1000);
+      const elapsedStr = uiText.elapsed(`${mm}:${ss}`);
+
+      let line2;
+      if (dlState.total > 0 && !dlState.done) {
+        const recv = (dlState.received / 1048576).toFixed(0);
+        const total = (dlState.total / 1048576).toFixed(0);
+        const pct = Math.min(100, Math.round(dlState.received / dlState.total * 100));
+        line2 = uiText.dlProgress(recv, total, pct) + " — " + elapsedStr;
+      } else if (dlState.done) {
+        line2 = uiText.dlExtracting + " — " + elapsedStr;
+      } else {
+        line2 = elapsedStr;
+      }
+      setStatus(modelStatusEl, uiText.downloading(cfg.label, cfg.approxMB) + "\n" + line2);
+    }, 500);
 
     let model;
     try {
       model = await Vosk.createModel(cfg.url);
     } finally {
       clearInterval(timer);
+      window.fetch = originalFetch;
     }
     state.model = model;
     state.modelLang = langKey;
