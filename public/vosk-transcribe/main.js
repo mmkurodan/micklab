@@ -56,6 +56,7 @@ const uiText = {
     nothingToCopy: "コピーする文字起こしがありません。",
     cleared: "文字起こしをクリアしました。",
     noSecure: "マイク入力には HTTPS 接続が必要です。",
+    elapsed: (t) => `経過時間: ${t}`,
   },
   en: {
     initModelStatus: 'Model not loaded. Choose a language and press "Fetch model".',
@@ -81,6 +82,7 @@ const uiText = {
     nothingToCopy: "No transcript to copy.",
     cleared: "Transcript cleared.",
     noSecure: "Microphone input requires an HTTPS connection.",
+    elapsed: (t) => `Elapsed: ${t}`,
   },
 }[locale];
 
@@ -171,8 +173,20 @@ async function loadModel() {
       state.modelLang = null;
     }
 
-    setStatus(modelStatusEl, uiText.downloading(cfg.label, cfg.approxMB));
-    const model = await Vosk.createModel(cfg.url);
+    const startedAt = Date.now();
+    const timer = setInterval(() => {
+      const sec = Math.floor((Date.now() - startedAt) / 1000);
+      const mm = String(Math.floor(sec / 60)).padStart(2, "0");
+      const ss = String(sec % 60).padStart(2, "0");
+      setStatus(modelStatusEl, uiText.downloading(cfg.label, cfg.approxMB) + "\n" + uiText.elapsed(`${mm}:${ss}`));
+    }, 1000);
+
+    let model;
+    try {
+      model = await Vosk.createModel(cfg.url);
+    } finally {
+      clearInterval(timer);
+    }
     state.model = model;
     state.modelLang = langKey;
 
