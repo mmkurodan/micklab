@@ -73,13 +73,14 @@
 
     <label class="field" for="langSelect">1) Choose the recognition language</label>
     <select id="langSelect" aria-label="Recognition language">
-      <option value="ja-JP">日本語 (ja-JP) — vosk-model-small-ja-0.22</option>
+      <option value="ja-JP">日本語 small — vosk-model-small-ja-0.22 (~48 MB, recommended)</option>
+      <option value="ja-JP-full">日本語 — vosk-model-ja-0.22 (~1 GB, higher accuracy)</option>
       <option value="en-US" selected>English (en-US) — vosk-model-small-en-us-0.15</option>
     </select>
 
     <label class="field">2) Fetch the model (download locally)</label>
     <button id="loadModelBtn" class="button-strong" type="button">Fetch and load model</button>
-    <p class="traffic-note">* The first run downloads about 40–50 MB (later runs reuse the in-browser cache and work offline). Works on iPhone/iPad/Android too.</p>
+    <p class="traffic-note">* The first run downloads the model (~48 MB for small, ~1 GB for full). Later runs reuse the in-browser cache and work offline. Works on iPhone/iPad/Android too.</p>
     <div id="modelStatus" class="status">Initializing model...</div>
 
     <label class="field" for="sourceSelect">3) Choose the input source</label>

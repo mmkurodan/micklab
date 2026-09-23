@@ -6,10 +6,16 @@ const VOSK_SRC = "https://cdn.jsdelivr.net/npm/vosk-browser@0.0.8/dist/vosk.js";
 
 const MODELS = {
   "ja-JP": {
-    label: "日本語 (ja-JP)",
+    label: "日本語 small (ja-JP)",
     url: "https://huggingface.co/rhasspy/vosk-models/resolve/main/ja/vosk-model-small-ja-0.22.zip",
     approxMB: 48,
-    joiner: "", // 日本語はトークン間の空白を詰める
+    joiner: "",
+  },
+  "ja-JP-full": {
+    label: "日本語 (ja-JP)",
+    url: "https://huggingface.co/rhasspy/vosk-models/resolve/main/ja/vosk-model-ja-0.22.zip",
+    approxMB: 1000,
+    joiner: "",
   },
   "en-US": {
     label: "English (en-US)",

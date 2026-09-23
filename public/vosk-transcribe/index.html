@@ -73,13 +73,14 @@
 
     <label class="field" for="langSelect">1) 認識する言語を選択</label>
     <select id="langSelect" aria-label="認識言語">
-      <option value="ja-JP" selected>日本語 (ja-JP) — vosk-model-small-ja-0.22</option>
+      <option value="ja-JP" selected>日本語 small — vosk-model-small-ja-0.22（約48MB・推奨）</option>
+      <option value="ja-JP-full">日本語 — vosk-model-ja-0.22（約1GB・高精度）</option>
       <option value="en-US">English (en-US) — vosk-model-small-en-us-0.15</option>
     </select>
 
     <label class="field">2) モデルを取得（ローカルにダウンロード）</label>
     <button id="loadModelBtn" class="button-strong" type="button">モデルを取得して読み込む</button>
-    <p class="traffic-note">※ 初回のみ約40〜50MBの通信が発生します（以降はブラウザ内キャッシュを再利用し、オフラインでも動作します）。iPhone/iPad/Android でも動作します。</p>
+    <p class="traffic-note">※ 初回のみ通信が発生します（small: 約48MB、通常: 約1GB）。以降はブラウザ内キャッシュを再利用し、オフラインでも動作します。iPhone/iPad/Android でも動作します。</p>
     <div id="modelStatus" class="status">モデルを初期化中...</div>
 
     <label class="field" for="sourceSelect">3) 入力ソースを選択</label>
