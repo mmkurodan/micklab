@@ -180,31 +180,19 @@ async function loadModel() {
     const startedAt = Date.now();
     const dlState = { received: 0, total: 0, done: false };
 
-    // Wrap window.fetch to intercept the ZIP download and track bytes.
-    const originalFetch = window.fetch;
-    window.fetch = async function (input, init) {
-      const url = typeof input === "string" ? input : input instanceof Request ? input.url : "";
-      if (url.endsWith(".zip")) {
-        const res = await originalFetch(input, init);
-        const contentLength = res.headers.get("Content-Length");
-        dlState.total = contentLength ? parseInt(contentLength, 10) : cfg.approxMB * 1024 * 1024;
-        const reader = res.body.getReader();
-        const stream = new ReadableStream({
-          async pull(controller) {
-            const { done, value } = await reader.read();
-            if (done) {
-              dlState.done = true;
-              controller.close();
-              return;
-            }
-            dlState.received += value.byteLength;
-            controller.enqueue(value);
-          },
-        });
-        return new Response(stream, { headers: res.headers, status: res.status, statusText: res.statusText });
-      }
-      return originalFetch(input, init);
-    };
+    // SW が ZIP ダウンロードのバイト数を計測して BroadcastChannel で送信してくる。
+    // Web Worker 内の fetch も SW 経由で横取りされるため、vosk-browser の
+    // ワーカーダウンロードにも有効。SW 未対応環境では経過時間のみ表示される。
+    const dlChannel = "BroadcastChannel" in self
+      ? new BroadcastChannel("vosk-dl-progress")
+      : null;
+    if (dlChannel) {
+      dlChannel.addEventListener("message", ({ data }) => {
+        if (data.total) dlState.total = data.total;
+        dlState.received = data.received;
+        if (data.type === "done") dlState.done = true;
+      });
+    }
 
     const timer = setInterval(() => {
       const sec = Math.floor((Date.now() - startedAt) / 1000);
@@ -231,7 +219,7 @@ async function loadModel() {
       model = await Vosk.createModel(cfg.url);
     } finally {
       clearInterval(timer);
-      window.fetch = originalFetch;
+      if (dlChannel) dlChannel.close();
     }
     state.model = model;
     state.modelLang = langKey;
