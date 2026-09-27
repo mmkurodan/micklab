@@ -59,7 +59,7 @@
   <main>
     <section class="card callout">
       <h1>API Reference</h1>
-      <p class="lead">Specification and usage examples for the HTTP API that LLM AI Server with llama.cpp exposes on the device. It covers the Ollama-compatible endpoints (<code>/api/*</code>), the OpenAI-compatible endpoints (<code>/v1/chat/completions</code>, <code>/v1/completions</code>, and more), the Anthropic Messages API-compatible endpoints (<code>/v1/messages</code>, <code>/v1/messages/count_tokens</code>), the llama.cpp WebUI-compatible endpoints (<code>/props</code>, <code>/slots</code>, and more), and the app-specific model control endpoints (<code>/models/load</code>, <code>/models/unload</code>), based on the current <code>OllamaApiServer</code> implementation.</p>
+      <p class="lead">Specification and usage examples for the HTTP API that LLM AI Server with llama.cpp exposes on the device. It covers the Ollama-compatible endpoints (<code>/api/*</code>), the OpenAI-compatible endpoints (<code>/v1/chat/completions</code>, <code>/v1/completions</code>, and more), the Anthropic Messages API-compatible endpoints (<code>/v1/messages</code>, <code>/v1/messages/count_tokens</code>), the Google Gemini (Generative Language API)-compatible endpoints (<code>/v1beta/models/{model}:generateContent</code>, <code>:streamGenerateContent</code>), the llama.cpp WebUI-compatible endpoints (<code>/props</code>, <code>/slots</code>, and more), and the app-specific model control endpoints (<code>/models/load</code>, <code>/models/unload</code>), based on the current <code>OllamaApiServer</code> implementation.</p>
       <p class="note">Related docs: <a href="/llama-tester/manual-en.html">User Manual</a> | <a href="/llama-tester/technical-spec-en.html">Technical Specification</a> | <a href="/llama-tester/privacy.html#en">Privacy Policy</a></p>
       <div>
         <span class="pill">Ollama-compatible</span>
@@ -86,6 +86,7 @@
         <a href="#openai">7. POST /v1/chat/completions</a>
         <a href="#completions">7-2. POST /v1/completions</a>
         <a href="#anthropic">7-3. POST /v1/messages (Anthropic)</a>
+        <a href="#gemini">7-4. POST /v1beta/models/…:generateContent (Gemini)</a>
         <a href="#models">8. /v1/models &amp; /models</a>
         <a href="#embeddings">9. Embeddings</a>
         <a href="#tokens">10. Token counting</a>
@@ -124,6 +125,7 @@
           <tr><td>Ollama-compatible</td><td><code>POST /api/generate</code>, <code>POST /api/chat</code>, <code>GET/POST /api/tags</code>, <code>POST /api/embed</code>, <code>POST /api/embeddings</code> (legacy), <code>POST /api/tokenize</code>. Response shape is <code>{model, created_at, response|message, done}</code>. The final chunk carries <code>total_duration</code>, <code>load_duration</code>, <code>prompt_eval_count</code>, <code>prompt_eval_duration</code>, <code>eval_count</code>, and <code>eval_duration</code> (nanoseconds). Tool paths add <code>done_reason</code>, <code>tool_calls</code>, and <code>reasoning_content</code>.</td></tr>
           <tr><td>OpenAI-compatible</td><td><code>POST /v1/chat/completions</code> (SSE streaming terminated by <code>data: [DONE]</code>), <code>POST /v1/completions</code> (legacy Completions, <code>object: "text_completion"</code>), <code>GET /v1/models</code>, <code>POST /v1/embeddings</code>, <code>POST /v1/responses/input_tokens</code>. Responses include <code>id</code> (<code>chatcmpl-…</code> / <code>cmpl-…</code>), <code>created</code>, <code>object</code>, <code>choices[].message</code>/<code>delta</code>/<code>text</code>, <code>finish_reason</code>, and — for non-streaming calls — <code>usage</code>.</td></tr>
           <tr><td>Anthropic-compatible</td><td><code>POST /v1/messages</code> (Messages API; streaming uses named SSE events <code>message_start</code> / <code>content_block_*</code> / <code>message_delta</code> / <code>message_stop</code>), <code>POST /v1/messages/count_tokens</code>. Supports <code>system</code>, multi-turn, thinking (<code>thinking</code> blocks), image/audio input, and basic <code>tool_use</code> / <code>tool_result</code>. Responses are a <code>content[]</code> block array (<code>text</code> / <code>thinking</code> / <code>tool_use</code>) with <code>stop_reason</code> and <code>usage</code> (<code>input_tokens</code> / <code>output_tokens</code>).</td></tr>
+          <tr><td>Gemini-compatible</td><td><code>POST /v1beta/models/{model}:generateContent</code>, <code>POST /v1beta/models/{model}:streamGenerateContent</code> (<code>/v1/models/…</code> is accepted as an alias). Streaming is SSE (a stream of <code>data: {…}</code> frames, with no <code>[DONE]</code> terminator). Supports <code>contents</code> (<code>user</code> / <code>model</code> roles; <code>text</code> / <code>inlineData</code> / <code>fileData</code> / <code>functionCall</code> / <code>functionResponse</code> parts), <code>systemInstruction</code>, <code>generationConfig</code>, <code>tools</code> (<code>functionDeclarations</code>), <code>toolConfig</code>, and thinking (<code>thought:true</code> parts). Responses carry <code>candidates[].content.parts[]</code> plus <code>finishReason</code> (<code>STOP</code> / <code>MAX_TOKENS</code>), <code>usageMetadata</code> (<code>promptTokenCount</code> / <code>candidatesTokenCount</code> / <code>totalTokenCount</code>), and <code>modelVersion</code>.</td></tr>
           <tr><td>llama.cpp WebUI-compatible</td><td><code>GET /props</code>, <code>GET /slots</code>, <code>GET /health</code> (<code>/v1/health</code>), <code>GET /models</code>, and bundled WebUI serving.</td></tr>
           <tr><td>Extensions (app-specific)</td><td><code>POST /models/load</code> and <code>POST /models/unload</code> for explicit model control, multimodal inputs (<code>image_url</code> / <code>input_audio</code>; Anthropic <code>image</code> / <code>audio</code> blocks), shared MCP / Function Definitions settings, <code>reasoning_content</code>, sampler-chain ordering via <code>samplers</code>, and an option to append performance metrics to the output text.</td></tr>
           <tr><td>Not implemented (caveats)</td><td>Model repository management (<code>/api/show</code>, <code>/api/pull</code>, <code>/api/push</code>, <code>/api/create</code>, <code>/api/copy</code>, <code>/api/delete</code>, <code>/api/ps</code>, <code>/api/version</code>), the full <code>/v1/responses</code> API, <code>logprobs</code>, and multiple candidates (<code>n &gt; 1</code>) are not supported. Streaming (SSE) responses do not carry <code>usage</code> (<code>stream_options.include_usage</code> is ignored), and the <code>usage</code> object on <code>/v1/embeddings</code> is a placeholder of <code>0</code>. <code>stop</code> / <code>stop_sequences</code> are accepted but not enforced.</td></tr>
@@ -441,6 +443,64 @@ data: {"type":"message_stop"}</code></pre>
 }'</code></pre>
       <pre><code>{ "input_tokens": 4 }</code></pre>
       <p class="note">Errors use the Anthropic shape (<code>{"type":"error","error":{"type":…,"message":…}}</code>). A missing <code>max_tokens</code> is an <code>invalid_request_error</code> (<code>400</code>).</p>
+    </section>
+
+    <section class="card" id="gemini">
+      <h2>7-4. <span class="method post">POST</span>/v1beta/models/{model}:generateContent (Google Gemini)</h2>
+      <p>Google Generative Language API (Gemini) compatible. The model and action are given in the URL path.</p>
+      <ul>
+        <li><code>POST /v1beta/models/{model}:generateContent</code> — non-streaming generation.</li>
+        <li><code>POST /v1beta/models/{model}:streamGenerateContent</code> — streaming generation (SSE).</li>
+        <li><code>POST /v1/models/{model}:generateContent</code> / <code>:streamGenerateContent</code> — accepted as aliases of the above.</li>
+      </ul>
+      <p><code>{model}</code> is a profile name (URL-encoding supported). Even if you send a real Gemini model name such as <code>gemini-2.0-flash</code>, it resolves to the current local profile. Point the <code>@google/genai</code> / <code>google-generativeai</code> SDK's base URL at this server to use it. The <code>?key=…</code> query and API keys added by the SDK are accepted but ignored (no auth). <code>:streamGenerateContent</code> always responds with SSE, regardless of <code>?alt=sse</code>.</p>
+      <h3>Request</h3>
+      <table>
+        <thead><tr><th>Field</th><th>Type</th><th>Description</th></tr></thead>
+        <tbody>
+          <tr><td><code>contents</code></td><td>array</td><td><strong>Required.</strong> Missing or empty is <code>400 INVALID_ARGUMENT</code>. Each item is <code>{role, parts}</code>. <code>role</code> is <code>user</code> / <code>model</code> (<code>model</code> maps to <code>assistant</code> internally).</td></tr>
+          <tr><td><code>contents[].parts</code></td><td>array</td><td><code>{text}</code>, <code>{inlineData:{mimeType,data}}</code> (base64; <code>audio/*</code> is treated as audio input, otherwise as an image), <code>{fileData:{mimeType,fileUri}}</code> (only <code>http(s)</code> URIs are fetched; <code>gs://</code> etc. are dropped), <code>{functionCall:{name,args}}</code>, <code>{functionResponse:{name,response}}</code> (see <a href="#multimodal">§16</a> / <a href="#tools">§17</a>).</td></tr>
+          <tr><td><code>systemInstruction</code></td><td>object?</td><td>Optional. <code>{parts:[{text:"…"}]}</code>. Only text parts are read.</td></tr>
+          <tr><td><code>generationConfig</code></td><td>object?</td><td>Optional. <code>maxOutputTokens</code> → <code>num_predict</code>, plus <code>temperature</code>, <code>topP</code>, <code>topK</code> (see <a href="#params">§13</a>). Other fields (<code>candidateCount</code> / <code>responseMimeType</code> / <code>responseSchema</code> / <code>stopSequences</code>, etc.) are ignored.</td></tr>
+          <tr><td><code>tools</code></td><td>array?</td><td>Optional. <code>[{functionDeclarations:[{name,description,parameters}]}]</code>. Uppercase schema type names (<code>OBJECT</code> / <code>STRING</code> …) in <code>parameters</code> are accepted and lower-cased internally (see <a href="#tools">§17</a>).</td></tr>
+          <tr><td><code>toolConfig</code></td><td>object?</td><td>Optional. <code>functionCallingConfig.mode</code>: <code>AUTO</code> (default) / <code>ANY</code> (force a call) / <code>NONE</code> (forbid calls).</td></tr>
+        </tbody>
+      </table>
+      <h3>Non-streaming response</h3>
+      <pre><code>curl "http://localhost:11434/v1beta/models/my-profile:generateContent" -d '{
+  "systemInstruction": {"parts": [{"text": "Answer concisely."}]},
+  "contents": [
+    {"role": "user", "parts": [{"text": "How tall is Mount Fuji?"}]}
+  ],
+  "generationConfig": {"temperature": 0.7, "maxOutputTokens": 256}
+}'</code></pre>
+      <pre><code>{
+  "candidates": [
+    {
+      "content": {
+        "parts": [ { "text": "3,776 m." } ],
+        "role": "model"
+      },
+      "finishReason": "STOP",
+      "index": 0
+    }
+  ],
+  "usageMetadata": {
+    "promptTokenCount": 15,
+    "candidatesTokenCount": 8,
+    "totalTokenCount": 23
+  },
+  "modelVersion": "my-profile"
+}</code></pre>
+      <p class="note">When thinking is enabled, a <code>{"thought":true,"text":"…"}</code> block appears first in <code>parts</code>, followed by <code>{"text":"…"}</code> (see <a href="#thinking">§15</a>). Tool calls return <code>{"functionCall":{"name":…,"args":{…}}}</code> parts (arguments are an object, not a string). <code>finishReason</code> is <code>STOP</code>, or <code>MAX_TOKENS</code> when the output token limit is reached.</p>
+      <h3>Streaming response (SSE)</h3>
+      <p><code>:streamGenerateContent</code> emits <code>data: {…}</code> chunks as <code>text/event-stream</code> (there is no <code>[DONE]</code> terminator like OpenAI). Each chunk carries an incremental <code>candidates[].content.parts[].text</code>, and only the final chunk includes <code>finishReason</code> and <code>usageMetadata</code>. Thinking tokens stream as <code>{"thought":true,"text":…}</code> parts.</p>
+      <pre><code>data: {"candidates":[{"content":{"parts":[{"text":"3,776 m"}],"role":"model"},"index":0}],"modelVersion":"my-profile"}
+
+data: {"candidates":[{"content":{"parts":[{"text":"."}],"role":"model"},"index":0}],"modelVersion":"my-profile"}
+
+data: {"candidates":[{"content":{"parts":[{"text":""}],"role":"model"},"finishReason":"STOP","index":0}],"usageMetadata":{"promptTokenCount":15,"candidatesTokenCount":8,"totalTokenCount":23},"modelVersion":"my-profile"}</code></pre>
+      <p class="note">Errors use the Gemini shape (<code>{"error":{"code":N,"message":"…","status":"…"}}</code>). <code>status</code> is <code>INVALID_ARGUMENT</code> (<code>400</code>) / <code>UNAVAILABLE</code> (<code>503</code>) / <code>INTERNAL</code> (<code>500</code>), etc. Model listing (<code>GET /v1beta/models</code>) is not supported, so use <code>/v1/models</code> (see <a href="#models">§8</a>) or <code>/api/tags</code> for the profile list. <code>safetySettings</code> / <code>safetyRatings</code> / <code>citationMetadata</code> and multiple candidates (<code>candidateCount</code>) are not supported.</p>
     </section>
 
     <section class="card" id="models">

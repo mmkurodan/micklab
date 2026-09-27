@@ -59,7 +59,7 @@
   <main>
     <section class="card callout">
       <h1>API リファレンス</h1>
-      <p class="lead">LLM AI Server with llama.cpp が端末内で公開する HTTP API の仕様と使用例です。Ollama 互換エンドポイント（<code>/api/*</code>）、OpenAI 互換エンドポイント（<code>/v1/chat/completions</code>, <code>/v1/completions</code> ほか）、Anthropic Messages API 互換エンドポイント（<code>/v1/messages</code>, <code>/v1/messages/count_tokens</code>）、llama.cpp WebUI 互換エンドポイント（<code>/props</code>, <code>/slots</code> ほか）、およびモデル制御用の独自エンドポイント（<code>/models/load</code>, <code>/models/unload</code>）を、現行の <code>OllamaApiServer</code> 実装をもとに整理しています。</p>
+      <p class="lead">LLM AI Server with llama.cpp が端末内で公開する HTTP API の仕様と使用例です。Ollama 互換エンドポイント（<code>/api/*</code>）、OpenAI 互換エンドポイント（<code>/v1/chat/completions</code>, <code>/v1/completions</code> ほか）、Anthropic Messages API 互換エンドポイント（<code>/v1/messages</code>, <code>/v1/messages/count_tokens</code>）、Google Gemini（Generative Language API）互換エンドポイント（<code>/v1beta/models/{model}:generateContent</code>, <code>:streamGenerateContent</code>）、llama.cpp WebUI 互換エンドポイント（<code>/props</code>, <code>/slots</code> ほか）、およびモデル制御用の独自エンドポイント（<code>/models/load</code>, <code>/models/unload</code>）を、現行の <code>OllamaApiServer</code> 実装をもとに整理しています。</p>
       <p class="note">関連文書: <a href="/llama-tester/manual.html">操作マニュアル</a> | <a href="/llama-tester/technical-spec.html">技術仕様</a> | <a href="/llama-tester/privacy.html#ja">プライバシーポリシー</a></p>
       <div>
         <span class="pill">Ollama 互換</span>
@@ -86,6 +86,7 @@
         <a href="#openai">7. POST /v1/chat/completions</a>
         <a href="#completions">7-2. POST /v1/completions</a>
         <a href="#anthropic">7-3. POST /v1/messages（Anthropic）</a>
+        <a href="#gemini">7-4. POST /v1beta/models/…:generateContent（Gemini）</a>
         <a href="#models">8. /v1/models・/models</a>
         <a href="#embeddings">9. 埋め込み（Embeddings）</a>
         <a href="#tokens">10. トークン数カウント</a>
@@ -124,6 +125,7 @@
           <tr><td>Ollama 互換</td><td><code>POST /api/generate</code>、<code>POST /api/chat</code>、<code>GET/POST /api/tags</code>、<code>POST /api/embed</code>、<code>POST /api/embeddings</code>（旧仕様）、<code>POST /api/tokenize</code>。応答形は <code>{model, created_at, response|message, done}</code> 系で互換。完了時の chunk には <code>total_duration</code> / <code>load_duration</code> / <code>prompt_eval_count</code> / <code>prompt_eval_duration</code> / <code>eval_count</code> / <code>eval_duration</code>（ナノ秒）を付与。ツール利用時は <code>done_reason</code>・<code>tool_calls</code>・<code>reasoning_content</code> を追加。</td></tr>
           <tr><td>OpenAI 互換</td><td><code>POST /v1/chat/completions</code>（streaming は SSE、終端 <code>data: [DONE]</code>）、<code>POST /v1/completions</code>（レガシー Completions、<code>object: "text_completion"</code>）、<code>GET /v1/models</code>、<code>POST /v1/embeddings</code>、<code>POST /v1/responses/input_tokens</code>。応答には <code>id</code>（<code>chatcmpl-…</code> / <code>cmpl-…</code>）・<code>created</code>・<code>object</code>・<code>choices[].message</code>/<code>delta</code>/<code>text</code>・<code>finish_reason</code>、非ストリーミング時は <code>usage</code> を含みます。</td></tr>
           <tr><td>Anthropic 互換</td><td><code>POST /v1/messages</code>（Messages API。streaming は名前付き SSE イベント <code>message_start</code> / <code>content_block_*</code> / <code>message_delta</code> / <code>message_stop</code>）、<code>POST /v1/messages/count_tokens</code>。<code>system</code>・マルチターン・思考（<code>thinking</code> ブロック）・画像 / 音声入力・基本的な <code>tool_use</code> / <code>tool_result</code> に対応。応答は <code>content[]</code> ブロック配列（<code>text</code> / <code>thinking</code> / <code>tool_use</code>）＋ <code>stop_reason</code> ＋ <code>usage</code>（<code>input_tokens</code> / <code>output_tokens</code>）。</td></tr>
+          <tr><td>Gemini 互換</td><td><code>POST /v1beta/models/{model}:generateContent</code>、<code>POST /v1beta/models/{model}:streamGenerateContent</code>（<code>/v1/models/…</code> も別名として受理）。streaming は SSE（<code>data: {…}</code> の連続、<code>[DONE]</code> 終端なし）。<code>contents</code>（<code>user</code> / <code>model</code> ロール、<code>text</code> / <code>inlineData</code> / <code>fileData</code> / <code>functionCall</code> / <code>functionResponse</code> パーツ）・<code>systemInstruction</code>・<code>generationConfig</code>・<code>tools</code>（<code>functionDeclarations</code>）・<code>toolConfig</code>・思考（<code>thought:true</code> パーツ）に対応。応答は <code>candidates[].content.parts[]</code> ＋ <code>finishReason</code>（<code>STOP</code> / <code>MAX_TOKENS</code>）＋ <code>usageMetadata</code>（<code>promptTokenCount</code> / <code>candidatesTokenCount</code> / <code>totalTokenCount</code>）＋ <code>modelVersion</code>。</td></tr>
           <tr><td>llama.cpp WebUI 互換</td><td><code>GET /props</code>、<code>GET /slots</code>、<code>GET /health</code>（<code>/v1/health</code>）、<code>GET /models</code>、Bundled WebUI 配信。</td></tr>
           <tr><td>拡張（独自）</td><td><code>POST /models/load</code> / <code>POST /models/unload</code>（明示的なモデル制御）、マルチモーダル入力（<code>image_url</code> / <code>input_audio</code>、Anthropic は <code>image</code> / <code>audio</code> ブロック）、共有 MCP / Function Definitions 設定、<code>reasoning_content</code>、<code>samplers</code> によるサンプラー順序指定、パフォーマンス指標を本文末尾に付記するオプション。</td></tr>
           <tr><td>未実装（注意点）</td><td>モデルリポジトリ管理（<code>/api/show</code>, <code>/api/pull</code>, <code>/api/push</code>, <code>/api/create</code>, <code>/api/copy</code>, <code>/api/delete</code>, <code>/api/ps</code>, <code>/api/version</code>）、<code>/v1/responses</code> 本体、<code>logprobs</code>、<code>n &gt; 1</code> の複数候補生成には対応していません。ストリーミング応答（SSE）には <code>usage</code> を含めません（<code>stream_options.include_usage</code> は無視されます）。<code>/v1/embeddings</code> の <code>usage</code> は形だけの <code>0</code> です。<code>stop</code> / <code>stop_sequences</code> は受理しますが強制はしません。</td></tr>
@@ -441,6 +443,64 @@ data: {"type":"message_stop"}</code></pre>
 }'</code></pre>
       <pre><code>{ "input_tokens": 4 }</code></pre>
       <p class="note">エラーは Anthropic 形式（<code>{"type":"error","error":{"type":…,"message":…}}</code>）で返します。<code>max_tokens</code> 欠落は <code>invalid_request_error</code>（<code>400</code>）です。</p>
+    </section>
+
+    <section class="card" id="gemini">
+      <h2>7-4. <span class="method post">POST</span>/v1beta/models/{model}:generateContent（Google Gemini）</h2>
+      <p>Google Generative Language API（Gemini）互換。モデルとアクションは URL パスで指定します。</p>
+      <ul>
+        <li><code>POST /v1beta/models/{model}:generateContent</code> — 非ストリーミング生成。</li>
+        <li><code>POST /v1beta/models/{model}:streamGenerateContent</code> — ストリーミング生成（SSE）。</li>
+        <li><code>POST /v1/models/{model}:generateContent</code> / <code>:streamGenerateContent</code> — 上記の別名として受理します。</li>
+      </ul>
+      <p><code>{model}</code> はプロファイル名です（URL エンコード対応）。<code>gemini-2.0-flash</code> のような実在の Gemini モデル名を送っても、ローカルの現行プロファイルに解決されます。<code>@google/genai</code> / <code>google-generativeai</code> SDK の base URL をこのサーバーへ向けて利用できます。SDK が付与する <code>?key=…</code> クエリや API キーは受理しますが無視されます（認証なし）。<code>:streamGenerateContent</code> は <code>?alt=sse</code> の有無に関わらず常に SSE で応答します。</p>
+      <h3>リクエスト</h3>
+      <table>
+        <thead><tr><th>フィールド</th><th>型</th><th>説明</th></tr></thead>
+        <tbody>
+          <tr><td><code>contents</code></td><td>array</td><td><strong>必須。</strong>欠落・空配列は <code>400 INVALID_ARGUMENT</code>。各要素は <code>{role, parts}</code>。<code>role</code> は <code>user</code> / <code>model</code>（<code>model</code> は内部で <code>assistant</code> に対応）。</td></tr>
+          <tr><td><code>contents[].parts</code></td><td>array</td><td><code>{text}</code>、<code>{inlineData:{mimeType,data}}</code>（base64。<code>audio/*</code> は音声入力、それ以外は画像として扱う）、<code>{fileData:{mimeType,fileUri}}</code>（<code>http(s)</code> の URI のみ取得。<code>gs://</code> 等は無視）、<code>{functionCall:{name,args}}</code>、<code>{functionResponse:{name,response}}</code>（<a href="#multimodal">16 章</a> / <a href="#tools">17 章</a>）。</td></tr>
+          <tr><td><code>systemInstruction</code></td><td>object?</td><td>任意。<code>{parts:[{text:"…"}]}</code>。テキストパーツのみ参照します。</td></tr>
+          <tr><td><code>generationConfig</code></td><td>object?</td><td>任意。<code>maxOutputTokens</code> → <code>num_predict</code>、<code>temperature</code>、<code>topP</code>、<code>topK</code> を解釈します（<a href="#params">13 章</a>）。その他のフィールド（<code>candidateCount</code> / <code>responseMimeType</code> / <code>responseSchema</code> / <code>stopSequences</code> 等）は無視されます。</td></tr>
+          <tr><td><code>tools</code></td><td>array?</td><td>任意。<code>[{functionDeclarations:[{name,description,parameters}]}]</code>。<code>parameters</code> スキーマの型名は大文字（<code>OBJECT</code> / <code>STRING</code> …）でも受理し、内部で小文字化します（<a href="#tools">17 章</a>）。</td></tr>
+          <tr><td><code>toolConfig</code></td><td>object?</td><td>任意。<code>functionCallingConfig.mode</code>：<code>AUTO</code>（既定）/ <code>ANY</code>（呼び出し強制）/ <code>NONE</code>（呼び出し禁止）。</td></tr>
+        </tbody>
+      </table>
+      <h3>非ストリーミング応答</h3>
+      <pre><code>curl "http://localhost:11434/v1beta/models/my-profile:generateContent" -d '{
+  "systemInstruction": {"parts": [{"text": "簡潔に答えてください。"}]},
+  "contents": [
+    {"role": "user", "parts": [{"text": "富士山の標高は？"}]}
+  ],
+  "generationConfig": {"temperature": 0.7, "maxOutputTokens": 256}
+}'</code></pre>
+      <pre><code>{
+  "candidates": [
+    {
+      "content": {
+        "parts": [ { "text": "3,776 m です。" } ],
+        "role": "model"
+      },
+      "finishReason": "STOP",
+      "index": 0
+    }
+  ],
+  "usageMetadata": {
+    "promptTokenCount": 15,
+    "candidatesTokenCount": 8,
+    "totalTokenCount": 23
+  },
+  "modelVersion": "my-profile"
+}</code></pre>
+      <p class="note">思考を有効にすると、<code>parts</code> の先頭に <code>{"thought":true,"text":"…"}</code> ブロックが入り、続けて <code>{"text":"…"}</code> が入ります（<a href="#thinking">15 章</a>）。ツール呼び出し時は <code>{"functionCall":{"name":…,"args":{…}}}</code> パーツを返します（引数は文字列ではなくオブジェクト）。<code>finishReason</code> は <code>STOP</code>、出力トークン上限に達した場合は <code>MAX_TOKENS</code> です。</p>
+      <h3>ストリーミング応答（SSE）</h3>
+      <p><code>:streamGenerateContent</code> は <code>text/event-stream</code> で <code>data: {…}</code> 形式のチャンクを連続送出します（OpenAI のような <code>[DONE]</code> 終端はありません）。各チャンクは <code>candidates[].content.parts[].text</code> の増分を含み、最終チャンクにのみ <code>finishReason</code> と <code>usageMetadata</code> が付きます。思考トークンは <code>{"thought":true,"text":…}</code> パーツとして流れます。</p>
+      <pre><code>data: {"candidates":[{"content":{"parts":[{"text":"3,776 m"}],"role":"model"},"index":0}],"modelVersion":"my-profile"}
+
+data: {"candidates":[{"content":{"parts":[{"text":" です。"}],"role":"model"},"index":0}],"modelVersion":"my-profile"}
+
+data: {"candidates":[{"content":{"parts":[{"text":""}],"role":"model"},"finishReason":"STOP","index":0}],"usageMetadata":{"promptTokenCount":15,"candidatesTokenCount":8,"totalTokenCount":23},"modelVersion":"my-profile"}</code></pre>
+      <p class="note">エラーは Gemini 形式（<code>{"error":{"code":N,"message":"…","status":"…"}}</code>）で返します。<code>status</code> は <code>INVALID_ARGUMENT</code>（<code>400</code>）/ <code>UNAVAILABLE</code>（<code>503</code>）/ <code>INTERNAL</code>（<code>500</code>）等。モデル一覧の取得（<code>GET /v1beta/models</code>）には対応していないため、プロファイル一覧は <code>/v1/models</code>（<a href="#models">8 章</a>）または <code>/api/tags</code> を使ってください。<code>safetySettings</code> / <code>safetyRatings</code> / <code>citationMetadata</code> / 複数候補（<code>candidateCount</code>）はサポートしません。</p>
     </section>
 
     <section class="card" id="models">
