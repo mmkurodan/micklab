@@ -17,11 +17,17 @@
     .lang-switch{color:var(--muted);font-size:14px}
     h1{margin:0 0 12px;font-size:32px}
     h2{margin:0 0 10px;font-size:22px}
-    h3{margin:18px 0 8px;font-size:17px}
+    h3{margin:18px 0 8px;font-size:17px;color:#b7a9ff}
     p{margin:0 0 12px}
-    ul,ol{margin:0;padding-left:22px;color:var(--muted)}
+    ul,ol{margin:0 0 12px;padding-left:22px;color:var(--muted)}
     li+li{margin-top:8px}
     code{background:rgba(255,255,255,0.05);padding:2px 6px;border-radius:4px}
+    .note{background:rgba(255,200,0,0.04);border:1px solid rgba(255,200,0,0.15);border-radius:8px;padding:10px 14px;font-size:13px;color:#f0d070;margin-top:10px}
+    table{width:100%;border-collapse:collapse;font-size:14px;margin-bottom:12px}
+    th{text-align:left;padding:7px 10px;border-bottom:1px solid var(--line);color:#b7a9ff;font-size:12px;font-weight:700;letter-spacing:.04em;text-transform:uppercase}
+    td{padding:7px 10px;border-bottom:1px solid rgba(255,255,255,0.04);color:var(--muted)}
+    td:first-child{color:#e6eef8}
+    tr:last-child td{border-bottom:none}
   </style>
 </head>
 <body>
@@ -39,60 +45,130 @@
   <main>
     <div class="card">
       <h1>User Manual</h1>
-      <p>GGUF Generator takes you from training-data generation to on-device training and GGUF export in a single app. The screen has a fixed status/log area at the top and collapsible sections below.</p>
+      <p>GGUF Generator lets you run the full LLM workflow — interactive learning, LoRA adaptation, training-pair generation, and quantization conversion — entirely on your smartphone. The four main features are each accessible from a tile on the home screen.</p>
     </div>
 
     <div class="card">
       <h2>1. Common Settings</h2>
       <ul>
-        <li>Set the LLM AI server URL (default <code>http://127.0.0.1:11434</code>) and tap "Fetch" to load the model list (also fetched automatically at startup).</li>
+        <li>Set the LLM AI server URL (default <code>http://127.0.0.1:11434</code>) and tap "Fetch" to load the model list (also fetched automatically at launch).</li>
         <li>Select the generation model (LLM) and embedding model (RAG). "Start Server" can launch an external local API server; the status tile shows connectivity.</li>
         <li>Choose the default save location (Downloads / Documents). Individual file references use the standard system dialog.</li>
+        <li>Use input profiles to save and restore named configurations.</li>
       </ul>
     </div>
 
     <div class="card">
-      <h2>2. Pair Generation</h2>
+      <h2>2. Interactive Learning (New GGUF)</h2>
+      <p>Teach a small LLM from scratch through chat — instruction by instruction, response by response. The learning state is saved and resumed as a <strong>Retrainable GGUF</strong>.</p>
+
+      <h3>Basic flow</h3>
       <ol>
-        <li><strong>Input source</strong>: Choose Brave Search / Wikipedia / a URL / an LLM theme prompt, and enter a keyword or URL. Only the fields relevant to the source are shown.</li>
-        <li><strong>Run</strong>: Run "Generate (FG)" (in-app) or "Generate (BG)" (background). Results are saved even if you stop. You can also append to an existing JSONL.</li>
-        <li><strong>Generation options</strong> (optional): Tune sample count and acceptance threshold, and edit the prompt sent to the LLM.</li>
-        <li><strong>Additional processing: augmentation</strong> (optional): Expand the current pairs via translation expansion (multilingual) or paraphrase amplification.</li>
-        <li><strong>Post-processing</strong>: Edit pairs, copy output, or save JSONL. The edited result becomes the "latest" and feeds subsequent augmentation and training.</li>
+        <li>Tap <strong>"New"</strong> to initialize a model. Set the config (dModel / ff / layers / ctx) and learning rate.</li>
+        <li>Type an instruction → tap <strong>"New Learn"</strong> → type the response → tap <strong>"New Learn"</strong>. The model is trained and the result is shown immediately.</li>
+        <li>After training, the button becomes <strong>"Re-learn"</strong>. Tap to reinforce the last pair with repeated training passes.</li>
+        <li><strong>"Response Learn"</strong> uses the model's last reply as the instruction and your input as the response — useful for teaching conversation flow.</li>
+        <li><strong>"Try Inference"</strong> tests the model's current response at any time.</li>
+        <li>Tap <strong>"Export GGUF"</strong> to save a Retrainable GGUF in F32 / F16 / Q8_0 precision.</li>
       </ol>
+
+      <h3>Continuous Learning (tap to expand)</h3>
+      <ul>
+        <li><strong>Import pairs</strong>: Bulk-import a JSONL file, rebuild the BPE vocabulary, and retrain on the entire corpus. Runs in the background — continues even after the app is closed.</li>
+        <li><strong>Target loss</strong>: Train until the slider loss value is reached. Also applies during pair import — auto-stops when the target is hit.</li>
+        <li><strong>Regenerate model</strong>: Rebuild the vocabulary from all data, expand embeddings, and retrain on all pairs.</li>
+      </ul>
+
+      <h3>Resuming from a saved GGUF</h3>
+      <p>Tap <strong>"Load GGUF"</strong> to reload a previously saved Retrainable GGUF. The training corpus history and Adam optimizer state are restored, letting you continue exactly where you left off. See <a href="/gguf/retrainable-en.html">Retrainable GGUF</a> for details.</p>
     </div>
 
     <div class="card">
-      <h2>3. Early Stopping &amp; Evaluation (optional, shared across all training modes)</h2>
+      <h2>3. Interactive Learning (LoRA)</h2>
+      <p>Layer LoRA adapters on top of an existing GGUF model through chat. The base weights are frozen; only the small adapter matrices are trained, keeping things lightweight.</p>
+
+      <h3>Supported architectures</h3>
+      <p>llama / gemma3 / qwen3 / LFM2 (under 1B recommended)</p>
+
+      <h3>Basic flow</h3>
+      <ol>
+        <li>Tap <strong>"Load model"</strong> to load the base GGUF.</li>
+        <li>Use "New Learn" and "Response Learn" to train the adapter interactively (same steps as New GGUF).</li>
+        <li>Tap <strong>"Export adapter"</strong> to save the LoRA adapter GGUF.</li>
+        <li>In-progress state (training pairs + optimizer) is embedded in the adapter GGUF. Resume via "Load adapter".</li>
+      </ol>
+
+      <h3>Continuous LoRA Learning</h3>
       <ul>
-        <li>When "Enable early stopping / evaluation" is on, training stops early once the pass rate reaches the threshold (default 60%).</li>
-        <li>Choose how expected values are specified: manual keywords ("input =&gt; keywordA|keywordB", one per line) or automatic token extraction (top-surprisal).</li>
-        <li>You can set the pass threshold, evaluation interval, max generated tokens, and number of evaluation cases.</li>
+        <li><strong>Import pairs</strong>: Bulk-import JSONL and retrain all pairs for LoRA. Runs in the background.</li>
+        <li><strong>Retrain all</strong>: Re-run the full corpus with updated settings (LR, epochs).</li>
+      </ul>
+
+      <h3>LoRA settings (tap to expand)</h3>
+      <table>
+        <thead><tr><th>Parameter</th><th>Description</th><th>Guide</th></tr></thead>
+        <tbody>
+          <tr><td>rank (r)</td><td>Adapter capacity (low-rank dimension)</td><td>4–16 (8 recommended)</td></tr>
+          <tr><td>alpha (α)</td><td>Effective scale = α ÷ r</td><td>Same as rank or 1–2×</td></tr>
+          <tr><td>Learning rate</td><td>Adam update step size</td><td>0.001–0.003</td></tr>
+          <tr><td>Steps/pair</td><td>Max epochs per pair</td><td>1–3</td></tr>
+          <tr><td>targets</td><td>Target projections (q,v by default)</td><td>q,k,v,o,gate,up,down</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="card">
+      <h2>4. Pair Edit &amp; Generation</h2>
+      <p>Use an LLM server to auto-generate and edit training pairs. Saved pairs feed directly into Interactive Learning batch import.</p>
+
+      <h3>Pair list operations</h3>
+      <ul>
+        <li>Tap a row to edit, long-press to copy or delete. Check boxes to multi-select.</li>
+        <li>"Load" reads a JSONL file; "Save" writes one.</li>
+      </ul>
+
+      <h3>LLM operations</h3>
+      <ul>
+        <li><strong>Add new pairs</strong>: Generate N pairs from a prompt instruction, optionally using source material (URL / one Wikipedia result).</li>
+        <li><strong>Edit pairs</strong>: Transform selected pairs one by one with the LLM (translate, rephrase, rewrite, etc.).</li>
+        <li><strong>Derive</strong>: Use selected pairs as seeds and generate N new pairs from each one.</li>
+      </ul>
+      <div class="note">
+        LLM operations require an Ollama-compatible server. Set the server URL and model in Settings → "Fetch" first.
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>5. Quantization Conversion</h2>
+      <p>Convert any existing GGUF file to a different quantization type on-device.</p>
+      <ol>
+        <li>Tap <strong>"Pick source GGUF"</strong> to select the source file.</li>
+        <li>Select the target quantization type (F32 &gt; F16 &gt; Q8_0 &gt; Q6_K &gt; Q5_K_M &gt; Q4_K_M &gt; Q3_K_M &gt; Q2_K — progressively smaller, faster, and lower precision).</li>
+        <li>Tap <strong>"Run quantization"</strong>.</li>
+      </ol>
+      <ul>
+        <li>1-D tensors (norm gains) are always kept at F32.</li>
+        <li>Matrices whose row length is not a multiple of the block size fall back to F16 automatically.</li>
       </ul>
     </div>
 
     <div class="card">
-      <h2>4. Training &amp; GGUF Export</h2>
-      <p>Specify the training data (uses the latest generated/edited result if none selected) and the save location, then pick a training method from the two subsections.</p>
-      <h3>GGUF new creation / refine</h3>
+      <h2>Early Stopping &amp; Evaluation (optional, shared across all training modes)</h2>
       <ul>
-        <li>Select "New creation" or "Refine (continued training)" at the top.</li>
-        <li><strong>New creation</strong>: Set model dimensions, staged target losses, and template, then train a small model from scratch and export <code>F32 / F16 / Q8_0</code> GGUF.</li>
-        <li><strong>Refine</strong>: Select a base GGUF and continue training (dimensions inherited from the base).</li>
-      </ul>
-      <h3>LoRA (LFM2, on-device, pure-C native)</h3>
-      <ul>
-        <li>Select a base LFM2 GGUF and set rank / alpha / lr / epochs / targets to train a LoRA.</li>
-        <li>Exports a llama.cpp-compatible adapter GGUF and a merged full GGUF (loadable standalone). You can also set the merged model card (name / description).</li>
+        <li>When "Enable early stopping / evaluation" is on, training stops automatically once the pass rate reaches the threshold (default 60%).</li>
+        <li>Choose how to specify expected values: <strong>manual keywords</strong> ("input =&gt; keywordA|keywordB", one per line) or <strong>auto token extraction</strong> (top-surprisal).</li>
+        <li>Set the pass threshold, evaluation interval, max generated tokens, and number of evaluation cases.</li>
       </ul>
     </div>
 
     <div class="card">
       <h2>Tips</h2>
       <ul>
-        <li>For staged target losses, larger values mean weaker training (generalization) and smaller values mean stronger training (memorization).</li>
-        <li>On-device training is CPU- and memory-intensive. For long runs, grant notification permission and battery-optimization exemption.</li>
-        <li>Check progress in the log area at the top.</li>
+        <li>For staged target losses, larger values mean weaker training (generalization, more judgment room) and smaller values mean stronger training (memorization).</li>
+        <li>Interactive learning retrains on the full corpus every time a new pair is added. This prevents forgetting but gets heavier as pairs accumulate.</li>
+        <li>On-device training is CPU- and memory-intensive. For long runs, grant notification permission and disable battery optimization.</li>
+        <li>LLM operations (pair edit &amp; gen) need an Ollama-compatible server on the same device or local network.</li>
+        <li>For a deep dive into the Retrainable GGUF format, see <a href="/gguf/retrainable-en.html">Retrainable GGUF</a>.</li>
       </ul>
     </div>
   </main>

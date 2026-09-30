@@ -40,6 +40,10 @@
     td:first-child{color:#e6eef8}
     tr:last-child td{border-bottom:none}
     .note{background:rgba(255,200,0,0.04);border:1px solid rgba(255,200,0,0.15);border-radius:8px;padding:12px 16px;font-size:14px;color:#f0d070;margin-top:14px}
+    .meta-block{background:rgba(255,255,255,0.03);border:1px solid var(--line);border-radius:10px;padding:14px 18px;font-size:13px;font-family:monospace;line-height:2;color:var(--muted)}
+    .meta-block .key{color:#b7a9ff}
+    .meta-block .val{color:#7dd3fc}
+    .meta-block .comment{color:#4a5568;font-style:italic}
     @media (max-width:700px){main{padding:14px}h1{font-size:26px}.flow-step+.flow-step{margin-left:0;margin-top:8px}}
   </style>
 </head>
@@ -59,140 +63,139 @@
     <section class="card">
       <p class="eyebrow">GGUF Generator / 独自形式</p>
       <h1>Retrainable GGUF</h1>
-      <p class="lead">GGUF Generator が出力する GGUF ファイルは、<strong>再ロードしてそのまま追加学習できる</strong>独自の「Retrainable GGUF」形式です。一般的な量子化 GGUF が推論専用であるのに対し、この形式はモデルの重みと学習に必要なメタデータを保持し、インタラクティブモードで即座に学習を再開できます。</p>
+      <p class="lead">GGUF Generator が出力する GGUF は、<strong>再ロードするだけで追加学習を続けられる</strong>「Retrainable GGUF」です。通常の GGUF が推論専用であるのに対し、この形式はモデルの重みに加えて <strong>教材ペア履歴</strong> と <strong>Adam オプティマイザ状態</strong> を内蔵します。一度エクスポートしたファイルを読み込めば、学習を途中からそのまま滑らかに再開できます。</p>
+      <div class="highlight">
+        <strong>世界初の取り組み</strong><br>
+        llama.cpp エコシステムにおいて、教材ペア履歴と Adam 状態を GGUF 内に内蔵し、再ロードで完全継続学習を実現した形式は GGUF Generator が初めてです。
+      </div>
     </section>
 
     <section class="card">
       <h2>通常の GGUF との違い</h2>
       <table>
         <thead>
-          <tr>
-            <th>項目</th>
-            <th>通常の量子化 GGUF</th>
-            <th>Retrainable GGUF</th>
-          </tr>
+          <tr><th>項目</th><th>通常の量子化 GGUF</th><th>Retrainable GGUF</th></tr>
         </thead>
         <tbody>
-          <tr>
-            <td>主な用途</td>
-            <td>推論（テキスト生成）</td>
-            <td>推論 ＋ 追加学習</td>
-          </tr>
-          <tr>
-            <td>重みの精度</td>
-            <td>量子化（Q4/Q8 など）</td>
-            <td>F32（フル精度）または F16 / Q8_0</td>
-          </tr>
-          <tr>
-            <td>追加学習</td>
-            <td>通常不可</td>
-            <td>LOAD GGUF からそのまま再開</td>
-          </tr>
-          <tr>
-            <td>アーキテクチャ</td>
-            <td>LLaMA / Mistral / LFM2 など</td>
-            <td>GGUF Generator 独自の小型 Transformer</td>
-          </tr>
-          <tr>
-            <td>ファイルサイズ</td>
-            <td>パラメータ数・量子化に依存</td>
-            <td>パラメータ数・精度に依存（1M パラメータで F32 ≈ 数 MB）</td>
-          </tr>
-          <tr>
-            <td>llama.cpp 互換</td>
-            <td>互換</td>
-            <td>GGUF 形式として互換（ただしアーキテクチャは独自）</td>
-          </tr>
+          <tr><td>主な用途</td><td>推論（テキスト生成）</td><td>推論 ＋ 追加学習</td></tr>
+          <tr><td>重みの精度</td><td>量子化（Q4/Q8 など）</td><td>F32（フル精度）または F16 / Q8_0</td></tr>
+          <tr><td>追加学習</td><td>通常不可</td><td>LOAD GGUF からそのまま再開</td></tr>
+          <tr><td>忘却防止</td><td>不可</td><td>全ペア履歴で再学習（破滅的忘却を防ぐ）</td></tr>
+          <tr><td>真の継続</td><td>不可</td><td>Adam 状態を引き継いで滑らかに再開</td></tr>
+          <tr><td>アーキテクチャ</td><td>LLaMA / Mistral / LFM2 など</td><td>llama.cpp 互換の小型 Transformer（独自設計）</td></tr>
+          <tr><td>llama.cpp 互換</td><td>互換</td><td>GGUF 形式として互換。カスタムメタは未知KVとして無視される</td></tr>
         </tbody>
       </table>
     </section>
 
     <section class="card">
-      <h2>インタラクティブモードでの再学習フロー</h2>
-      <p>Retrainable GGUF の最も典型的な使い方はインタラクティブ（新規 GGUF）モードです。</p>
+      <h2>内蔵メタデータの仕様</h2>
+      <p>Retrainable GGUF は llama.cpp が未知KVとして無視する領域に、以下の3種類のデータを埋め込みます。推論には一切影響しません。</p>
+
+      <h3>① 教材ペア履歴（<code>training.pairs</code>）</h3>
+      <p>これまでに学習したすべての instruction/output ペアをタブ区切り・改行区切りで格納します。再ロード時にコーパスバッファへ復元され、次回学習で全ペアを再利用できます。</p>
+      <div class="meta-block">
+        <span class="key">training.pairs</span> = <span class="val">"おはよう\tおはようございます\nこんにちは\tこんにちは！\n…"</span>
+      </div>
+
+      <h3>② Adam オプティマイザ状態（<code>training.adam_t / adam_m / adam_v</code>）</h3>
+      <p>Adam の1次モーメント m・2次モーメント v・ステップ数 t を F32 配列でそのまま保存します。これが「<strong>真の継続</strong>」を実現する鍵で、バイアス補正が正しく引き継がれるため学習が途中から滑らかに再開できます。</p>
+      <div class="meta-block">
+        <span class="key">training.adam_t</span> = <span class="val">1420</span>　<span class="comment">// ステップ数</span><br>
+        <span class="key">training.adam_m</span> = <span class="val">float32[P]</span>　<span class="comment">// 1次モーメント（P=パラメータ数）</span><br>
+        <span class="key">training.adam_v</span> = <span class="val">float32[P]</span>　<span class="comment">// 2次モーメント（同上）</span>
+      </div>
+      <div class="note">
+        Adam 状態はモデル本体と同サイズの float32 配列が2本分必要です。dModel=128、4層、vocab=1000 程度の極小モデルでもファイルサイズはモデル本体の約3倍になります（重み＋m＋v）。
+      </div>
+
+      <h3>③ 学習メタ情報</h3>
+      <div class="meta-block">
+        <span class="key">training.samples</span>　<span class="key">training.epochs</span>　<span class="key">training.learning_rate</span>　<span class="key">training.final_loss</span>
+      </div>
+    </section>
+
+    <section class="card">
+      <h2>対話学習での再学習フロー</h2>
+      <p>Retrainable GGUF の最も典型的な使い方が「対話学習（新規GGUF）」モードです。</p>
       <div class="flow">
         <div class="flow-step">
           <div class="flow-label">① 開始</div>
-          <div class="flow-desc">NEW で新規モデルを作成、または LOAD GGUF で既存の Retrainable GGUF を読み込む</div>
+          <div class="flow-desc">「新規作成」で新しいモデルを初期化、または「GGUF読込」で Retrainable GGUF を再ロード</div>
         </div>
         <div class="flow-step">
           <div class="flow-label">② 学習</div>
-          <div class="flow-desc">NEW LEARN（新規ペア）/ RESPONSE LEARN（直前の応答を修正）でリアルタイムに重みを更新</div>
+          <div class="flow-desc">「新規学習」（指示→応答の2段階入力）で即時に重みを更新。毎回コーパス全件を再学習して忘却を防ぐ</div>
         </div>
         <div class="flow-step">
           <div class="flow-label">③ 確認</div>
-          <div class="flow-desc">TRY INFERENCE でモデルの応答を即確認。不正解なら自動で再注入（Re-inject）して続行</div>
+          <div class="flow-desc">「推論試行」で学習結果を即確認。不正解なら「再学習」で直前ペアを繰り返して強化</div>
         </div>
         <div class="flow-step">
           <div class="flow-label">④ 書き出し</div>
-          <div class="flow-desc">EXPORT GGUF で Retrainable GGUF を保存。次回は LOAD GGUF でそのまま再開</div>
+          <div class="flow-desc">「GGUF出力」で Retrainable GGUF を保存。次回は「GGUF読込」でそのまま再開できる</div>
         </div>
       </div>
       <div class="note">
-        EXPORT GGUF は量子化形式（F32 / F16 / Q8_0）を選択して書き出します。F32 が最も再学習に適していますが、ファイルサイズが大きくなります。Q8_0 は精度と容量のバランスが良い選択肢です。
+        「GGUF出力」では精度（F32 / F16 / Q8_0）を選択します。F32 が再学習に最適ですがファイルが大きくなります。Q8_0 は精度と容量のバランスが良い選択肢です。
       </div>
     </section>
 
     <section class="card">
-      <h2>アーキテクチャの特徴</h2>
-      <p>Retrainable GGUF が対象とするのは GGUF Generator が独自に設計した小型 Transformer です。主な構成は以下の通りです。</p>
-      <ul>
-        <li><strong>pre-RMSNorm</strong>: 各ブロック前に RMS 正規化を適用する標準構成</li>
-        <li><strong>RoPE（Rotary Position Embedding）</strong>: 位置エンコーディング</li>
-        <li><strong>SwiGLU</strong>: フィードフォワード層のゲーティング関数</li>
-        <li><strong>Tied 出力</strong>: 埋め込み行列と出力投影を共有してパラメータ数を削減</li>
-        <li><strong>モデル寸法</strong>: <code>dModel / ffDim / layers / ctx</code> を自由に設定可能。100 万パラメータ程度の極小モデルから動作確認済み</li>
-      </ul>
-      <p>このアーキテクチャは llama.cpp が認識できる GGUF メタデータで記述されるため、ファイル形式としては標準 GGUF と互換ですが、推論エンジン側に当該アーキテクチャのサポートが必要です。</p>
-    </section>
-
-    <section class="card">
-      <h2>修正モード（Auto GGUF Gen）での継続学習</h2>
-      <p>インタラクティブモード以外にも、<a href="/gguf.html">Auto GGUF Gen</a> の「修正（追加学習）」モードで既存の Retrainable GGUF を基点として継続学習することができます。</p>
-      <ul>
-        <li>基点 GGUF を選択すると、モデル寸法（dModel / ffDim / layers / ctx）は基点から自動で継承されます。</li>
-        <li>新しい学習データ（JSONL）を用意するだけで、既存の知識を保ちながら内容を追加・修正できます。</li>
-        <li>早期停止機能を使うことで、過学習のリスクを抑えながら効率よく学習できます。</li>
-      </ul>
-    </section>
-
-    <section class="card">
-      <h2>LoRA との使い分け</h2>
-      <p>GGUF Generator には LoRA 学習（LFM2 GGUF 対象）も搭載されています。Retrainable GGUF と LoRA はそれぞれ異なる用途に適しています。</p>
+      <h2>破滅的忘却の防止</h2>
+      <p>対話学習では、新しいペアを追加するたびに<strong>コーパス全件を再学習</strong>します。これにより、新しいことを教えても以前のペアを忘れません（catastrophic forgetting 防止）。</p>
       <table>
-        <thead>
-          <tr>
-            <th>観点</th>
-            <th>Retrainable GGUF（独自モデル）</th>
-            <th>LoRA（既存 LFM2 GGUF）</th>
-          </tr>
-        </thead>
+        <thead><tr><th>操作</th><th>コーパス</th><th>再学習対象</th></tr></thead>
         <tbody>
-          <tr>
-            <td>ベースモデル</td>
-            <td>なし（ゼロから作成）</td>
-            <td>既存の LFM2 GGUF が必要</td>
-          </tr>
-          <tr>
-            <td>学習対象</td>
-            <td>全重み</td>
-            <td>LoRA アダプタのみ</td>
-          </tr>
-          <tr>
-            <td>モデルの能力</td>
-            <td>学習データに特化した小型モデル</td>
-            <td>ベースモデルの能力＋追加ファインチューン</td>
-          </tr>
-          <tr>
-            <td>再利用性</td>
-            <td>LOAD GGUF で再学習</td>
-            <td>SAVE/RESTORE STATE でセッション再開</td>
-          </tr>
-          <tr>
-            <td>出力</td>
-            <td>単独ロード可能な GGUF</td>
-            <td>アダプタ GGUF ＋ 統合版フル GGUF の両方</td>
-          </tr>
+          <tr><td>1件目を教える</td><td>[A→B]</td><td>[A→B] の1件</td></tr>
+          <tr><td>2件目を教える</td><td>[A→B, C→D]</td><td>[A→B, C→D] の2件すべて</td></tr>
+          <tr><td>3件目を教える</td><td>[A→B, C→D, E→F]</td><td>[A→B, C→D, E→F] の3件すべて</td></tr>
+        </tbody>
+      </table>
+      <p style="margin-top:12px">ペア数が増えるほど1回の学習が重くなりますが、数十件規模の小型モデルでは実用的に動作します。ペアファイル取込（バッチ）を使えば大量のペアを一括学習することも可能です。</p>
+    </section>
+
+    <section class="card">
+      <h2>4つの継続パターン</h2>
+
+      <h3>① 対話学習の再開（GGUF読込→続けて学習）</h3>
+      <p>「GGUF読込」で Retrainable GGUF を読み込むと、教材ペア履歴と Adam 状態が復元され、続きからそのまま「新規学習」できます。</p>
+
+      <h3>② ペアファイル取込（バッチ一括学習）</h3>
+      <p>JSONL ファイルを一括インポートし、BPE語彙を再構築してコーパス全件を再学習します。「目標ロス」スライダを設定すれば指定したロス値に到達した時点で自動停止します。</p>
+
+      <h3>③ 語彙拡張を伴う継続学習</h3>
+      <p>新しいデータに未知の文字が含まれる場合、BPE サブワードモデルはバイトフォールバックで対応します（語彙は固定）。char-level モデルは語彙末尾に新文字を追加し埋め込み表を拡張します（既存行の重みは完全保持）。</p>
+
+      <h3>④ LoRA 継続学習（アダプタ再開）</h3>
+      <p>LoRA 対話学習のアダプタ GGUF にも同じ仕組みが適用されます。「モデル読込」→「アダプタ読込」でアダプタの A/B 行列と Adam 状態が復元され、LoRA 学習をそのまま再開できます。</p>
+    </section>
+
+    <section class="card">
+      <h2>モデルアーキテクチャの特徴</h2>
+      <p>Retrainable GGUF が対象とする小型 Transformer の構成です。llama.cpp の <code>LLM_ARCH_LLAMA</code> と互換する GGUF メタデータで記述されます。</p>
+      <ul>
+        <li><strong>pre-RMSNorm</strong>: 各ブロック前に RMS 正規化（ε=1e-5）を適用</li>
+        <li><strong>RoPE（NORM/interleaved）</strong>: 位置エンコード、freq_base=10000</li>
+        <li><strong>SwiGLU</strong>: FFN のゲーティング関数（gate × silu(gate) × up → down）</li>
+        <li><strong>Tied 出力</strong>: 埋め込み行列と出力投影を共有（<code>token_embd.weight</code> のみで tied）</li>
+        <li><strong>単一ヘッド Attention</strong>: head_dim = dModel（現実装）</li>
+        <li><strong>モデル寸法</strong>: <code>dModel / ffHidden / 層数 / 文脈長</code> を自由に設定。100万パラメータ程度の極小モデルから動作</li>
+      </ul>
+      <p>生成した GGUF は llama.cpp および <a href="https://micklab.web.app">llama.cpp Android サーバアプリ</a> でそのまま推論できます。</p>
+    </section>
+
+    <section class="card">
+      <h2>Retrainable GGUF vs. LoRA 対話学習</h2>
+      <table>
+        <thead><tr><th>観点</th><th>Retrainable GGUF（新規GGUF）</th><th>LoRA 対話学習（既存モデル）</th></tr></thead>
+        <tbody>
+          <tr><td>ベースモデル</td><td>なし（ゼロから作成）</td><td>既存の GGUF が必要（llama/gemma3/qwen3/LFM2）</td></tr>
+          <tr><td>学習対象</td><td>全重み</td><td>LoRA アダプタのみ（基底凍結）</td></tr>
+          <tr><td>モデルの能力</td><td>学習データに特化した小型モデル</td><td>ベースモデルの能力＋ファインチューン</td></tr>
+          <tr><td>再開方法</td><td>「GGUF読込」で即再開</td><td>「モデル読込」→「アダプタ読込」で再開</td></tr>
+          <tr><td>出力</td><td>単独ロード可能な GGUF</td><td>アダプタ GGUF ＋ 統合版フル GGUF</td></tr>
+          <tr><td>必要容量</td><td>dModel に比例（小型なら数MB）</td><td>rank × 対象行列数（軽量）</td></tr>
         </tbody>
       </table>
     </section>

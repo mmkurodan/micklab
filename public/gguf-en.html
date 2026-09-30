@@ -57,7 +57,7 @@
       <div class="highlight">
         <ul>
           <li><strong>Interactive mode</strong> (New GGUF / LoRA) — teach the model in real time through a chat interface.</li>
-          <li><strong>Auto mode</strong> — generate Q/A pairs from Brave Search / Wikipedia / URL / LLM theme, then train and export GGUF automatically.</li>
+          <li><strong>Pair editing &amp; generation</strong> — add, edit, and derive Q/A pairs by prompt instruction (input source: a URL or one Wikipedia result). Saved pairs feed straight into interactive learning.</li>
           <li><strong>Quantize</strong> — convert any GGUF to a different quantization type (F32 / F16 / Q8_0 / Q4_K_M / Q2_K, etc.).</li>
           <li>All exported GGUFs are <strong>Retrainable</strong> — reload and keep training at any time.</li>
         </ul>
@@ -77,7 +77,7 @@
         </figure>
         <figure>
           <img src="/gguf/Screenshot_20260920_171610.jpg" alt="Interactive LoRA">
-          <figcaption>Interactive (LoRA). Load an existing LFM2 GGUF and train a LoRA adapter through conversation. Save / restore session state and export a llama.cpp-compatible adapter.</figcaption>
+          <figcaption>Interactive (LoRA). Load an existing GGUF (llama / gemma3 / qwen3 / LFM2) and train a LoRA adapter through conversation. The adapter GGUF embeds training state, so you can reload it to resume.</figcaption>
         </figure>
         <figure>
           <img src="/gguf/Screenshot_20260920_171128.jpg" alt="Quantize">
@@ -85,7 +85,7 @@
         </figure>
         <figure>
           <img src="/gguf/Screenshot_20260920_171210.jpg" alt="Auto Pair Gen">
-          <figcaption>Auto Pair Gen. Generate Q/A training pairs from Wikipedia search, Brave Search, a URL, or an LLM theme prompt, with configurable pair count and RAG threshold.</figcaption>
+          <figcaption>Pair editing &amp; generation. Work on the current pair list; add, edit, and derive pairs by prompt instruction. Input source is a URL or one Wikipedia result.</figcaption>
         </figure>
         <figure>
           <img src="/gguf/Screenshot_20260920_171249.jpg" alt="Auto GGUF Gen">
@@ -102,11 +102,11 @@
       <h2>Key Features</h2>
       <ul>
         <li><strong>Interactive training — New GGUF</strong>: Three chat actions — NEW LEARN (new instruction + response pair), RESPONSE LEARN (learn from last model output as a reply), TRY INFERENCE (check what the model says now) — let you grow a model in real time. Bad answers are automatically re-injected for correction. LOAD GGUF resumes a previous session; EXPORT GGUF writes the result.</li>
-        <li><strong>Interactive LoRA</strong>: Fine-tune a LoRA on an existing LFM2 GGUF through conversation. SAVE STATE / RESTORE STATE let you pause and resume. EXPORT ADAPTER writes a llama.cpp-compatible adapter GGUF.</li>
+        <li><strong>Interactive LoRA</strong>: Fine-tune a LoRA on an existing GGUF (llama / gemma3 / qwen3 / LFM2) through conversation. EXPORT ADAPTER writes a llama.cpp-compatible adapter GGUF that embeds the training state (pairs + optimizer); resume via Load model then Load adapter. Temperature, max new tokens, and context length are configurable, and Think (reasoning output) can be disabled for Qwen3 during evaluation.</li>
         <li><strong>Quantize</strong>: Convert any GGUF to F32 / F16 / Q8_0 / Q4_K_M / Q2_K and more. 1-D tensors (norm gains) stay F32 for accuracy; matrices whose row length is not block-aligned fall back to F16 automatically.</li>
-        <li><strong>Auto Pair Gen</strong>: Generate Q/A training pairs with RAG evaluation from Brave Search, Wikipedia, a URL, or an LLM theme prompt. Supports foreground (FG) and background (BG) execution with stop and resume.</li>
+        <li><strong>Pair editing &amp; generation</strong>: Work on the displayed pair list and, by prompt instruction to the LLM, "add new pairs", "edit selected pairs", or "derive" new pairs from a selection. Attach a URL or one Wikipedia result as source material; clear and save are supported, and saved pairs feed interactive continuous learning with no file picker. (RAG evaluation and Brave search are currently disabled.)</li>
         <li><strong>Auto GGUF Gen</strong>: Batch-train from a JSONL file using GGUF new creation, refine (continued training), or LFM2 LoRA mode. Exports <code>F32 / F16 / Q8_0</code> GGUF.</li>
-        <li><strong>Augmentation &amp; editing</strong>: Amplify existing pairs via translation expansion (multilingual) and paraphrasing. Edited results become the "latest" and feed subsequent augmentation and training.</li>
+        <li><strong>Pair editing</strong>: Load, save, clear, and add manually; multi-select via checkboxes to target a subset for prompt-based editing and derivation. Edited results become the "latest" and feed subsequent training directly.</li>
         <li><strong>Keyword evaluation &amp; early stopping</strong>: Stop training early via manual keywords or automatic top-surprisal token extraction once the pass rate hits the threshold. Shared across all training modes.</li>
         <li><strong>Ollama-compatible server integration</strong>: Connects to the LLM server URL in settings (default <code>http://127.0.0.1:11434</code>). Also serves a built-in Web AI Chat for browser-based chat with any loaded model.</li>
         <li><strong>Retrainable GGUF</strong>: Every GGUF the app exports can be reloaded and trained further. <a href="/gguf/retrainable-en.html">Learn more</a> about the format and how to use it.</li>
@@ -117,7 +117,7 @@
     <section class="card">
       <h2>Operational Notes</h2>
       <ul>
-        <li>Pair generation and augmentation involve communication with the user-configured LLM server (on-device by default), the Brave Search API, Wikipedia, or a specified URL. Content sent and destinations depend on your input and actions.</li>
+        <li>Pair generation and editing involve communication with the user-configured LLM server (on-device by default), Wikipedia, or a specified URL. Content sent and destinations depend on your input and actions.</li>
         <li>On-device training is CPU- and memory-intensive. For long runs, granting notification permission and battery-optimization exemption is recommended.</li>
         <li>Quantization has dimension constraints (Q8_0 requires multiples of 32). Model dimensions for new creation may be automatically rounded or reduced.</li>
       </ul>

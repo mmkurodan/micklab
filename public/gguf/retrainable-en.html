@@ -40,6 +40,10 @@
     td:first-child{color:#e6eef8}
     tr:last-child td{border-bottom:none}
     .note{background:rgba(255,200,0,0.04);border:1px solid rgba(255,200,0,0.15);border-radius:8px;padding:12px 16px;font-size:14px;color:#f0d070;margin-top:14px}
+    .meta-block{background:rgba(255,255,255,0.03);border:1px solid var(--line);border-radius:10px;padding:14px 18px;font-size:13px;font-family:monospace;line-height:2;color:var(--muted)}
+    .meta-block .key{color:#b7a9ff}
+    .meta-block .val{color:#7dd3fc}
+    .meta-block .comment{color:#4a5568;font-style:italic}
     @media (max-width:700px){main{padding:14px}h1{font-size:26px}.flow-step+.flow-step{margin-left:0;margin-top:8px}}
   </style>
 </head>
@@ -59,52 +63,54 @@
     <section class="card">
       <p class="eyebrow">GGUF Generator / Proprietary Format</p>
       <h1>Retrainable GGUF</h1>
-      <p class="lead">Every GGUF exported by GGUF Generator is a <strong>Retrainable GGUF</strong> — a file you can reload at any time and keep training. Where a standard quantized GGUF is inference-only, a Retrainable GGUF preserves the model weights and metadata needed to resume training immediately in Interactive mode.</p>
+      <p class="lead">Every GGUF exported by GGUF Generator is a <strong>Retrainable GGUF</strong> — reload it any time and keep training right where you left off. Where a standard quantized GGUF is inference-only, a Retrainable GGUF embeds the <strong>training corpus history</strong> and the <strong>Adam optimizer state</strong> alongside the model weights, enabling seamless, true continuation of learning.</p>
+      <div class="highlight">
+        <strong>A world first</strong><br>
+        No other tool in the llama.cpp ecosystem embeds training corpus history and full Adam state inside a GGUF file to enable complete continuation training on reload.
+      </div>
     </section>
 
     <section class="card">
       <h2>How It Differs from a Standard GGUF</h2>
       <table>
-        <thead>
-          <tr>
-            <th>Aspect</th>
-            <th>Standard quantized GGUF</th>
-            <th>Retrainable GGUF</th>
-          </tr>
-        </thead>
+        <thead><tr><th>Aspect</th><th>Standard quantized GGUF</th><th>Retrainable GGUF</th></tr></thead>
         <tbody>
-          <tr>
-            <td>Primary use</td>
-            <td>Inference (text generation)</td>
-            <td>Inference + continued training</td>
-          </tr>
-          <tr>
-            <td>Weight precision</td>
-            <td>Quantized (Q4, Q8, etc.)</td>
-            <td>F32 (full precision), F16, or Q8_0</td>
-          </tr>
-          <tr>
-            <td>Continued training</td>
-            <td>Not supported</td>
-            <td>Resume instantly via LOAD GGUF</td>
-          </tr>
-          <tr>
-            <td>Architecture</td>
-            <td>LLaMA / Mistral / LFM2, etc.</td>
-            <td>GGUF Generator's own small Transformer</td>
-          </tr>
-          <tr>
-            <td>File size</td>
-            <td>Depends on params &amp; quant type</td>
-            <td>Depends on params &amp; precision (F32 ≈ a few MB for 1M params)</td>
-          </tr>
-          <tr>
-            <td>llama.cpp compatibility</td>
-            <td>Compatible</td>
-            <td>GGUF format-compatible (architecture is proprietary)</td>
-          </tr>
+          <tr><td>Primary use</td><td>Inference (text generation)</td><td>Inference + continued training</td></tr>
+          <tr><td>Weight precision</td><td>Quantized (Q4, Q8, etc.)</td><td>F32 (full precision), F16, or Q8_0</td></tr>
+          <tr><td>Continued training</td><td>Not supported</td><td>Resume instantly via Load GGUF</td></tr>
+          <tr><td>Forgetting prevention</td><td>Not applicable</td><td>All corpus pairs replayed on every training step</td></tr>
+          <tr><td>True continuation</td><td>Not possible</td><td>Adam state carried over for smooth resumption</td></tr>
+          <tr><td>Architecture</td><td>LLaMA / Mistral / LFM2, etc.</td><td>llama.cpp-compatible small Transformer (proprietary design)</td></tr>
+          <tr><td>llama.cpp compatibility</td><td>Compatible</td><td>GGUF format compatible; custom metadata is ignored as unknown KV</td></tr>
         </tbody>
       </table>
+    </section>
+
+    <section class="card">
+      <h2>Embedded Metadata Specification</h2>
+      <p>A Retrainable GGUF stores three categories of data in fields that llama.cpp ignores as unknown KV entries. Inference is completely unaffected.</p>
+
+      <h3>① Training corpus history (<code>training.pairs</code>)</h3>
+      <p>Every instruction/output pair taught so far is stored as tab-separated, newline-separated text. On reload the corpus buffer is restored, so all previous pairs are available for the next training run.</p>
+      <div class="meta-block">
+        <span class="key">training.pairs</span> = <span class="val">"Good morning\tGood morning!\nHow are you?\tI'm fine, thanks\n…"</span>
+      </div>
+
+      <h3>② Adam optimizer state (<code>training.adam_t / adam_m / adam_v</code>)</h3>
+      <p>The first moment m, second moment v, and step count t are saved as raw float32 arrays. This is what makes <strong>true continuation</strong> possible: bias correction picks up at the right step, so learning resumes smoothly with no warm-up overhead.</p>
+      <div class="meta-block">
+        <span class="key">training.adam_t</span> = <span class="val">1420</span>　<span class="comment">// step count</span><br>
+        <span class="key">training.adam_m</span> = <span class="val">float32[P]</span>　<span class="comment">// first moment (P = parameter count)</span><br>
+        <span class="key">training.adam_v</span> = <span class="val">float32[P]</span>　<span class="comment">// second moment</span>
+      </div>
+      <div class="note">
+        The Adam state is two float32 arrays each the same size as the model. The Retrainable GGUF is roughly 3× the size of the raw model weights (weights + m + v). For a tiny model of ~1M parameters at F32, expect a few MB total.
+      </div>
+
+      <h3>③ Training metadata</h3>
+      <div class="meta-block">
+        <span class="key">training.samples</span>　<span class="key">training.epochs</span>　<span class="key">training.learning_rate</span>　<span class="key">training.final_loss</span>
+      </div>
     </section>
 
     <section class="card">
@@ -113,86 +119,81 @@
       <div class="flow">
         <div class="flow-step">
           <div class="flow-label">① Start</div>
-          <div class="flow-desc">Tap NEW to create a fresh model, or LOAD GGUF to resume from an existing Retrainable GGUF.</div>
+          <div class="flow-desc">Tap "New" to create a fresh model, or "Load GGUF" to reload an existing Retrainable GGUF.</div>
         </div>
         <div class="flow-step">
           <div class="flow-label">② Train</div>
-          <div class="flow-desc">NEW LEARN (new pair) / RESPONSE LEARN (correct last reply) update the model weights in real time.</div>
+          <div class="flow-desc">"New Learn" (two-step: instruction → response) updates the weights immediately. Every step replays the full corpus to prevent forgetting.</div>
         </div>
         <div class="flow-step">
           <div class="flow-label">③ Verify</div>
-          <div class="flow-desc">TRY INFERENCE checks the model's current response. Wrong answers trigger automatic re-injection and another training step.</div>
+          <div class="flow-desc">"Try Inference" checks the current response. Wrong answers? Tap "Re-learn" to reinforce the last pair.</div>
         </div>
         <div class="flow-step">
           <div class="flow-label">④ Export</div>
-          <div class="flow-desc">EXPORT GGUF saves a Retrainable GGUF. Load it next session to pick up exactly where you left off.</div>
+          <div class="flow-desc">"Export GGUF" saves a Retrainable GGUF. Reload it next session to pick up exactly where you stopped.</div>
         </div>
       </div>
       <div class="note">
-        EXPORT GGUF lets you choose the quantization format (F32 / F16 / Q8_0). F32 is best for continued training but produces larger files. Q8_0 is a good balance between precision and file size.
+        "Export GGUF" lets you choose the precision (F32 / F16 / Q8_0). F32 is best for continued training but produces larger files. Q8_0 is a good balance between precision and size.
       </div>
+    </section>
+
+    <section class="card">
+      <h2>Catastrophic Forgetting Prevention</h2>
+      <p>Every time you add a new pair in interactive learning, the model is retrained on <strong>the full corpus</strong>. This prevents the model from forgetting earlier pairs when new ones are added.</p>
+      <table>
+        <thead><tr><th>Action</th><th>Corpus</th><th>What gets retrained</th></tr></thead>
+        <tbody>
+          <tr><td>Teach pair 1</td><td>[A→B]</td><td>[A→B] — 1 pair</td></tr>
+          <tr><td>Teach pair 2</td><td>[A→B, C→D]</td><td>[A→B, C→D] — all 2 pairs</td></tr>
+          <tr><td>Teach pair 3</td><td>[A→B, C→D, E→F]</td><td>[A→B, C→D, E→F] — all 3 pairs</td></tr>
+        </tbody>
+      </table>
+      <p style="margin-top:12px">Each training step gets heavier as the corpus grows, but this approach works well at the scale of tens of pairs typical for a small interactive model. Use Batch Pair Import to handle larger datasets efficiently.</p>
+    </section>
+
+    <section class="card">
+      <h2>Four Continuation Patterns</h2>
+
+      <h3>① Resume interactive learning (Load GGUF → keep teaching)</h3>
+      <p>Loading a Retrainable GGUF restores the corpus history and Adam state. You can immediately continue with "New Learn" — no warm-up, no re-teaching.</p>
+
+      <h3>② Batch pair import</h3>
+      <p>Import a JSONL file to bulk-add pairs, rebuild the BPE vocabulary, and retrain on the entire corpus. Set the target loss slider to stop automatically when the model converges.</p>
+
+      <h3>③ Continued training with vocabulary expansion</h3>
+      <p>BPE subword models keep the vocabulary fixed (unknown characters fall back to byte tokens). Character-level models extend the vocabulary for new characters and expand the embedding table, preserving all existing weight rows.</p>
+
+      <h3>④ LoRA continuation (resume from adapter)</h3>
+      <p>The same mechanism applies to LoRA interactive learning. "Load model" → "Load adapter" restores the adapter A/B matrices and their Adam state, letting you resume LoRA fine-tuning seamlessly.</p>
     </section>
 
     <section class="card">
       <h2>Architecture Details</h2>
-      <p>Retrainable GGUF targets the small Transformer architecture designed by GGUF Generator:</p>
+      <p>The small Transformer targeted by Retrainable GGUF is described with <code>LLM_ARCH_LLAMA</code>-compatible GGUF metadata:</p>
       <ul>
-        <li><strong>pre-RMSNorm</strong>: RMS normalization applied before each block.</li>
-        <li><strong>RoPE (Rotary Position Embedding)</strong>: Position encoding.</li>
-        <li><strong>SwiGLU</strong>: Gating function in the feed-forward layer.</li>
-        <li><strong>Tied output</strong>: Embedding and output projection share weights, reducing parameter count.</li>
-        <li><strong>Configurable dimensions</strong>: <code>dModel / ffDim / layers / ctx</code> are freely set at creation time. Verified to work at ~1 million parameters.</li>
+        <li><strong>pre-RMSNorm</strong>: RMS normalization before each block (ε = 1e-5, gain vector included)</li>
+        <li><strong>RoPE (NORM/interleaved)</strong>: rotary position encoding, freq_base = 10 000</li>
+        <li><strong>SwiGLU</strong>: gating function in the feed-forward layer (gate × silu(gate) × up → down)</li>
+        <li><strong>Tied output</strong>: embedding and output projection share <code>token_embd.weight</code></li>
+        <li><strong>Single-head attention</strong>: head_dim = dModel (current implementation)</li>
+        <li><strong>Configurable dimensions</strong>: dModel / ffHidden / layers / ctx are set at creation. Verified to work at ~1M parameters.</li>
       </ul>
-      <p>The architecture is described in standard GGUF metadata, so the file format is compatible with the GGUF ecosystem — but inference engines need explicit support for this architecture to run it.</p>
+      <p>The exported GGUF runs on llama.cpp and the <a href="https://micklab.web.app">llama.cpp Android server app</a> without modification.</p>
     </section>
 
     <section class="card">
-      <h2>Continued Training via Refine Mode (Auto GGUF Gen)</h2>
-      <p>Beyond Interactive mode, <a href="/gguf-en.html">Auto GGUF Gen</a>'s <em>Refine</em> option lets you continue training an existing Retrainable GGUF in a batch workflow.</p>
-      <ul>
-        <li>Select the base GGUF — model dimensions (<code>dModel / ffDim / layers / ctx</code>) are inherited automatically.</li>
-        <li>Supply new training data (JSONL) to extend or revise the model's knowledge without starting from scratch.</li>
-        <li>Use early stopping to limit overfitting while keeping training efficient.</li>
-      </ul>
-    </section>
-
-    <section class="card">
-      <h2>Retrainable GGUF vs. LoRA</h2>
-      <p>GGUF Generator also supports LoRA fine-tuning on existing LFM2 GGUFs. Here's how the two approaches compare:</p>
+      <h2>Retrainable GGUF vs. LoRA Interactive Learning</h2>
       <table>
-        <thead>
-          <tr>
-            <th>Aspect</th>
-            <th>Retrainable GGUF (own model)</th>
-            <th>LoRA (existing LFM2 GGUF)</th>
-          </tr>
-        </thead>
+        <thead><tr><th>Aspect</th><th>Retrainable GGUF (New GGUF)</th><th>LoRA Interactive Learning</th></tr></thead>
         <tbody>
-          <tr>
-            <td>Base model</td>
-            <td>None — trained from scratch</td>
-            <td>Requires an existing LFM2 GGUF</td>
-          </tr>
-          <tr>
-            <td>What's trained</td>
-            <td>All weights</td>
-            <td>LoRA adapter weights only</td>
-          </tr>
-          <tr>
-            <td>Model capability</td>
-            <td>Small model specialized on training data</td>
-            <td>Base model capability + fine-tune</td>
-          </tr>
-          <tr>
-            <td>Reuse</td>
-            <td>LOAD GGUF to resume training</td>
-            <td>SAVE / RESTORE STATE for session continuity</td>
-          </tr>
-          <tr>
-            <td>Output</td>
-            <td>Standalone GGUF</td>
-            <td>Adapter GGUF + merged full GGUF (both)</td>
-          </tr>
+          <tr><td>Base model</td><td>None — trained from scratch</td><td>Requires an existing GGUF (llama/gemma3/qwen3/LFM2)</td></tr>
+          <tr><td>What's trained</td><td>All weights</td><td>LoRA adapter weights only (base frozen)</td></tr>
+          <tr><td>Model capability</td><td>Small model specialized on training data</td><td>Base model capability + fine-tune delta</td></tr>
+          <tr><td>How to resume</td><td>"Load GGUF" — instant</td><td>"Load model" → "Load adapter"</td></tr>
+          <tr><td>Output</td><td>Standalone GGUF</td><td>Adapter GGUF + merged full GGUF (both)</td></tr>
+          <tr><td>File size</td><td>Proportional to dModel (a few MB for tiny models)</td><td>Proportional to rank × target count (lightweight)</td></tr>
         </tbody>
       </table>
     </section>

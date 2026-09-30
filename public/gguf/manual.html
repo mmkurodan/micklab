@@ -17,11 +17,17 @@
     .lang-switch{color:var(--muted);font-size:14px}
     h1{margin:0 0 12px;font-size:32px}
     h2{margin:0 0 10px;font-size:22px}
-    h3{margin:18px 0 8px;font-size:17px}
+    h3{margin:18px 0 8px;font-size:17px;color:#b7a9ff}
     p{margin:0 0 12px}
-    ul,ol{margin:0;padding-left:22px;color:var(--muted)}
+    ul,ol{margin:0 0 12px;padding-left:22px;color:var(--muted)}
     li+li{margin-top:8px}
     code{background:rgba(255,255,255,0.05);padding:2px 6px;border-radius:4px}
+    .note{background:rgba(255,200,0,0.04);border:1px solid rgba(255,200,0,0.15);border-radius:8px;padding:10px 14px;font-size:13px;color:#f0d070;margin-top:10px}
+    table{width:100%;border-collapse:collapse;font-size:14px;margin-bottom:12px}
+    th{text-align:left;padding:7px 10px;border-bottom:1px solid var(--line);color:#b7a9ff;font-size:12px;font-weight:700;letter-spacing:.04em;text-transform:uppercase}
+    td{padding:7px 10px;border-bottom:1px solid rgba(255,255,255,0.04);color:var(--muted)}
+    td:first-child{color:#e6eef8}
+    tr:last-child td{border-bottom:none}
   </style>
 </head>
 <body>
@@ -39,7 +45,7 @@
   <main>
     <div class="card">
       <h1>操作マニュアル</h1>
-      <p>GGUF Generator は、学習データ生成 → 端末内学習 → GGUF 出力を一つのアプリで行います。画面は上部の固定ステータス／ログと、折りたたみ式の各セクションで構成されます。</p>
+      <p>GGUF Generator は、対話学習・LoRA適応・ペア自動生成・量子化変換をスマートフォン上で完結できるアプリです。主な機能はホーム画面のタイルから開く4つの画面に分かれています。</p>
     </div>
 
     <div class="card">
@@ -48,51 +54,121 @@
         <li>LLM AI サーバ URL（既定 <code>http://127.0.0.1:11434</code>）を設定し、「取得」でモデル一覧を読み込みます（起動時にも自動取得）。</li>
         <li>生成モデル（LLM）と埋め込みモデル（RAG）を選択します。「サーバ起動」で外部のローカル API サーバを起動できます。状態タイルで接続可否を確認できます。</li>
         <li>デフォルト保存先（Downloads / Documents）を指定します。個別のファイル参照は標準ダイアログで選択します。</li>
+        <li>入力プロファイルで各種設定を名前付きで保存・復元できます。</li>
       </ul>
     </div>
 
     <div class="card">
-      <h2>② ペア生成</h2>
+      <h2>② 対話学習（新規 GGUF）</h2>
+      <p>指示と応答のペアをチャット形式で教え込みながら、小型 LLM モデルをその場でゼロから作成します。学習状態は「Retrainable GGUF」として保存・再開できます。</p>
+
+      <h3>基本操作</h3>
       <ol>
-        <li><strong>入力ソース</strong>: Brave 検索 / Wikipedia / URL 指定 / LLM テーマ指示 から選び、キーワードや URL を入力します。ソースに応じて必要な入力欄だけが表示されます。</li>
-        <li><strong>実行</strong>: 「ペア生成(FG)」（アプリ内）または「ペア生成(BG)」（バックグラウンド継続）を実行します。停止しても成果は保存されます。既存 JSONL への追記も可能です。</li>
-        <li><strong>生成オプション</strong>（任意）: 生成件数・採用閾値などの調整と、LLM へ渡すプロンプトの編集を行います。</li>
-        <li><strong>追加処理: データ拡張</strong>（任意）: 翻訳展開（多言語化）や言い換え増幅で現在のペアを拡張します。</li>
-        <li><strong>実行後処理</strong>: 「ペアを編集」で内容を修正、「出力コピー」「JSONL保存」で保存します。編集結果は最新として以後の拡張・学習に反映されます。</li>
+        <li>「<strong>新規作成</strong>」でモデルを初期化。構成（dModel / ff / 層数 / 文脈長）と学習率を設定します。</li>
+        <li>指示を入力 → 「<strong>新規学習</strong>」 → 応答を入力 → 「<strong>新規学習</strong>」で学習＋推論確認。</li>
+        <li>学習後は「<strong>再学習</strong>」ボタンに変わります。タップすると直前のペアを繰り返し強化できます。</li>
+        <li>「<strong>応答学習</strong>」は直前のモデル応答を指示として次の入力を応答に学習します（会話フロー学習用）。</li>
+        <li>「<strong>推論試行</strong>」で現在の学習状態を確認できます。</li>
+        <li>「<strong>GGUF出力</strong>」で F32 / F16 / Q8_0 を選んで Retrainable GGUF を保存します。</li>
       </ol>
+
+      <h3>連続学習（タップで展開）</h3>
+      <ul>
+        <li><strong>ペアファイル取込</strong>: JSONL を一括インポート。BPE 語彙を再構築してコーパス全件を再学習します。バックグラウンドで実行し、アプリを閉じても継続します。</li>
+        <li><strong>目標ロス</strong>: スライダで指定した損失値まで追加学習します。ペアファイル取込時も目標ロスが参照され、到達した時点で自動停止します。</li>
+        <li><strong>モデル再生成</strong>: 語彙を全データから再構築し、埋め込みを拡張して全ペアで再学習します。</li>
+      </ul>
+
+      <h3>GGUF 読込からの継続</h3>
+      <p>「<strong>GGUF読込</strong>」で以前に保存した Retrainable GGUF を読み込むと、教材ペア履歴と Adam 最適化状態が復元され、続きから学習を再開できます（<a href="/gguf/retrainable.html">Retrainable GGUF の詳細</a>）。</p>
     </div>
 
     <div class="card">
-      <h2>③ 早期停止・評価（任意・全学習モード共通）</h2>
+      <h2>③ 対話学習（LoRA）</h2>
+      <p>既存の GGUF モデルに LoRA アダプタを重ねて対話学習します。基底重みを凍結し、アダプタのみを学習するため軽量です。</p>
+
+      <h3>対応アーキテクチャ</h3>
+      <p>llama / gemma3 / qwen3 / LFM2（1B 未満推奨）</p>
+
+      <h3>基本操作</h3>
+      <ol>
+        <li>「<strong>モデル読込</strong>」でベース GGUF を読み込みます。</li>
+        <li>「新規学習」「応答学習」で対話形式でアダプタを学習します（操作は新規GGUF と同じ）。</li>
+        <li>「<strong>アダプタ出力</strong>」で LoRA アダプタ GGUF を保存します。</li>
+        <li>途中状態（教材ペア＋最適化状態）はアダプタ GGUF に内蔵。「アダプタ読込」で再開できます。</li>
+      </ol>
+
+      <h3>連続 LoRA 学習</h3>
       <ul>
-        <li>「早期停止・評価を有効にする」をオンにすると、評価が合格閾値（既定 60%）に達した時点で学習を早期終了します。</li>
-        <li>期待値の指定方法は、手動キーワード（「入力 => キーワードA|キーワードB」を 1 行 1 件）または トークン自動抽出（surprisal 上位）から選べます。</li>
+        <li><strong>ペアファイル取込</strong>: JSONL を一括インポートして全ペアで LoRA 再学習します。バックグラウンドで実行。</li>
+        <li><strong>全ペア再学習</strong>: 設定（LR・回数）を変更後に全コーパスで再学習する際に使用します。</li>
+      </ul>
+
+      <h3>LoRA 設定（タップで展開）</h3>
+      <table>
+        <thead><tr><th>パラメータ</th><th>説明</th><th>目安</th></tr></thead>
+        <tbody>
+          <tr><td>rank (r)</td><td>アダプタの容量（低ランク次元）</td><td>4〜16（標準8）</td></tr>
+          <tr><td>alpha (α)</td><td>適用強度。実効スケール = α÷r</td><td>rank と同値か1〜2倍</td></tr>
+          <tr><td>学習率</td><td>Adam の更新幅</td><td>0.001〜0.003</td></tr>
+          <tr><td>学習回数</td><td>ペアあたりの最大エポック数</td><td>1〜3</td></tr>
+          <tr><td>targets</td><td>対象投影（q,v が既定）</td><td>q,k,v,o,gate,up,down</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="card">
+      <h2>④ ペア編集・生成</h2>
+      <p>LLM サーバを使って学習ペアを自動生成・編集します。生成したペアは対話学習のペアファイル取込にそのまま渡せます。</p>
+
+      <h3>ペアリスト操作</h3>
+      <ul>
+        <li>行タップで編集、長押しでコピー追加・削除。チェックで複数選択。</li>
+        <li>「読込」で JSONL ファイルを読み込み、「保存」で書き出します。</li>
+      </ul>
+
+      <h3>LLM 操作</h3>
+      <ul>
+        <li><strong>新規ペア追加</strong>: プロンプト指示（任意の素材: URL / Wikipedia 1件）から N 件を生成して追加します。</li>
+        <li><strong>ペア編集</strong>: 選択したペアを1件ずつ LLM で変換します（翻訳・言い換え・書き換えなど）。</li>
+        <li><strong>派生追加</strong>: 選択したペアを種にして、各ペアから N 件の新しいペアを派生生成します。</li>
+      </ul>
+      <div class="note">
+        LLM 操作を使うには「共通設定」でサーバ URL とモデルを先に設定し、「取得」でモデル一覧を取得してください。
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>⑤ 量子化変換</h2>
+      <p>既存の GGUF ファイルを別の精度・量子化型に変換します。</p>
+      <ol>
+        <li>「<strong>変換元 GGUF 選択</strong>」でソースファイルを指定します。</li>
+        <li>変換先の量子化型を選択します（F32 &gt; F16 &gt; Q8_0 &gt; Q6_K &gt; Q5_K_M &gt; Q4_K_M &gt; Q3_K_M &gt; Q2_K の順に小型・高速・低精度）。</li>
+        <li>「<strong>量子化変換を実行</strong>」をタップして変換します。</li>
+      </ol>
+      <ul>
+        <li>1次元テンソル（正規化係数）は常に F32 で保存します。</li>
+        <li>行長がブロックサイズの倍数でない行列は F16 に自動フォールバックします。</li>
+      </ul>
+    </div>
+
+    <div class="card">
+      <h2>早期停止・評価（任意・全学習モード共通）</h2>
+      <ul>
+        <li>「早期停止・評価を有効にする」をオンにすると、評価が合格閾値（既定 60%）に達した時点で学習を自動終了します。</li>
+        <li>期待値の指定: <strong>手動キーワード</strong>（「入力 =&gt; キーワードA|キーワードB」を1行1件）または <strong>自動トークン抽出</strong>（surprisal 上位）から選べます。</li>
         <li>合格閾値・評価間隔・生成最大トークン・評価件数を指定できます。</li>
-      </ul>
-    </div>
-
-    <div class="card">
-      <h2>④ 学習・GGUF 出力</h2>
-      <p>学習データ（未選択なら直近の生成／編集結果）と保存先を指定し、2 つのサブセクションから学習方式を選びます。</p>
-      <h3>GGUF 新規作成・修正</h3>
-      <ul>
-        <li>先頭で「新規作成」または「修正（追加学習）」を選択します。</li>
-        <li><strong>新規作成</strong>: モデル寸法・段階目標ロス・テンプレートを設定し、小型モデルをゼロから学習して <code>F32 / F16 / Q8_0</code> GGUF を出力します。</li>
-        <li><strong>修正</strong>: 基点 GGUF を選択して継続学習します（寸法は基点から継承）。</li>
-      </ul>
-      <h3>LoRA（LFM2・端末内 / 純Cネイティブ）</h3>
-      <ul>
-        <li>基点 LFM2 GGUF を選び、rank / alpha / lr / epochs / targets を指定して LoRA を学習します。</li>
-        <li>llama.cpp 互換アダプタ GGUF と、統合版フル GGUF（単独ロード可）を出力します。統合版のモデルカード（name / description）も設定できます。</li>
       </ul>
     </div>
 
     <div class="card">
       <h2>ヒント</h2>
       <ul>
-        <li>段階目標ロスは、値が大きいほど弱学習（汎化）、小さいほど強学習（暗記）になります。</li>
+        <li>段階目標ロスは値が大きいほど弱学習（汎化・判断の余地大）、小さいほど強学習（暗記）になります。</li>
+        <li>対話学習は新しいペアを教えるたびにコーパス全件を再学習します。ペアが増えると重くなりますが忘却を防ぎます。</li>
         <li>端末内学習は CPU・メモリを多く使用します。長時間学習では通知権限・電池最適化除外の許可を推奨します。</li>
-        <li>処理状況は上部のログで確認できます。</li>
+        <li>LLM 操作（ペア編集・生成）には Ollama 互換サーバが必要です。同端末または同一 LAN 上に立ち上げてください。</li>
+        <li>Retrainable GGUF の詳細は <a href="/gguf/retrainable.html">こちら</a>。</li>
       </ul>
     </div>
   </main>

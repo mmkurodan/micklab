@@ -58,7 +58,7 @@
       <div class="highlight">
         <ul>
           <li>チャット形式でリアルタイムに学習・確認できる <strong>インタラクティブモード</strong>（新規 GGUF / LoRA）。</li>
-          <li>Brave 検索 / Wikipedia / URL / LLM テーマから Q/A ペアを自動生成し、そのまま学習して GGUF を出力する <strong>自動モード</strong>。</li>
+          <li>プロンプト指示で Q/A ペアを新規生成・編集・派生できる <strong>ペア編集・生成</strong>（入力ソース: 指定 URL / Wikipedia 検索 1 件）。保存したペアはそのまま対話学習へ渡せます。</li>
           <li>GGUF を別量子化形式に変換する <strong>量子化変換</strong>（F32 / F16 / Q8_0 / Q4_K_M / Q2_K など）。</li>
           <li>生成した GGUF は再ロードして追加学習が可能な <strong>Retrainable GGUF</strong> 形式で出力。</li>
         </ul>
@@ -78,7 +78,7 @@
         </figure>
         <figure>
           <img src="/gguf/Screenshot_20260920_171610.jpg" alt="インタラクティブ LoRA">
-          <figcaption>インタラクティブ（LoRA）。既存 LFM2 GGUF をロードし、会話の中で LoRA アダプタを即時学習します。アダプタ書き出しと状態保存・復元に対応します。</figcaption>
+          <figcaption>インタラクティブ（LoRA）。既存 GGUF（llama / gemma3 / qwen3 / LFM2）をロードし、会話の中で LoRA アダプタを即時学習します。学習状態を内蔵したアダプタ GGUF を書き出し、読み込んで再開できます。</figcaption>
         </figure>
         <figure>
           <img src="/gguf/Screenshot_20260920_171128.jpg" alt="量子化変換">
@@ -86,7 +86,7 @@
         </figure>
         <figure>
           <img src="/gguf/Screenshot_20260920_171210.jpg" alt="自動ペア生成">
-          <figcaption>自動ペア生成（Auto Pair Gen）。Wikipedia 検索・Brave 検索・URL・LLM テーマから Q/A ペアを自動生成します。</figcaption>
+          <figcaption>ペア編集・生成。表示中のペアを作業対象に、プロンプト指示で新規追加・編集・派生生成を行います。入力ソースは指定 URL / Wikipedia 検索 1 件。</figcaption>
         </figure>
         <figure>
           <img src="/gguf/Screenshot_20260920_171249.jpg" alt="自動 GGUF 生成">
@@ -103,11 +103,11 @@
       <h2>主な特徴</h2>
       <ul>
         <li><strong>インタラクティブ学習（新規 GGUF）</strong>: NEW LEARN（指示＋応答を新規ペアとして学習）/ RESPONSE LEARN（直前の出力への返答として学習）/ TRY INFERENCE（現在のモデルで推論確認）の 3 操作で、チャット画面上でモデルをリアルタイムに育てます。不正解の場合は自動で再注入学習します。LOAD GGUF でセッションを引き継ぎ、EXPORT GGUF で出力します。</li>
-        <li><strong>インタラクティブ LoRA</strong>: 既存 LFM2 GGUF へ LoRA を会話形式でリアルタイム追加学習します。SAVE STATE / RESTORE STATE でセッションを中断・再開でき、EXPORT ADAPTER で llama.cpp 互換アダプタ GGUF を書き出します。</li>
+        <li><strong>インタラクティブ LoRA</strong>: 既存 GGUF（llama / gemma3 / qwen3 / LFM2）へ LoRA を会話形式でリアルタイム追加学習します。学習状態（教材ペア＋最適化状態）を内蔵した llama.cpp 互換アダプタ GGUF を EXPORT ADAPTER で書き出し、モデル読込→アダプタ読込で再開できます。温度・推論時最大生成・文脈長を設定でき、Qwen3 では Think（思考出力）を評価用に無効化できます。</li>
         <li><strong>量子化変換</strong>: 既存 GGUF を F32 / F16 / Q8_0 / Q4_K_M / Q2_K などの量子化形式に変換します。1-D テンソル（norm ゲイン）は精度保持のため F32 を維持し、行長が非ブロック境界のマトリクスは自動的に F16 にフォールバックします。</li>
-        <li><strong>自動ペア生成（Auto Pair Gen）</strong>: Brave 検索 / Wikipedia / URL 指定 / LLM テーマ指示を入力ソースに RAG 評価付きで Q/A 学習ペアを生成します。フォアグラウンド（FG）・バックグラウンド（BG）実行と停止・再開に対応します。</li>
+        <li><strong>ペア編集・生成</strong>: 表示中のペアリストを作業対象に、LLM へのプロンプト指示で「新規ペア追加」「選択ペアの編集」「選択を種にした派生追加」を行います。入力素材として指定 URL または Wikipedia 検索 1 件を付与でき、初期化・保存に対応。保存したペアは対話学習の追加学習へファイル選択なしで渡せます（RAG 評価・Brave 検索は現在停止）。</li>
         <li><strong>自動 GGUF 生成（Auto GGUF Gen）</strong>: 学習データ（JSONL）と学習方式（GGUF 新規作成・修正 / LFM2 LoRA）を指定してバッチ実行します。<code>F32 / F16 / Q8_0</code> GGUF を出力します。</li>
-        <li><strong>データ拡張・編集</strong>: 生成済みペアを対象に翻訳展開（多言語化）と言い換え増幅でバリエーションを増やせます。ペア編集結果は「最新」として以後の拡張・学習に反映されます。</li>
+        <li><strong>ペア編集</strong>: 読込・保存・初期化・手動追加に加え、チェックによる複数選択で対象を絞ってプロンプト編集・派生生成できます。編集結果は「最新」として以後の学習にそのまま反映されます。</li>
         <li><strong>キーワード評価・早期停止</strong>: 手動キーワードまたはトークン自動抽出（surprisal 上位）による評価で、合格率が閾値に達したら学習を早期停止します（全学習モード共通）。</li>
         <li><strong>Ollama 互換サーバ連携</strong>: 共通設定の LLM サーバ（既定 <code>http://127.0.0.1:11434</code>）へ接続し、<code>/api/tags</code> でモデル取得、<code>/api/generate</code> で生成、<code>/api/tokenize</code> でトークナイズを利用します。Web AI Chat でブラウザから直接チャットする機能も搭載します。</li>
         <li><strong>Retrainable GGUF</strong>: アプリが出力する GGUF はそのまま再ロードして追加学習が可能です。<a href="/gguf/retrainable.html">詳細ページ</a>で仕組みと活用方法を解説しています。</li>
@@ -118,7 +118,7 @@
     <section class="card">
       <h2>運用メモ</h2>
       <ul>
-        <li>ペア生成・データ拡張は、利用者が設定した LLM サーバ（既定は端末内）や、Brave Search API・Wikipedia・指定 URL への通信を伴います。送信内容・宛先は利用者の入力と操作に依存します。</li>
+        <li>ペア生成・編集は、利用者が設定した LLM サーバ（既定は端末内）や、Wikipedia・指定 URL への通信を伴います。送信内容・宛先は利用者の入力と操作に依存します。</li>
         <li>端末内学習は CPU・メモリを多く使用します。長時間の学習では通知権限・電池最適化除外の許可が推奨されます。</li>
         <li>量子化には次元制約があります（Q8_0 は 32 の倍数）。新規作成時のモデル寸法は自動で丸め・縮小されることがあります。</li>
       </ul>
