@@ -58,7 +58,7 @@
         <ul>
           <li><strong>Interactive mode</strong> (New GGUF / LoRA) — teach the model in real time through a chat interface.</li>
           <li><strong>Pair editing &amp; generation</strong> — add, edit, and derive Q/A pairs by prompt instruction (input source: a URL or one Wikipedia result). Saved pairs feed straight into interactive learning.</li>
-          <li><strong>Quantize</strong> — convert any GGUF to a different quantization type (F32 / F16 / Q8_0 / Q4_K_M / Q2_K, etc.).</li>
+          <li><strong>Quantize</strong> — convert any GGUF to a different quantization type (F32 / F16 / Q8_0 / Q6_K / Q5_K_M / Q4_K_M / Q2_K, etc.). Strip retraining metadata to produce a clean, distribution-ready GGUF.</li>
           <li>All exported GGUFs are <strong>Retrainable</strong> — reload and keep training at any time.</li>
         </ul>
       </div>
@@ -68,32 +68,24 @@
       <h2>Screenshots</h2>
       <div class="grid">
         <figure>
-          <img src="/gguf/Screenshot_20260920_170911.jpg" alt="Home screen">
-          <figcaption>Home screen. Choose from six modes: Interactive (New GGUF / LoRA), Quantize, Auto Pair Gen, Auto GGUF Gen, and Settings.</figcaption>
+          <img src="/gguf/newImages/Screenshot_20261013_070230.jpg" alt="Home screen">
+          <figcaption>Home screen. A card-based UI with five modes: Interactive (New GGUF), Interactive (LoRA), Quantize, Pair Edit &amp; Gen, and Settings.</figcaption>
         </figure>
         <figure>
-          <img src="/gguf/Screenshot_20260920_171050.jpg" alt="Interactive training — New GGUF">
-          <figcaption>Interactive (New GGUF). Use NEW LEARN / RESPONSE LEARN / TRY INFERENCE to teach the model through chat. Wrong answers trigger automatic re-injection for instant correction.</figcaption>
+          <img src="/gguf/newImages/Screenshot_20261012_202211.jpg" alt="Interactive training — New GGUF">
+          <figcaption>Interactive (New GGUF). Train the model through chat with NEW LEARN / RESPONSE LEARN / TRY INFERENCE. Inference speed (108.2 tok/s) is shown in the log.</figcaption>
         </figure>
         <figure>
-          <img src="/gguf/Screenshot_20260920_171610.jpg" alt="Interactive LoRA">
-          <figcaption>Interactive (LoRA). Load an existing GGUF (llama / gemma3 / qwen3 / LFM2) and train a LoRA adapter through conversation. The adapter GGUF embeds training state, so you can reload it to resume.</figcaption>
+          <img src="/gguf/newImages/Screenshot_20261012_193246.jpg" alt="Pair Edit &amp; Gen">
+          <figcaption>Pair Edit &amp; Gen. Generating 30 Harry Potter Q&amp;A pairs from Wikipedia. Use ADD NEW PAIRS / EDIT PAIRS / DERIVE to build and refine the list.</figcaption>
         </figure>
         <figure>
-          <img src="/gguf/Screenshot_20260920_171128.jpg" alt="Quantize">
-          <figcaption>Quantize. Convert a GGUF to Q2_K, Q4_K_M, Q8_0, F16, F32, and more. 1-D tensors stay F32 for accuracy; non-block-aligned matrices fall back to F16 automatically.</figcaption>
+          <img src="/gguf/newImages/Screenshot_20261013_070258.jpg" alt="Quantize">
+          <figcaption>Quantize. Check "Strip retraining metadata" to remove pair history and Adam optimizer state, producing a clean inference-only GGUF ready for distribution.</figcaption>
         </figure>
         <figure>
-          <img src="/gguf/Screenshot_20260920_171210.jpg" alt="Auto Pair Gen">
-          <figcaption>Pair editing &amp; generation. Work on the current pair list; add, edit, and derive pairs by prompt instruction. Input source is a URL or one Wikipedia result.</figcaption>
-        </figure>
-        <figure>
-          <img src="/gguf/Screenshot_20260920_171249.jpg" alt="Auto GGUF Gen">
-          <figcaption>Auto GGUF Gen. Pick training data, configure early stopping (manual keywords or top-surprisal auto-extraction), choose GGUF new/modify or LoRA mode, and run.</figcaption>
-        </figure>
-        <figure>
-          <img src="/gguf/Screenshot_20260920_174333.jpg" alt="Settings and Direct Run">
-          <figcaption>Settings / Direct Run. Connect to an Ollama-compatible server, open Web AI Chat in a browser, or send a prompt directly and see model output (647 tok/s shown).</figcaption>
+          <img src="/gguf/newImages/Screenshot_20261013_065006.jpg" alt="Register Profile">
+          <figcaption>Register Profile dialog. Save the loaded GGUF with a name and base profile to manage and resume training sessions.</figcaption>
         </figure>
       </div>
     </section>
@@ -103,10 +95,9 @@
       <ul>
         <li><strong>Interactive training — New GGUF</strong>: Three chat actions — NEW LEARN (new instruction + response pair), RESPONSE LEARN (learn from last model output as a reply), TRY INFERENCE (check what the model says now) — let you grow a model in real time. Bad answers are automatically re-injected for correction. LOAD GGUF resumes a previous session; EXPORT GGUF writes the result.</li>
         <li><strong>Interactive LoRA</strong>: Fine-tune a LoRA on an existing GGUF (llama / gemma3 / qwen3 / LFM2) through conversation. EXPORT ADAPTER writes a llama.cpp-compatible adapter GGUF that embeds the training state (pairs + optimizer); resume via Load model then Load adapter. Temperature, max new tokens, and context length are configurable, and Think (reasoning output) can be disabled for Qwen3 during evaluation.</li>
-        <li><strong>Quantize</strong>: Convert any GGUF to F32 / F16 / Q8_0 / Q4_K_M / Q2_K and more. 1-D tensors (norm gains) stay F32 for accuracy; matrices whose row length is not block-aligned fall back to F16 automatically.</li>
-        <li><strong>Pair editing &amp; generation</strong>: Work on the displayed pair list and, by prompt instruction to the LLM, "add new pairs", "edit selected pairs", or "derive" new pairs from a selection. Attach a URL or one Wikipedia result as source material; clear and save are supported, and saved pairs feed interactive continuous learning with no file picker. (RAG evaluation and Brave search are currently disabled.)</li>
-        <li><strong>Auto GGUF Gen</strong>: Batch-train from a JSONL file using GGUF new creation, refine (continued training), or LFM2 LoRA mode. Exports <code>F32 / F16 / Q8_0</code> GGUF.</li>
-        <li><strong>Pair editing</strong>: Load, save, clear, and add manually; multi-select via checkboxes to target a subset for prompt-based editing and derivation. Edited results become the "latest" and feed subsequent training directly.</li>
+        <li><strong>Register Profile</strong>: During interactive training, the "Register Profile" dialog lets you save the loaded GGUF with a name and base profile. Manage multiple training sessions by name and resume with the same settings.</li>
+        <li><strong>Quantize</strong>: Convert any GGUF to F32 / F16 / Q8_0 / Q6_K / Q5_K_M / Q5_1 / Q5_0 / Q4_K_M / Q4_1 / Q4_0 / Q2_K and more. 1-D tensors (norm gains) stay F32 for accuracy; matrices whose row length is not block-aligned fall back to F16 automatically. Enable "Strip retraining metadata" to remove pair history and Adam state, producing an inference-only GGUF suitable for distribution.</li>
+        <li><strong>Pair editing &amp; generation</strong>: Work on the displayed pair list and, by prompt instruction to the LLM, "add new pairs", "edit selected pairs", or "derive" new pairs from a selection. Attach a URL or one Wikipedia result as source material; multi-select via checkboxes, clear and save are supported, and saved pairs feed interactive continuous learning with no file picker. (RAG evaluation and Brave search are currently disabled.)</li>
         <li><strong>Keyword evaluation &amp; early stopping</strong>: Stop training early via manual keywords or automatic top-surprisal token extraction once the pass rate hits the threshold. Shared across all training modes.</li>
         <li><strong>Ollama-compatible server integration</strong>: Connects to the LLM server URL in settings (default <code>http://127.0.0.1:11434</code>). Also serves a built-in Web AI Chat for browser-based chat with any loaded model.</li>
         <li><strong>Retrainable GGUF</strong>: Every GGUF the app exports can be reloaded and trained further. <a href="/gguf/retrainable-en.html">Learn more</a> about the format and how to use it.</li>

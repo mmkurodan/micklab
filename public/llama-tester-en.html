@@ -56,9 +56,9 @@
       <p class="doc-links">Docs: <a href="/llama-tester/manual-en.html">User Manual</a> | <a href="/llama-tester/api-reference-en.html">API Reference</a> | <a href="/llama-tester/technical-spec-en.html">Technical Specification</a> | <a href="/llama-tester/technical-spec-llama-jni-cmake-en.html">llama.cpp / JNI / CMake Deep Dive</a> | <a href="/llama-tester/privacy.html#en">Privacy Policy</a></p>
       <div class="highlight">
         <ul>
-            <li>Supports both model downloads from a URL and importing local <code>.gguf</code> files from the device.</li>
+            <li>Supports model downloads from URLs, local <code>.gguf</code> imports, and LoRA adapters (scale 0.3–1.0).</li>
             <li>Lets you combine generation settings, Think behavior, custom chat templates, shared MCP settings, and Function Definitions JSON.</li>
-            <li>Can start an on-device Ollama/OpenAI/Anthropic-compatible API and WebUI on the same port, including endpoints such as <code>/api/chat</code>, <code>/v1/chat/completions</code>, <code>/v1/completions</code>, and <code>/v1/messages</code>.</li>
+            <li>On-device Ollama/OpenAI/Anthropic/Gemini-compatible API and WebUI on the same port. Browse all endpoints in the built-in Swagger UI (<code>/swagger</code>), with a CORS toggle in Settings.</li>
         </ul>
       </div>
     </section>
@@ -67,16 +67,32 @@
       <h2>Screenshots</h2>
       <div class="grid">
         <figure>
-          <img src="/llama-tester/sm101.jpg" alt="LLM AI Server with llama.cpp main screen">
-          <figcaption>Main screen with status header (speed, temperature, backend), API/WebUI controls, Direct Run section, and processing logs.</figcaption>
+          <img src="/llama-tester/newImages/Screenshot_20261013_073758.jpg" alt="Main screen">
+          <figcaption>Main screen. API/WebUI status (1936.8 tok/s · CPU), Web AI Chat section, and Direct Run with profile picker and prompt field — all in one view.</figcaption>
         </figure>
         <figure>
-          <img src="/llama-tester/sm102.jpg" alt="LLM AI Server with llama.cpp settings screen">
-          <figcaption>Settings screen for model URLs, local GGUF import, GPU backend selection, mmproj settings, and inference parameters.</figcaption>
+          <img src="/llama-tester/newImages/Screenshot_20261013_073939.jpg" alt="Model Loading settings">
+          <figcaption>Model Loading settings. Select a LoRA adapter file and adjust its scale (strength 0.3–1.0). mmproj (Multimodal Projector) is managed on the same screen.</figcaption>
         </figure>
         <figure>
-          <img src="/llama-tester/sm103.jpg" alt="LLM AI Server with llama.cpp template settings">
-          <figcaption>Template, API, MCP, language, and log settings, including System Prompt, custom chat template, and Function Definitions JSON fields.</figcaption>
+          <img src="/llama-tester/newImages/Screenshot_20261013_075914.jpg" alt="Built-in WebUI">
+          <figcaption>Built-in WebUI. Chat from any browser on the same Wi-Fi. The bundled "LLM AI Server Guide" profile answers questions about how to use the app.</figcaption>
+        </figure>
+        <figure>
+          <img src="/llama-tester/newImages/Screenshot_20261013_093502.jpg" alt="WebUI Function Calling">
+          <figcaption>Function Calling in WebUI. Asking "What time is it?" triggers the get_time tool, which returns the current time (9:34:53).</figcaption>
+        </figure>
+        <figure>
+          <img src="/llama-tester/newImages/Screenshot_20261013_102142.jpg" alt="WebUI Vision">
+          <figcaption>Vision in WebUI. An uploaded image is described in detail by the model. Available when a model with an mmproj (vision projector) is loaded.</figcaption>
+        </figure>
+        <figure>
+          <img src="/llama-tester/newImages/Screenshot_20261013_102853.jpg" alt="API server settings">
+          <figcaption>API server settings. Manage port, timeout, auto-restart, a direct link to the Swagger UI, and connection checks (127.0.0.1 / LAN / etc.).</figcaption>
+        </figure>
+        <figure>
+          <img src="/llama-tester/newImages/Screenshot_20261013_105226.jpg" alt="Parameter settings">
+          <figcaption>Parameter settings. MTP Settings, Model Parameters, Penalty Parameters, Mirostat, and Additional Sampling in collapsible sections. "Generate Model" links to GGUF Generator.</figcaption>
         </figure>
       </div>
     </section>
@@ -85,14 +101,15 @@
       <h2>Key Features</h2>
       <ul>
         <li><strong>On-device local inference</strong>: Runs GGUF models directly on Android with llama.cpp.</li>
-        <li><strong>Flexible model loading</strong>: Supports downloadable model URLs and local <code>.gguf</code> imports.</li>
+        <li><strong>Flexible model loading</strong>: Supports downloadable model URLs and local <code>.gguf</code> imports. LoRA adapters (<code>.gguf</code> format) can be selected independently and applied with an adjustable scale (strength 0.3–1.0). mmproj (Multimodal Projector) management is on the same screen.</li>
+        <li><strong>Profile descriptions &amp; card picker</strong>: Each profile now has a description field. The main-screen profile selector has been redesigned from a dropdown into a card-based dialog showing name and description side by side. Existing profiles are auto-patched with descriptions from the bundled asset on first launch after upgrade.</li>
         <li><strong>Deep inference controls</strong>: Adjust <code>n_ctx</code>, <code>n_threads</code>, compute backend (CPU / GPU), offload layer count, Top-p, Top-k, penalties, Mirostat, DRY, Think behavior, and custom chat templates.</li>
         <li><strong>Vision &amp; automatic context expansion</strong>: The default vision model is Qwen3-VL. If an image or long prompt exceeds <code>n_ctx</code>, the app auto-expands <code>n_ctx</code> (within device memory) and reloads; if it still does not fit, API clients get a proper server error. GPU init failures fall back to CPU automatically.</li>
         <li><strong>Smarter model search</strong>: The in-app Hugging Face search filters by model name, parameter size and quantization via pull-downs (each with a one-line guide), shows a device-suitability rating, and can download mmproj (projector) files directly.</li>
         <li><strong>Upgraded inference engine</strong>: Updated to llama.cpp b10621 (v0.3.0) / ggml 0.22 — newer model support and Adreno OpenCL GPU.</li>
         <li><strong>MTP speculative decoding (experimental)</strong>: For models that embed an MTP head (Qwen3.5-MTP, Gemma 4, etc.), enable MTP (draft-mtp) per model profile. Off by default, adjustable <code>n_draft</code>, no extra file needed (own head). Generation can be faster on supported setups.</li>
         <li><strong>Shared MCP / function-calling settings</strong>: Save MCP Config JSON and Function Definitions JSON separately from model profiles, then optionally enable them for the main prompt input, <code>/api/chat</code>, <code>/api/generate</code>, and <code>/v1/chat/completions</code>.</li>
-        <li><strong>Built-in Ollama/OpenAI/Anthropic-compatible API and WebUI</strong>: Provides <code>/api/chat</code>, <code>/api/generate</code>, <code>/api/tags</code>, <code>/api/diagnostics</code>, <code>/v1/chat/completions</code>, <code>/v1/completions</code>, <code>/v1/messages</code>, <code>/v1/messages/count_tokens</code>, <code>/v1/models</code>, <code>/props</code>, and <code>/slots</code> on the same port; only one generation runs at a time, with a queue of up to 10 requests for up to 600 seconds by default (configurable).</li>
+        <li><strong>Built-in Ollama/OpenAI/Anthropic/Gemini-compatible API and WebUI</strong>: Provides <code>/api/chat</code>, <code>/api/generate</code>, <code>/api/tags</code>, <code>/api/diagnostics</code>, <code>/v1/chat/completions</code>, <code>/v1/completions</code>, <code>/v1/messages</code>, <code>/v1/messages/count_tokens</code>, <code>/v1/responses</code> (OpenAI Responses API), <code>/v1/models</code>, <code>/props</code>, <code>/slots</code>, and <code>/v1beta/models/{model}:generateContent</code> (Gemini-compatible) on the same port. Browse all endpoints in the built-in Swagger UI at <code>/swagger</code>. A CORS toggle in Settings controls cross-origin access. One generation runs at a time; queue depth is 10, default timeout 600 s (configurable).</li>
         <li><strong>Anthropic Messages API compatible</strong>: Provides <code>/v1/messages</code> (streaming via named SSE events) and <code>/v1/messages/count_tokens</code>, supporting system prompts, multi-turn, thinking blocks, image/audio input, and basic tool_use / tool_result. Point an official Anthropic SDK's base URL at this server.</li>
         <li><strong>Embeddings, token counts, and model control</strong>: Get embedding vectors from <code>/api/embed</code>, <code>/api/embeddings</code>, and <code>/v1/embeddings</code>; token counts from <code>/api/tokenize</code> and <code>/v1/responses/input_tokens</code>; and control model residency with <code>/models/load</code> and <code>/models/unload</code>.</li>
         <li><strong>Structured output and token statistics</strong>: Constrain output with <code>format</code> / <code>grammar</code> / <code>response_format</code> (JSON Schema, GBNF), and get Ollama-style <code>eval_count</code> fields plus OpenAI-style <code>usage</code> so existing clients work unchanged.</li>
