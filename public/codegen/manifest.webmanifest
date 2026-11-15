@@ -1,0 +1,19 @@
+{
+  "name": "コードジェネレータ",
+  "short_name": "コード生成",
+  "description": "複数の単語と識別子から、いつでも同じコードを再生成できるツール。入力値は端末内のみで処理されます。",
+  "lang": "ja",
+  "dir": "ltr",
+  "id": "/codegen.html",
+  "start_url": "/codegen.html",
+  "scope": "/codegen.html",
+  "display": "standalone",
+  "background_color": "#f2f5fa",
+  "theme_color": "#2563eb",
+  "categories": ["utilities", "security"],
+  "icons": [
+    { "src": "/codegen/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "/codegen/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "/codegen/icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}

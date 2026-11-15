@@ -3,12 +3,20 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<!-- 外部への通信・外部リソースの読み込みをブラウザ側で全面的に禁止する -->
-<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline' 'wasm-unsafe-eval'; style-src 'unsafe-inline'; base-uri 'none'; form-action 'none'">
+<!-- 外部への通信・外部リソースの読み込みをブラウザ側で全面的に禁止する。
+     同一オリジンから許可するのは PWA 用のマニフェスト・アイコン・サービスワーカーのみ（connect-src は禁止のまま） -->
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline' 'wasm-unsafe-eval'; style-src 'unsafe-inline'; img-src 'self'; manifest-src 'self'; worker-src 'self'; base-uri 'none'; form-action 'none'">
 <meta name="referrer" content="no-referrer">
 <meta name="robots" content="noindex">
 <meta name="color-scheme" content="light dark">
 <title>コードジェネレータ</title>
+<link rel="manifest" href="/codegen/manifest.webmanifest">
+<meta name="theme-color" content="#2563eb">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="コード生成">
+<link rel="icon" type="image/png" sizes="32x32" href="/codegen/favicon-32.png">
+<link rel="apple-touch-icon" href="/codegen/apple-touch-icon.png">
 <style>
 :root {
   --bg: #f2f5fa;
@@ -330,6 +338,7 @@ Word : りんご, コーヒー, 川
     <p>本ツールは公開ロジックに基づきコードを生成します。</p>
     <p>安全性はWord1〜Word3の秘密性に依存します。</p>
     <p>入力値はブラウザ内のみで処理され、保存・送信されません。</p>
+    <p>オフラインでも使えるよう、このページ本体（入力値は含みません）のみ端末にキャッシュされます。</p>
     <p>同じ入力値からは常に同じコードが生成されます。</p>
   </section>
 </main>
@@ -574,6 +583,14 @@ async function deriveCode(input, length, setKeys) {
 
   renderOutput();
 })();
+</script>
+<script>
+// PWA: オフライン用サービスワーカーの登録（コード生成ロジックとは独立）
+if ("serviceWorker" in navigator && location.protocol === "https:") {
+  window.addEventListener("load", () => {
+    navigator.serviceWorker.register("/codegen-sw.js", { scope: "/codegen.html" }).catch(() => {});
+  });
+}
 </script>
 </body>
 </html>
