@@ -1,0 +1,553 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<!-- 外部への通信・外部リソースの読み込みをブラウザ側で全面的に禁止する -->
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline' 'wasm-unsafe-eval'; style-src 'unsafe-inline'; base-uri 'none'; form-action 'none'">
+<meta name="referrer" content="no-referrer">
+<meta name="robots" content="noindex">
+<meta name="color-scheme" content="light dark">
+<title>コードジェネレータ</title>
+<style>
+:root {
+  --bg: #f2f5fa;
+  --card: #ffffff;
+  --text: #17202e;
+  --muted: #5d6b80;
+  --border: #d5dce8;
+  --field: #f8fafd;
+  --accent: #2563eb;
+  --accent-hover: #1d4fd0;
+  --accent-soft: #e4ecfd;
+  --on-accent: #ffffff;
+  --error: #c62828;
+  --ok: #1b7a43;
+  --shadow: 0 1px 2px rgba(20, 35, 70, .06), 0 8px 24px rgba(20, 35, 70, .07);
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #0c111b;
+    --card: #151c2a;
+    --text: #e6ebf4;
+    --muted: #94a2b8;
+    --border: #2a3447;
+    --field: #0f1522;
+    --accent: #4d8dff;
+    --accent-hover: #6ea2ff;
+    --accent-soft: #1a2947;
+    --on-accent: #07101f;
+    --error: #ff8a80;
+    --ok: #6fd69a;
+    --shadow: 0 1px 2px rgba(0, 0, 0, .4), 0 8px 24px rgba(0, 0, 0, .3);
+  }
+}
+* { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; }
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family: system-ui, -apple-system, "Segoe UI", "Hiragino Sans", "Noto Sans JP", "Yu Gothic UI", Meiryo, sans-serif;
+  font-size: 16px;
+  line-height: 1.6;
+}
+main {
+  max-width: 560px;
+  margin: 0 auto;
+  padding: 24px 16px 48px;
+}
+header { margin: 8px 4px 20px; }
+h1 { margin: 0; font-size: 1.5rem; letter-spacing: .02em; }
+header p { margin: 4px 0 0; color: var(--muted); font-size: .9rem; }
+.card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  box-shadow: var(--shadow);
+  padding: 20px;
+  margin-bottom: 16px;
+}
+h2 { margin: 0 0 14px; font-size: 1rem; }
+.field { margin-bottom: 14px; }
+.row { display: grid; grid-template-columns: 1fr 110px; gap: 12px; }
+label, .label {
+  display: block;
+  margin-bottom: 5px;
+  font-size: .85rem;
+  font-weight: 600;
+  color: var(--muted);
+}
+input[type="text"], input[type="password"], input[type="number"] {
+  width: 100%;
+  padding: 11px 12px;
+  font: inherit;
+  color: var(--text);
+  background: var(--field);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  outline: none;
+  transition: border-color .15s, box-shadow .15s;
+}
+input:focus-visible, button:focus-visible, summary:focus-visible {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-soft);
+}
+.words-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px; }
+.words-head .label { margin: 0; }
+.link-btn {
+  background: none; border: none; padding: 4px 6px; margin: -4px -6px;
+  font: inherit; font-size: .85rem; color: var(--accent); cursor: pointer; border-radius: 6px;
+}
+.words { display: grid; gap: 8px; }
+.len-row { display: grid; grid-template-columns: 1fr 84px; gap: 12px; align-items: center; }
+input[type="range"] { width: 100%; accent-color: var(--accent); height: 28px; margin: 0; }
+.checks { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.check {
+  display: flex; align-items: center; gap: 10px;
+  margin: 0; padding: 10px 12px;
+  border: 1px solid var(--border); border-radius: 10px; background: var(--field);
+  cursor: pointer; color: var(--text); font-weight: 500; font-size: .9rem;
+  min-width: 0;
+}
+.check input { width: 18px; height: 18px; margin: 0; accent-color: var(--accent); flex: none; }
+.check span { min-width: 0; }
+.check small { display: block; color: var(--muted); font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: .72rem; overflow-wrap: anywhere; line-height: 1.3; }
+.actions { display: grid; grid-template-columns: 1fr auto; gap: 10px; margin-top: 18px; }
+button.btn {
+  font: inherit; font-weight: 600;
+  padding: 12px 18px;
+  border-radius: 10px;
+  border: 1px solid var(--border);
+  background: var(--card);
+  color: var(--text);
+  cursor: pointer;
+  transition: background .15s, border-color .15s, opacity .15s;
+}
+button.btn:hover:not(:disabled) { border-color: var(--accent); }
+button.btn:disabled { opacity: .5; cursor: not-allowed; }
+button.primary { background: var(--accent); border-color: var(--accent); color: var(--on-accent); }
+button.primary:hover:not(:disabled) { background: var(--accent-hover); border-color: var(--accent-hover); }
+.status { min-height: 1.5em; margin: 10px 2px 0; font-size: .88rem; color: var(--muted); }
+.status.error { color: var(--error); }
+.status.ok { color: var(--ok); }
+.output {
+  min-height: 64px;
+  padding: 14px;
+  border: 1px dashed var(--border);
+  border-radius: 10px;
+  background: var(--field);
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 1.1rem;
+  letter-spacing: .04em;
+  overflow-wrap: anywhere;
+  word-break: break-all;
+  display: flex; align-items: center;
+  user-select: all;
+}
+.output.empty { color: var(--muted); font-family: inherit; font-size: .9rem; letter-spacing: 0; user-select: none; }
+.out-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 12px; }
+details summary {
+  cursor: pointer; font-weight: 600; color: var(--accent);
+  list-style: none; border-radius: 8px; padding: 2px 4px; margin: -2px -4px;
+}
+details summary::-webkit-details-marker { display: none; }
+details summary::before { content: "▼ コード生成ロジックを表示"; }
+details[open] summary::before { content: "▲ コード生成ロジックを閉じる"; }
+.logic { margin-top: 14px; font-size: .9rem; }
+.logic h3 { margin: 18px 0 6px; font-size: .92rem; }
+.logic p { margin: 6px 0; }
+.logic ul { margin: 6px 0; padding-left: 1.3em; }
+pre, code { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: .82rem; }
+code { background: var(--accent-soft); padding: 1px 5px; border-radius: 5px; overflow-wrap: anywhere; }
+pre {
+  margin: 8px 0; padding: 10px 12px;
+  background: var(--field); border: 1px solid var(--border); border-radius: 10px;
+  overflow-x: auto; line-height: 1.5;
+}
+pre code { background: none; padding: 0; }
+.notice { font-size: .85rem; color: var(--muted); }
+.notice p { margin: 0 0 8px; }
+.notice p:last-child { margin-bottom: 0; }
+@media (max-width: 420px) {
+  .card { padding: 16px; }
+  .checks { grid-template-columns: 1fr; }
+}
+</style>
+</head>
+<body>
+<main>
+  <header>
+    <h1>コードジェネレータ</h1>
+    <p>複数の単語と識別子から、いつでも同じコードを再生成できます。</p>
+  </header>
+
+  <section class="card" aria-labelledby="h-input">
+    <h2 id="h-input">入力</h2>
+
+    <div class="row">
+      <div class="field">
+        <label for="ident">識別子</label>
+        <input type="text" id="ident" placeholder="例: example" autocomplete="off" autocapitalize="none" autocorrect="off" spellcheck="false">
+      </div>
+      <div class="field">
+        <label for="count">回次</label>
+        <input type="number" id="count" value="1" min="0" step="1" inputmode="numeric" autocomplete="off">
+      </div>
+    </div>
+
+    <div class="field">
+      <div class="words-head">
+        <span class="label">秘密単語（順不同）</span>
+        <button type="button" class="link-btn" id="toggleWords" aria-pressed="false">単語を表示</button>
+      </div>
+      <div class="words">
+        <input type="password" id="word1" placeholder="Word1" aria-label="Word1" autocomplete="off" autocapitalize="none" autocorrect="off" spellcheck="false">
+        <input type="password" id="word2" placeholder="Word2" aria-label="Word2" autocomplete="off" autocapitalize="none" autocorrect="off" spellcheck="false">
+        <input type="password" id="word3" placeholder="Word3" aria-label="Word3" autocomplete="off" autocapitalize="none" autocorrect="off" spellcheck="false">
+      </div>
+    </div>
+
+    <div class="field">
+      <label for="lenRange">コード長</label>
+      <div class="len-row">
+        <input type="range" id="lenRange" min="8" max="64" step="1" value="20" aria-label="コード長スライダー">
+        <input type="number" id="lenNum" min="8" max="64" step="1" value="20" inputmode="numeric" aria-label="コード長">
+      </div>
+    </div>
+
+    <div class="field" style="margin-bottom:0">
+      <span class="label">使用文字種</span>
+      <div class="checks">
+        <label class="check"><input type="checkbox" id="setLower" checked><span>英小文字<small>a-z</small></span></label>
+        <label class="check"><input type="checkbox" id="setUpper" checked><span>英大文字<small>A-Z</small></span></label>
+        <label class="check"><input type="checkbox" id="setDigit" checked><span>数字<small>0-9</small></span></label>
+        <label class="check"><input type="checkbox" id="setSymbol" checked><span>記号<small>!@#$%^&amp;*()-_=+[]{};:,.&lt;&gt;?</small></span></label>
+      </div>
+    </div>
+
+    <div class="actions">
+      <button type="button" class="btn primary" id="btnGenerate">コード生成</button>
+      <button type="button" class="btn" id="btnClear">クリア</button>
+    </div>
+    <p class="status" id="status" role="status" aria-live="polite"></p>
+  </section>
+
+  <section class="card" aria-labelledby="h-output">
+    <h2 id="h-output">生成コード</h2>
+    <div class="output empty" id="output">ここに生成コードが表示されます</div>
+    <div class="out-actions">
+      <button type="button" class="btn" id="btnCopy" disabled>コピー</button>
+      <button type="button" class="btn" id="btnToggle" disabled aria-pressed="false">表示</button>
+    </div>
+  </section>
+
+  <section class="card">
+    <details>
+      <summary aria-label="コード生成ロジックを表示"></summary>
+      <div class="logic">
+        <p>生成ロジックはすべて公開されています。以下の手順を別の環境で実装すれば、同じ入力から同じコードが得られることを確認できます。</p>
+
+        <h3>1. 入力値の正規化</h3>
+        <ul>
+          <li>識別子: 前後の空白を除去し、小文字化</li>
+          <li>回次: 0 以上の整数（先頭の 0 は除去。<code>01</code> → <code>1</code>）</li>
+          <li>Word1〜3: それぞれ前後の空白を除去し、小文字化</li>
+        </ul>
+
+        <h3>2. Word のソート</h3>
+        <p>正規化後の 3 単語を辞書順（UTF-16 コード単位の昇順 = JavaScript の <code>Array.prototype.sort()</code> 既定順）に並べ替えます。入力順は結果に影響しません。</p>
+        <p>並べ替え後、次の形式で 1 つの文字列に連結します。</p>
+<pre><code>識別子|回次|Word1|Word2|Word3
+
+例: example|1|apple|coffee|river</code></pre>
+
+        <h3>3. Argon2id によるハッシュ化</h3>
+        <p>連結した文字列（UTF-8）を Argon2id（version 1.3）でハッシュ化します。</p>
+<pre><code>password    : 連結文字列 (UTF-8)
+salt        : "code-generator-v1" (UTF-8 / 固定値)
+memory      : 65536 KiB (64 MiB)
+iterations  : 3
+parallelism : 1
+hashLength  : 32 bytes</code></pre>
+        <p>Argon2 は仕様上 salt が必須のため、公開の固定値を使用しています。</p>
+
+        <h3>4. Base64URL 変換</h3>
+        <p>32 バイトのハッシュを Base64URL（<code>+</code>→<code>-</code>、<code>/</code>→<code>_</code>、末尾の <code>=</code> なし）に変換し、43 文字のシード文字列を得ます。</p>
+
+        <h3>5. 文字種へのマッピング</h3>
+        <p>選択された文字種を「英小文字 → 英大文字 → 数字 → 記号」の順に連結したものを文字セット（<code>n</code> 文字）とします。</p>
+<pre><code>英小文字: abcdefghijklmnopqrstuvwxyz
+英大文字: ABCDEFGHIJKLMNOPQRSTUVWXYZ
+数字    : 0123456789
+記号    : !@#$%^&amp;*()-_=+[]{};:,.&lt;&gt;?</code></pre>
+        <p>シードから次のようにバイト列を生成します（<code>i</code> = 0, 1, 2, … と必要なだけ続ける）。</p>
+<pre><code>block(i) = SHA-256( シード文字列 + "|" + i )
+バイト列 = block(0) || block(1) || block(2) || …</code></pre>
+        <p>各バイト <code>b</code> を先頭から順に文字へ変換します。偏りを防ぐため、範囲外のバイトは読み飛ばします。</p>
+<pre><code>limit = 256 - (256 mod n)
+b &lt; limit  → 文字セット[b mod n] を出力
+b ≥ limit → 読み飛ばす</code></pre>
+
+        <h3>6. 最終生成（切り出しと文字種の保証）</h3>
+        <ul>
+          <li>出力された文字列の先頭から、指定されたコード長ぶんを候補として切り出します。</li>
+          <li>候補が、選択されたすべての文字種を最低 1 文字ずつ含んでいれば、それが生成コードです。</li>
+          <li>含んでいない場合はその候補を破棄し、続きの文字列から次のコード長ぶんを候補として同じ判定を繰り返します。</li>
+        </ul>
+
+        <h3>検証用の例</h3>
+<pre><code>識別子: example / 回次: 1
+Word : Coffee, River, apple
+コード長: 20 / 文字種: すべて ON
+
+連結文字列: example|1|apple|coffee|river
+シード    : 0tHI3SFmdBrEDTnuzmBkAPse7tzkFdSLKZcme9rTweo
+生成コード: 77?c.hOO)EMV=kjSLea?</code></pre>
+        <p>Argon2id の実装には hash-wasm 4.12.0（MIT License, © Dani Biró）をこのファイル内に埋め込んで使用しています。SHA-256 はブラウザ標準の Web Crypto API を使用しています。</p>
+      </div>
+    </details>
+  </section>
+
+  <section class="card notice">
+    <p>本ツールは公開ロジックに基づきコードを生成します。</p>
+    <p>安全性はWord1〜Word3の秘密性に依存します。</p>
+    <p>入力値はブラウザ内のみで処理され、保存・送信されません。</p>
+    <p>同じ入力値からは常に同じコードが生成されます。</p>
+  </section>
+</main>
+
+<script>
+/*!
+ * hash-wasm (https://www.npmjs.com/package/hash-wasm)
+ * (c) Dani Biro
+ * @license MIT
+ */
+
+!function(A,I){"object"==typeof exports&&"undefined"!=typeof module?I(exports):"function"==typeof define&&define.amd?define(["exports"],I):I((A="undefined"!=typeof globalThis?globalThis:A||self).hashwasm=A.hashwasm||{})}(this,(function(A){"use strict";function I(A,I,i,C){return new(i||(i=Promise))((function(g,Q){function B(A){try{e(C.next(A))}catch(A){Q(A)}}function h(A){try{e(C.throw(A))}catch(A){Q(A)}}function e(A){var I;A.done?g(A.value):(I=A.value,I instanceof i?I:new i((function(A){A(I)}))).then(B,h)}e((C=C.apply(A,I||[])).next())}))}"function"==typeof SuppressedError&&SuppressedError;var i,C={name:"argon2",data:"AGFzbQEAAAABKQVgAX8Bf2AAAX9gEH9/f39/f39/f39/f39/f38AYAR/f39/AGACf38AAwYFAAECAwQFBgEBAoCAAgYIAX8BQZCoBAsHQQQGbWVtb3J5AgASSGFzaF9TZXRNZW1vcnlTaXplAAAOSGFzaF9HZXRCdWZmZXIAAQ5IYXNoX0NhbGN1bGF0ZQAECvEyBVgBAn9BACEBAkAgAEEAKAKICCICRg0AAkAgACACayIAQRB2IABBgIB8cSAASWoiAEAAQX9HDQBB/wHADwtBACEBQQBBACkDiAggAEEQdK18NwOICAsgAcALcAECfwJAQQAoAoAIIgANAEEAPwBBEHQiADYCgAhBACgCiAgiAUGAgCBGDQACQEGAgCAgAWsiAEEQdiAAQYCAfHEgAElqIgBAAEF/Rw0AQQAPC0EAQQApA4gIIABBEHStfDcDiAhBACgCgAghAAsgAAvcDgECfiAAIAQpAwAiECAAKQMAIhF8IBFCAYZC/v///x+DIBBC/////w+DfnwiEDcDACAMIBAgDCkDAIVCIIkiEDcDACAIIBAgCCkDACIRfCARQgGGQv7///8fgyAQQv////8Pg358IhA3AwAgBCAQIAQpAwCFQiiJIhA3AwAgACAQIAApAwAiEXwgEEL/////D4MgEUIBhkL+////H4N+fCIQNwMAIAwgECAMKQMAhUIwiSIQNwMAIAggECAIKQMAIhF8IBBC/////w+DIBFCAYZC/v///x+DfnwiEDcDACAEIBAgBCkDAIVCAYk3AwAgASAFKQMAIhAgASkDACIRfCARQgGGQv7///8fgyAQQv////8Pg358IhA3AwAgDSAQIA0pAwCFQiCJIhA3AwAgCSAQIAkpAwAiEXwgEUIBhkL+////H4MgEEL/////D4N+fCIQNwMAIAUgECAFKQMAhUIoiSIQNwMAIAEgECABKQMAIhF8IBBC/////w+DIBFCAYZC/v///x+DfnwiEDcDACANIBAgDSkDAIVCMIkiEDcDACAJIBAgCSkDACIRfCAQQv////8PgyARQgGGQv7///8fg358IhA3AwAgBSAQIAUpAwCFQgGJNwMAIAIgBikDACIQIAIpAwAiEXwgEUIBhkL+////H4MgEEL/////D4N+fCIQNwMAIA4gECAOKQMAhUIgiSIQNwMAIAogECAKKQMAIhF8IBFCAYZC/v///x+DIBBC/////w+DfnwiEDcDACAGIBAgBikDAIVCKIkiEDcDACACIBAgAikDACIRfCAQQv////8PgyARQgGGQv7///8fg358IhA3AwAgDiAQIA4pAwCFQjCJIhA3AwAgCiAQIAopAwAiEXwgEEL/////D4MgEUIBhkL+////H4N+fCIQNwMAIAYgECAGKQMAhUIBiTcDACADIAcpAwAiECADKQMAIhF8IBFCAYZC/v///x+DIBBC/////w+DfnwiEDcDACAPIBAgDykDAIVCIIkiEDcDACALIBAgCykDACIRfCARQgGGQv7///8fgyAQQv////8Pg358IhA3AwAgByAQIAcpAwCFQiiJIhA3AwAgAyAQIAMpAwAiEXwgEEL/////D4MgEUIBhkL+////H4N+fCIQNwMAIA8gECAPKQMAhUIwiSIQNwMAIAsgECALKQMAIhF8IBBC/////w+DIBFCAYZC/v///x+DfnwiEDcDACAHIBAgBykDAIVCAYk3AwAgACAFKQMAIhAgACkDACIRfCARQgGGQv7///8fgyAQQv////8Pg358IhA3AwAgDyAQIA8pAwCFQiCJIhA3AwAgCiAQIAopAwAiEXwgEUIBhkL+////H4MgEEL/////D4N+fCIQNwMAIAUgECAFKQMAhUIoiSIQNwMAIAAgECAAKQMAIhF8IBBC/////w+DIBFCAYZC/v///x+DfnwiEDcDACAPIBAgDykDAIVCMIkiEDcDACAKIBAgCikDACIRfCAQQv////8PgyARQgGGQv7///8fg358IhA3AwAgBSAQIAUpAwCFQgGJNwMAIAEgBikDACIQIAEpAwAiEXwgEUIBhkL+////H4MgEEL/////D4N+fCIQNwMAIAwgECAMKQMAhUIgiSIQNwMAIAsgECALKQMAIhF8IBFCAYZC/v///x+DIBBC/////w+DfnwiEDcDACAGIBAgBikDAIVCKIkiEDcDACABIBAgASkDACIRfCAQQv////8PgyARQgGGQv7///8fg358IhA3AwAgDCAQIAwpAwCFQjCJIhA3AwAgCyAQIAspAwAiEXwgEEL/////D4MgEUIBhkL+////H4N+fCIQNwMAIAYgECAGKQMAhUIBiTcDACACIAcpAwAiECACKQMAIhF8IBFCAYZC/v///x+DIBBC/////w+DfnwiEDcDACANIBAgDSkDAIVCIIkiEDcDACAIIBAgCCkDACIRfCARQgGGQv7///8fgyAQQv////8Pg358IhA3AwAgByAQIAcpAwCFQiiJIhA3AwAgAiAQIAIpAwAiEXwgEEL/////D4MgEUIBhkL+////H4N+fCIQNwMAIA0gECANKQMAhUIwiSIQNwMAIAggECAIKQMAIhF8IBBC/////w+DIBFCAYZC/v///x+DfnwiEDcDACAHIBAgBykDAIVCAYk3AwAgAyAEKQMAIhAgAykDACIRfCARQgGGQv7///8fgyAQQv////8Pg358IhA3AwAgDiAQIA4pAwCFQiCJIhA3AwAgCSAQIAkpAwAiEXwgEUIBhkL+////H4MgEEL/////D4N+fCIQNwMAIAQgECAEKQMAhUIoiSIQNwMAIAMgECADKQMAIhF8IBBC/////w+DIBFCAYZC/v///x+DfnwiEDcDACAOIBAgDikDAIVCMIkiEDcDACAJIBAgCSkDACIRfCAQQv////8PgyARQgGGQv7///8fg358IhA3AwAgBCAQIAQpAwCFQgGJNwMAC98aAQN/QQAhBEEAIAIpAwAgASkDAIU3A5AIQQAgAikDCCABKQMIhTcDmAhBACACKQMQIAEpAxCFNwOgCEEAIAIpAxggASkDGIU3A6gIQQAgAikDICABKQMghTcDsAhBACACKQMoIAEpAyiFNwO4CEEAIAIpAzAgASkDMIU3A8AIQQAgAikDOCABKQM4hTcDyAhBACACKQNAIAEpA0CFNwPQCEEAIAIpA0ggASkDSIU3A9gIQQAgAikDUCABKQNQhTcD4AhBACACKQNYIAEpA1iFNwPoCEEAIAIpA2AgASkDYIU3A/AIQQAgAikDaCABKQNohTcD+AhBACACKQNwIAEpA3CFNwOACUEAIAIpA3ggASkDeIU3A4gJQQAgAikDgAEgASkDgAGFNwOQCUEAIAIpA4gBIAEpA4gBhTcDmAlBACACKQOQASABKQOQAYU3A6AJQQAgAikDmAEgASkDmAGFNwOoCUEAIAIpA6ABIAEpA6ABhTcDsAlBACACKQOoASABKQOoAYU3A7gJQQAgAikDsAEgASkDsAGFNwPACUEAIAIpA7gBIAEpA7gBhTcDyAlBACACKQPAASABKQPAAYU3A9AJQQAgAikDyAEgASkD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",hash:"e4cdc523"};class g{constructor(){this.mutex=Promise.resolve()}lock(){let A=()=>{};return this.mutex=this.mutex.then((()=>new Promise(A))),new Promise((I=>{A=I}))}dispatch(A){return I(this,void 0,void 0,(function*(){const I=yield this.lock();try{return yield Promise.resolve(A())}finally{I()}}))}}const Q="undefined"!=typeof globalThis?globalThis:"undefined"!=typeof self?self:"undefined"!=typeof window?window:global,B=null!==(i=Q.Buffer)&&void 0!==i?i:null,h=Q.TextEncoder?new Q.TextEncoder:null;function e(A,I){return(15&A)+(A>>6|A>>3&8)<<4|(15&I)+(I>>6|I>>3&8)}function w(A,I){const i=I.length>>1;for(let C=0;C<i;C++){const i=C<<1;A[C]=e(I.charCodeAt(i),I.charCodeAt(i+1))}}const t="a".charCodeAt(0)-10,o="0".charCodeAt(0);function E(A,I,i){let C=0;for(let g=0;g<i;g++){let i=I[g]>>>4;A[C++]=i>9?i+t:i+o,i=15&I[g],A[C++]=i>9?i+t:i+o}return String.fromCharCode.apply(null,A)}const n=null!==B?A=>{if("string"==typeof A){const I=B.from(A,"utf8");return new Uint8Array(I.buffer,I.byteOffset,I.length)}if(B.isBuffer(A))return new Uint8Array(A.buffer,A.byteOffset,A.length);if(ArrayBuffer.isView(A))return new Uint8Array(A.buffer,A.byteOffset,A.byteLength);throw new Error("Invalid data type!")}:A=>{if("string"==typeof A)return h.encode(A);if(ArrayBuffer.isView(A))return new Uint8Array(A.buffer,A.byteOffset,A.byteLength);throw new Error("Invalid data type!")},r="ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/",D=new Uint8Array(256);for(let A=0;A<r.length;A++)D[r.charCodeAt(A)]=A;function F(A,I=!0){const i=A.length,C=i%3,g=[],Q=i-C;for(let I=0;I<Q;I+=3){const i=(A[I]<<16&16711680)+(A[I+1]<<8&65280)+(255&A[I+2]),C=r.charAt(i>>18&63)+r.charAt(i>>12&63)+r.charAt(i>>6&63)+r.charAt(63&i);g.push(C)}if(1===C){const C=A[i-1],Q=r.charAt(C>>2),B=r.charAt(C<<4&63);g.push(`${Q}${B}`),I&&g.push("==")}else if(2===C){const C=(A[i-2]<<8)+A[i-1],Q=r.charAt(C>>10),B=r.charAt(C>>4&63),h=r.charAt(C<<2&63);g.push(`${Q}${B}${h}`),I&&g.push("=")}return g.join("")}function f(A){let I=Math.floor(.75*A.length);const i=A.length;return"="===A[i-1]&&(I-=1,"="===A[i-2]&&(I-=1)),I}function k(A){const I=f(A),i=A.length,C=new Uint8Array(I);let g=0;for(let I=0;I<i;I+=4){const i=D[A.charCodeAt(I)],Q=D[A.charCodeAt(I+1)],B=D[A.charCodeAt(I+2)],h=D[A.charCodeAt(I+3)];C[g]=i<<2|Q>>4,g+=1,C[g]=(15&Q)<<4|B>>2,g+=1,C[g]=(3&B)<<6|63&h,g+=1}return C}const a=16384,s=new g,S=new Map;function U(A,i){return I(this,void 0,void 0,(function*(){let C=null,g=null,Q=!1;if("undefined"==typeof WebAssembly)throw new Error("WebAssembly is not supported in this environment!");const B=()=>new DataView(C.exports.memory.buffer).getUint32(C.exports.STATE_SIZE,!0),h=s.dispatch((()=>I(this,void 0,void 0,(function*(){if(!S.has(A.name)){const I=k(A.data),i=WebAssembly.compile(I);S.set(A.name,i)}const I=yield S.get(A.name);C=yield WebAssembly.instantiate(I,{})})))),t=(A=null)=>{Q=!0,C.exports.Hash_Init(A)},o=A=>{if(!Q)throw new Error("update() called before init()");(A=>{let I=0;for(;I<A.length;){const i=A.subarray(I,I+a);I+=i.length,g.set(i),C.exports.Hash_Update(i.length)}})(n(A))},r=new Uint8Array(2*i),D=(A,I=null)=>{if(!Q)throw new Error("digest() called before init()");return Q=!1,C.exports.Hash_Final(I),"binary"===A?g.slice(0,i):E(r,g,i)},F=A=>"string"==typeof A?A.length<4096:A.byteLength<a;let f=F;switch(A.name){case"argon2":case"scrypt":f=()=>!0;break;case"blake2b":case"blake2s":f=(A,I)=>I<=512&&F(A);break;case"blake3":f=(A,I)=>0===I&&F(A);break;case"xxhash64":case"xxhash3":case"xxhash128":case"crc64":f=()=>!1}return yield(()=>I(this,void 0,void 0,(function*(){C||(yield h);const A=C.exports.Hash_GetBuffer(),I=C.exports.memory.buffer;g=new Uint8Array(I,A,a)})))(),{getMemory:()=>g,writeMemory:(A,I=0)=>{g.set(A,I)},getExports:()=>C.exports,setMemorySize:A=>{C.exports.Hash_SetMemorySize(A);const I=C.exports.Hash_GetBuffer(),i=C.exports.memory.buffer;g=new Uint8Array(i,I,A)},init:t,update:o,digest:D,save:()=>{if(!Q)throw new Error("save() can only be called after init() and before digest()");const I=C.exports.Hash_GetState(),i=B(),g=C.exports.memory.buffer,h=new Uint8Array(g,I,i),e=new Uint8Array(4+i);return w(e,A.hash),e.set(h,4),e},load:I=>{if(!(I instanceof Uint8Array))throw new Error("load() expects an Uint8Array generated by save()");const i=C.exports.Hash_GetState(),g=B(),h=4+g,w=C.exports.memory.buffer;if(I.length!==h)throw new Error(`Bad state length (expected ${h} bytes, got ${I.length})`);if(!function(A,I){if(A.length!==2*I.length)return!1;for(let i=0;i<I.length;i++){const C=i<<1;if(I[i]!==e(A.charCodeAt(C),A.charCodeAt(C+1)))return!1}return!0}(A.hash,I.subarray(0,4)))throw new Error("This state was written by an incompatible hash implementation");const t=I.subarray(4);new Uint8Array(w,i,g).set(t),Q=!0},calculate:(A,I=null,Q=null)=>{if(!f(A,I))return t(I),o(A),D("hex",Q);const B=n(A);return g.set(B),C.exports.Hash_Calculate(B.length,I,Q),E(r,g,i)},hashLength:i}}))}var c={name:"blake2b",data:"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",hash:"c6f286e6"};function G(A){return!Number.isInteger(A)||A<8||A>512||A%8!=0?new Error("Invalid variant! Valid values: 8, 16, ..., 512"):null}function p(A=512,I=null){if(G(A))return Promise.reject(G(A));let i=null,C=A;if(null!==I){if(i=n(I),i.length>64)return Promise.reject(new Error("Max key length is 64 bytes"));g=A,Q=i.length,C=g|Q<<16}var g,Q;const B=A/8;return U(c,B).then((A=>{C>512&&A.writeMemory(i),A.init(C);const I={init:C>512?()=>(A.writeMemory(i),A.init(C),I):()=>(A.init(C),I),update:i=>(A.update(i),I),digest:I=>A.digest(I),save:()=>A.save(),load:i=>(A.load(i),I),blockSize:128,digestSize:B};return I}))}new g;const y=new DataView(new ArrayBuffer(4));function J(A){return y.setInt32(0,A,!0),new Uint8Array(y.buffer)}function l(A,i,C){return I(this,void 0,void 0,(function*(){if(C<=64){const A=yield p(8*C);return A.update(J(C)),A.update(i),A.digest("binary")}const I=Math.ceil(C/32)-2,g=new Uint8Array(C);A.init(),A.update(J(C)),A.update(i);let Q=A.digest("binary");g.set(Q.subarray(0,32),0);for(let i=1;i<I;i++)A.init(),A.update(Q),Q=A.digest("binary"),g.set(Q.subarray(0,32),32*i);const B=C-32*I;let h;return 64===B?(h=A,h.init()):h=yield p(8*B),h.update(Q),Q=h.digest("binary"),g.set(Q.subarray(0,B),32*I),g}))}function u(A){return I(this,void 0,void 0,(function*(){var I;const{parallelism:i,iterations:g,hashLength:Q}=A,B=n(A.password),h=n(A.salt),e=function(A){switch(A){case"d":return 0;case"i":return 1;default:return 2}}(A.hashType),{memorySize:t}=A,o=n(null!==(I=A.secret)&&void 0!==I?I:""),[r,D]=yield Promise.all([U(C,1024),p(512)]);r.setMemorySize(1024*t+1024);const f=new Uint8Array(24),k=new DataView(f.buffer);k.setInt32(0,i,!0),k.setInt32(4,Q,!0),k.setInt32(8,t,!0),k.setInt32(12,g,!0),k.setInt32(16,19,!0),k.setInt32(20,e,!0),r.writeMemory(f,1024*t),D.init(),D.update(f),D.update(J(B.length)),D.update(B),D.update(J(h.length)),D.update(h),D.update(J(o.length)),D.update(o),D.update(J(0));const a=4*Math.floor(t/(4*i)),s=new Uint8Array(72),S=D.digest("binary");s.set(S);for(let A=0;A<i;A++){s.set(J(0),64),s.set(J(A),68);let I=A*a,i=yield l(D,s,1024);r.writeMemory(i,1024*I),I+=1,s.set(J(1),64),i=yield l(D,s,1024),r.writeMemory(i,1024*I)}const c=new Uint8Array(1024);w(c,r.calculate(new Uint8Array([]),t));const G=yield l(D,c,Q);if("hex"===A.outputType){return E(new Uint8Array(2*Q),G,Q)}return"encoded"===A.outputType?function(A,I,i){const C=[`m=${I.memorySize}`,`t=${I.iterations}`,`p=${I.parallelism}`].join(",");return`$argon2${I.hashType}$v=19$${C}$${F(A,!1)}$${F(i,!1)}`}(h,A,G):G}))}const H=A=>{var I;if(!A||"object"!=typeof A)throw new Error("Invalid options parameter. It requires an object.");if(!A.password)throw new Error("Password must be specified");if(A.password=n(A.password),A.password.length<1)throw new Error("Password must be specified");if(!A.salt)throw new Error("Salt must be specified");if(A.salt=n(A.salt),A.salt.length<8)throw new Error("Salt should be at least 8 bytes long");if(A.secret=n(null!==(I=A.secret)&&void 0!==I?I:""),!Number.isInteger(A.iterations)||A.iterations<1)throw new Error("Iterations should be a positive number");if(!Number.isInteger(A.parallelism)||A.parallelism<1)throw new Error("Parallelism should be a positive number");if(!Number.isInteger(A.hashLength)||A.hashLength<4)throw new Error("Hash length should be at least 4 bytes.");if(!Number.isInteger(A.memorySize))throw new Error("Memory size should be specified.");if(A.memorySize<8*A.parallelism)throw new Error("Memory size should be at least 8 * parallelism.");if(void 0===A.outputType&&(A.outputType="hex"),!["hex","binary","encoded"].includes(A.outputType))throw new Error(`Insupported output type ${A.outputType}. Valid values: ['hex', 'binary', 'encoded']`)};A.argon2Verify=function(A){return I(this,void 0,void 0,(function*(){(A=>{if(!A||"object"!=typeof A)throw new Error("Invalid options parameter. It requires an object.");if(void 0===A.hash||"string"!=typeof A.hash)throw new Error("Hash should be specified")})(A);const I=((A,I,i)=>{const C=I.match(/^\$argon2(id|i|d)\$v=([0-9]+)\$((?:[mtp]=[0-9]+,){2}[mtp]=[0-9]+)\$([A-Za-z0-9+/]+)\$([A-Za-z0-9+/]+)$/);if(!C)throw new Error("Invalid hash");const[,g,Q,B,h,e]=C;if("19"!==Q)throw new Error(`Unsupported version: ${Q}`);const w={},t={m:"memorySize",p:"parallelism",t:"iterations"};for(const A of B.split(",")){const[I,i]=A.split("=");w[t[I]]=Number(i)}return Object.assign(Object.assign({},w),{password:A,secret:i,hashType:g,salt:k(h),hashLength:f(e),outputType:"encoded"})})(A.password,A.hash,A.secret);H(I);const i=A.hash.lastIndexOf("$")+1;return(yield u(I)).substring(i)===A.hash.substring(i)}))},A.argon2d=function(A){return I(this,void 0,void 0,(function*(){return H(A),u(Object.assign(Object.assign({},A),{hashType:"d"}))}))},A.argon2i=function(A){return I(this,void 0,void 0,(function*(){return H(A),u(Object.assign(Object.assign({},A),{hashType:"i"}))}))},A.argon2id=function(A){return I(this,void 0,void 0,(function*(){return H(A),u(Object.assign(Object.assign({},A),{hashType:"id"}))}))}}));
+</script>
+<script>
+"use strict";
+const CHAR_SETS = {
+  lower: "abcdefghijklmnopqrstuvwxyz",
+  upper: "ABCDEFGHIJKLMNOPQRSTUVWXYZ",
+  digit: "0123456789",
+  symbol: "!@#$%^&*()-_=+[]{};:,.<>?"
+};
+const SET_ORDER = ["lower", "upper", "digit", "symbol"];
+const SALT = "code-generator-v1";
+const ARGON2 = { memorySize: 65536, iterations: 3, parallelism: 1, hashLength: 32 };
+
+// Step1: 正規化して「識別子|回次|Word1|Word2|Word3」を作る
+function buildInput(ident, count, words) {
+  const id = ident.trim().toLowerCase();
+  const n = count.trim().replace(/^0+(?=\d)/, "");
+  const ws = words.map(w => w.trim().toLowerCase()).sort();
+  return [id, n, ...ws].join("|");
+}
+
+// Step3: Base64URL（パディングなし）
+function toBase64Url(bytes) {
+  let s = "";
+  for (const b of bytes) s += String.fromCharCode(b);
+  return btoa(s).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
+}
+
+async function sha256(text) {
+  return new Uint8Array(await crypto.subtle.digest("SHA-256", new TextEncoder().encode(text)));
+}
+
+// Step2〜6
+async function deriveCode(input, length, setKeys) {
+  const enc = new TextEncoder();
+  const hash = await hashwasm.argon2id({
+    password: enc.encode(input),
+    salt: enc.encode(SALT),
+    memorySize: ARGON2.memorySize,
+    iterations: ARGON2.iterations,
+    parallelism: ARGON2.parallelism,
+    hashLength: ARGON2.hashLength,
+    outputType: "binary"
+  });
+  const seed = toBase64Url(hash);
+
+  const keys = SET_ORDER.filter(k => setKeys.includes(k));
+  const charset = keys.map(k => CHAR_SETS[k]).join("");
+  const n = charset.length;
+  const limit = 256 - (256 % n);
+
+  let candidate = "";
+  for (let i = 0; ; i++) {
+    const block = await sha256(seed + "|" + i);
+    for (const b of block) {
+      if (b >= limit) continue;
+      candidate += charset[b % n];
+      if (candidate.length === length) {
+        const ok = keys.every(k => [...candidate].some(c => CHAR_SETS[k].includes(c)));
+        if (ok) return { code: candidate, seed };
+        candidate = "";
+      }
+    }
+  }
+}
+
+(function () {
+  const $ = id => document.getElementById(id);
+  const ident = $("ident"), count = $("count");
+  const wordEls = [$("word1"), $("word2"), $("word3")];
+  const lenRange = $("lenRange"), lenNum = $("lenNum");
+  const setEls = { lower: $("setLower"), upper: $("setUpper"), digit: $("setDigit"), symbol: $("setSymbol") };
+  const btnGenerate = $("btnGenerate"), btnClear = $("btnClear"), btnCopy = $("btnCopy"), btnToggle = $("btnToggle");
+  const toggleWords = $("toggleWords"), output = $("output"), status = $("status");
+
+  let code = "";
+  let visible = false;
+  let runId = 0;
+
+  function setStatus(msg, kind) {
+    status.textContent = msg || "";
+    status.className = "status" + (kind ? " " + kind : "");
+  }
+
+  function renderOutput() {
+    if (!code) {
+      output.textContent = "ここに生成コードが表示されます";
+      output.classList.add("empty");
+    } else {
+      output.textContent = visible ? code : "•".repeat(code.length);
+      output.classList.remove("empty");
+    }
+    btnCopy.disabled = !code;
+    btnToggle.disabled = !code;
+    btnToggle.textContent = visible ? "非表示" : "表示";
+    btnToggle.setAttribute("aria-pressed", String(visible));
+  }
+
+  // 入力が変わったら、古いコードが残らないよう破棄する
+  function invalidate() {
+    runId++;
+    btnGenerate.disabled = false;
+    if (code) {
+      code = "";
+      renderOutput();
+      setStatus("入力が変更されました。もう一度「コード生成」を押してください。");
+    }
+  }
+
+  function clampLength(v) {
+    v = Math.round(Number(v));
+    if (!Number.isFinite(v)) v = 20;
+    return Math.min(64, Math.max(8, v));
+  }
+
+  lenRange.addEventListener("input", () => { lenNum.value = lenRange.value; invalidate(); });
+  lenNum.addEventListener("input", () => {
+    if (/^\d+$/.test(lenNum.value) && +lenNum.value >= 8 && +lenNum.value <= 64) lenRange.value = lenNum.value;
+    invalidate();
+  });
+  lenNum.addEventListener("change", () => { lenNum.value = lenRange.value = clampLength(lenNum.value); });
+
+  [ident, count, ...wordEls].forEach(el => {
+    el.addEventListener("input", invalidate);
+    el.addEventListener("keydown", e => { if (e.key === "Enter" && !e.isComposing) generate(); });
+  });
+  Object.values(setEls).forEach(el => el.addEventListener("change", invalidate));
+
+  toggleWords.addEventListener("click", () => {
+    const show = wordEls[0].type === "password";
+    wordEls.forEach(el => { el.type = show ? "text" : "password"; });
+    toggleWords.textContent = show ? "単語を隠す" : "単語を表示";
+    toggleWords.setAttribute("aria-pressed", String(show));
+  });
+
+  async function generate() {
+    if (btnGenerate.disabled) return;
+    const idVal = ident.value, countVal = count.value.trim();
+    const words = wordEls.map(el => el.value);
+    const length = clampLength(lenNum.value);
+    lenNum.value = lenRange.value = length;
+    const setKeys = SET_ORDER.filter(k => setEls[k].checked);
+
+    if (!idVal.trim()) { setStatus("識別子を入力してください。", "error"); ident.focus(); return; }
+    if (!/^\d+$/.test(countVal)) { setStatus("回次には 0 以上の整数を入力してください。", "error"); count.focus(); return; }
+    for (let i = 0; i < 3; i++) {
+      if (!words[i].trim()) { setStatus("Word" + (i + 1) + " を入力してください。", "error"); wordEls[i].focus(); return; }
+    }
+    if (!setKeys.length) { setStatus("使用文字種を 1 つ以上選択してください。", "error"); return; }
+    if (typeof WebAssembly !== "object" || !window.crypto || !crypto.subtle) {
+      setStatus("このブラウザでは必要な機能（WebAssembly / Web Crypto）が利用できません。HTTPS または最新のブラウザでお試しください。", "error");
+      return;
+    }
+
+    code = "";
+    renderOutput();
+    const myRun = ++runId;
+    btnGenerate.disabled = true;
+    setStatus("生成中…（数秒かかる場合があります）");
+    // 「生成中」の表示を描画させてから重い計算を始める
+    await new Promise(r => setTimeout(r, 30));
+    try {
+      const result = await deriveCode(buildInput(idVal, countVal, words), length, setKeys);
+      if (myRun !== runId) return; // 計算中に入力が変更された
+      code = result.code;
+      renderOutput();
+      setStatus("生成しました。", "ok");
+    } catch (e) {
+      if (myRun !== runId) return;
+      setStatus("生成に失敗しました: " + (e && e.message ? e.message : e), "error");
+    } finally {
+      if (myRun === runId) btnGenerate.disabled = false;
+    }
+  }
+  btnGenerate.addEventListener("click", generate);
+
+  btnToggle.addEventListener("click", () => { visible = !visible; renderOutput(); });
+
+  btnCopy.addEventListener("click", async () => {
+    if (!code) return;
+    let done = false;
+    try {
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        await navigator.clipboard.writeText(code);
+        done = true;
+      }
+    } catch (e) { /* 下のフォールバックへ */ }
+    if (!done) {
+      const ta = document.createElement("textarea");
+      ta.value = code;
+      ta.setAttribute("readonly", "");
+      ta.style.cssText = "position:fixed;top:0;left:0;opacity:0";
+      document.body.appendChild(ta);
+      ta.select();
+      try { done = document.execCommand("copy"); } catch (e) { done = false; }
+      ta.remove();
+    }
+    setStatus(done ? "クリップボードにコピーしました。" : "コピーできませんでした。コードを表示して手動でコピーしてください。", done ? "ok" : "error");
+  });
+
+  btnClear.addEventListener("click", () => {
+    runId++;
+    ident.value = "";
+    count.value = "1";
+    wordEls.forEach(el => { el.value = ""; el.type = "password"; });
+    toggleWords.textContent = "単語を表示";
+    toggleWords.setAttribute("aria-pressed", "false");
+    lenRange.value = lenNum.value = 20;
+    Object.values(setEls).forEach(el => { el.checked = true; });
+    code = "";
+    visible = false;
+    btnGenerate.disabled = false;
+    renderOutput();
+    setStatus("");
+    ident.focus();
+  });
+
+  // ブラウザの「戻る」等でフォームの値が復元されないようにする
+  window.addEventListener("pageshow", e => { if (e.persisted) btnClear.click(); });
+
+  renderOutput();
+})();
+</script>
+</body>
+</html>
