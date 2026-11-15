@@ -78,7 +78,7 @@ label, .label {
   font-weight: 600;
   color: var(--muted);
 }
-input[type="text"], input[type="password"], input[type="number"] {
+input[type="text"], input[type="number"] {
   width: 100%;
   padding: 11px 12px;
   font: inherit;
@@ -101,6 +101,8 @@ input:focus-visible, button:focus-visible, summary:focus-visible {
   font: inherit; font-size: .85rem; color: var(--accent); cursor: pointer; border-radius: 6px;
 }
 .words { display: grid; gap: 8px; }
+/* type="password" は日本語入力(IME)が使えないため、テキスト欄を CSS で伏せ字にする */
+input.masked { -webkit-text-security: disc; }
 .len-row { display: grid; grid-template-columns: 1fr 84px; gap: 12px; align-items: center; }
 input[type="range"] { width: 100%; accent-color: var(--accent); height: 28px; margin: 0; }
 .checks { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
@@ -186,10 +188,14 @@ pre code { background: none; padding: 0; }
   <section class="card" aria-labelledby="h-input">
     <h2 id="h-input">入力</h2>
 
+    <div class="field">
+      <label for="ident1">識別子1</label>
+      <input type="text" id="ident1" placeholder="例: example" autocomplete="off" autocapitalize="none" autocorrect="off" spellcheck="false">
+    </div>
     <div class="row">
       <div class="field">
-        <label for="ident">識別子</label>
-        <input type="text" id="ident" placeholder="例: example" autocomplete="off" autocapitalize="none" autocorrect="off" spellcheck="false">
+        <label for="ident2">識別子2</label>
+        <input type="text" id="ident2" placeholder="例: main" autocomplete="off" autocapitalize="none" autocorrect="off" spellcheck="false">
       </div>
       <div class="field">
         <label for="count">回次</label>
@@ -199,13 +205,13 @@ pre code { background: none; padding: 0; }
 
     <div class="field">
       <div class="words-head">
-        <span class="label">秘密単語（順不同）</span>
+        <span class="label">秘密単語（順不同・日本語可）</span>
         <button type="button" class="link-btn" id="toggleWords" aria-pressed="false">単語を表示</button>
       </div>
       <div class="words">
-        <input type="password" id="word1" placeholder="Word1" aria-label="Word1" autocomplete="off" autocapitalize="none" autocorrect="off" spellcheck="false">
-        <input type="password" id="word2" placeholder="Word2" aria-label="Word2" autocomplete="off" autocapitalize="none" autocorrect="off" spellcheck="false">
-        <input type="password" id="word3" placeholder="Word3" aria-label="Word3" autocomplete="off" autocapitalize="none" autocorrect="off" spellcheck="false">
+        <input type="text" class="masked" id="word1" lang="ja" placeholder="Word1" aria-label="Word1" autocomplete="off" autocapitalize="none" autocorrect="off" spellcheck="false">
+        <input type="text" class="masked" id="word2" lang="ja" placeholder="Word2" aria-label="Word2" autocomplete="off" autocapitalize="none" autocorrect="off" spellcheck="false">
+        <input type="text" class="masked" id="word3" lang="ja" placeholder="Word3" aria-label="Word3" autocomplete="off" autocapitalize="none" autocorrect="off" spellcheck="false">
       </div>
     </div>
 
@@ -251,17 +257,19 @@ pre code { background: none; padding: 0; }
 
         <h3>1. 入力値の正規化</h3>
         <ul>
-          <li>識別子: 前後の空白を除去し、小文字化</li>
+          <li>識別子1・識別子2: それぞれ Unicode 正規化（NFKC）→ 前後の空白を除去 → 小文字化</li>
           <li>回次: 0 以上の整数（先頭の 0 は除去。<code>01</code> → <code>1</code>）</li>
-          <li>Word1〜3: それぞれ前後の空白を除去し、小文字化</li>
+          <li>Word1〜3: それぞれ Unicode 正規化（NFKC）→ 前後の空白を除去 → 小文字化</li>
         </ul>
+        <p>識別子・Word には日本語も使えます。NFKC により、全角英数字と半角英数字（<code>Ａｂｃ</code> と <code>abc</code>）、半角カナと全角カナ（<code>ﾘﾝｺﾞ</code> と <code>リンゴ</code>）は同じ文字として扱われます。ひらがな・カタカナ・漢字の違い（<code>りんご</code> / <code>リンゴ</code> / <code>林檎</code>）は別の単語として扱われます。</p>
+        <p>識別子1 と 識別子2 は並べ替えません。入れ替えると別のコードになります。</p>
 
         <h3>2. Word のソート</h3>
         <p>正規化後の 3 単語を辞書順（UTF-16 コード単位の昇順 = JavaScript の <code>Array.prototype.sort()</code> 既定順）に並べ替えます。入力順は結果に影響しません。</p>
         <p>並べ替え後、次の形式で 1 つの文字列に連結します。</p>
-<pre><code>識別子|回次|Word1|Word2|Word3
+<pre><code>識別子1|識別子2|回次|Word1|Word2|Word3
 
-例: example|1|apple|coffee|river</code></pre>
+例: example|main|1|apple|coffee|river</code></pre>
 
         <h3>3. Argon2id によるハッシュ化</h3>
         <p>連結した文字列（UTF-8）を Argon2id（version 1.3）でハッシュ化します。</p>
@@ -298,13 +306,21 @@ b ≥ limit → 読み飛ばす</code></pre>
         </ul>
 
         <h3>検証用の例</h3>
-<pre><code>識別子: example / 回次: 1
+<pre><code>識別子1: example / 識別子2: main / 回次: 1
 Word : Coffee, River, apple
 コード長: 20 / 文字種: すべて ON
 
-連結文字列: example|1|apple|coffee|river
-シード    : 0tHI3SFmdBrEDTnuzmBkAPse7tzkFdSLKZcme9rTweo
-生成コード: 77?c.hOO)EMV=kjSLea?</code></pre>
+連結文字列: example|main|1|apple|coffee|river
+シード    : w0QHhaItIPu2puc6ID-GSKlPBmCVtWkJ2v2iwUYLIKs
+生成コード: (sPDNz.5Nu8)9cy@f@Ep
+
+識別子1: example / 識別子2: main / 回次: 1
+Word : りんご, コーヒー, 川
+コード長: 20 / 文字種: すべて ON
+
+連結文字列: example|main|1|りんご|コーヒー|川
+シード    : 2fQhnN6TfqhXBbZrvEX-tnCBVCuLZ3Gv6kP6v5fBc28
+生成コード: Lp}?yiAlV6%z+#Js:B!r</code></pre>
         <p>Argon2id の実装には hash-wasm 4.12.0（MIT License, © Dani Biró）をこのファイル内に埋め込んで使用しています。SHA-256 はブラウザ標準の Web Crypto API を使用しています。</p>
       </div>
     </details>
@@ -339,12 +355,17 @@ const SET_ORDER = ["lower", "upper", "digit", "symbol"];
 const SALT = "code-generator-v1";
 const ARGON2 = { memorySize: 65536, iterations: 3, parallelism: 1, hashLength: 32 };
 
-// Step1: 正規化して「識別子|回次|Word1|Word2|Word3」を作る
-function buildInput(ident, count, words) {
-  const id = ident.trim().toLowerCase();
+// 文字列の正規化: NFKC → 前後空白除去 → 小文字化
+function normalizeText(s) {
+  return s.normalize("NFKC").trim().toLowerCase();
+}
+
+// Step1: 正規化して「識別子1|識別子2|回次|Word1|Word2|Word3」を作る
+function buildInput(idents, count, words) {
+  const ids = idents.map(normalizeText);
   const n = count.trim().replace(/^0+(?=\d)/, "");
-  const ws = words.map(w => w.trim().toLowerCase()).sort();
-  return [id, n, ...ws].join("|");
+  const ws = words.map(normalizeText).sort();
+  return [...ids, n, ...ws].join("|");
 }
 
 // Step3: Base64URL（パディングなし）
@@ -394,7 +415,7 @@ async function deriveCode(input, length, setKeys) {
 
 (function () {
   const $ = id => document.getElementById(id);
-  const ident = $("ident"), count = $("count");
+  const identEls = [$("ident1"), $("ident2")], count = $("count");
   const wordEls = [$("word1"), $("word2"), $("word3")];
   const lenRange = $("lenRange"), lenNum = $("lenNum");
   const setEls = { lower: $("setLower"), upper: $("setUpper"), digit: $("setDigit"), symbol: $("setSymbol") };
@@ -448,31 +469,33 @@ async function deriveCode(input, length, setKeys) {
   });
   lenNum.addEventListener("change", () => { lenNum.value = lenRange.value = clampLength(lenNum.value); });
 
-  [ident, count, ...wordEls].forEach(el => {
+  [...identEls, count, ...wordEls].forEach(el => {
     el.addEventListener("input", invalidate);
     el.addEventListener("keydown", e => { if (e.key === "Enter" && !e.isComposing) generate(); });
   });
   Object.values(setEls).forEach(el => el.addEventListener("change", invalidate));
 
   toggleWords.addEventListener("click", () => {
-    const show = wordEls[0].type === "password";
-    wordEls.forEach(el => { el.type = show ? "text" : "password"; });
+    const show = wordEls[0].classList.contains("masked");
+    wordEls.forEach(el => { el.classList.toggle("masked", !show); });
     toggleWords.textContent = show ? "単語を隠す" : "単語を表示";
     toggleWords.setAttribute("aria-pressed", String(show));
   });
 
   async function generate() {
     if (btnGenerate.disabled) return;
-    const idVal = ident.value, countVal = count.value.trim();
+    const idVals = identEls.map(el => el.value), countVal = count.value.trim();
     const words = wordEls.map(el => el.value);
     const length = clampLength(lenNum.value);
     lenNum.value = lenRange.value = length;
     const setKeys = SET_ORDER.filter(k => setEls[k].checked);
 
-    if (!idVal.trim()) { setStatus("識別子を入力してください。", "error"); ident.focus(); return; }
+    for (let i = 0; i < 2; i++) {
+      if (!normalizeText(idVals[i])) { setStatus("識別子" + (i + 1) + " を入力してください。", "error"); identEls[i].focus(); return; }
+    }
     if (!/^\d+$/.test(countVal)) { setStatus("回次には 0 以上の整数を入力してください。", "error"); count.focus(); return; }
     for (let i = 0; i < 3; i++) {
-      if (!words[i].trim()) { setStatus("Word" + (i + 1) + " を入力してください。", "error"); wordEls[i].focus(); return; }
+      if (!normalizeText(words[i])) { setStatus("Word" + (i + 1) + " を入力してください。", "error"); wordEls[i].focus(); return; }
     }
     if (!setKeys.length) { setStatus("使用文字種を 1 つ以上選択してください。", "error"); return; }
     if (typeof WebAssembly !== "object" || !window.crypto || !crypto.subtle) {
@@ -488,7 +511,7 @@ async function deriveCode(input, length, setKeys) {
     // 「生成中」の表示を描画させてから重い計算を始める
     await new Promise(r => setTimeout(r, 30));
     try {
-      const result = await deriveCode(buildInput(idVal, countVal, words), length, setKeys);
+      const result = await deriveCode(buildInput(idVals, countVal, words), length, setKeys);
       if (myRun !== runId) return; // 計算中に入力が変更された
       code = result.code;
       renderOutput();
@@ -528,9 +551,9 @@ async function deriveCode(input, length, setKeys) {
 
   btnClear.addEventListener("click", () => {
     runId++;
-    ident.value = "";
+    identEls.forEach(el => { el.value = ""; });
     count.value = "1";
-    wordEls.forEach(el => { el.value = ""; el.type = "password"; });
+    wordEls.forEach(el => { el.value = ""; el.classList.add("masked"); });
     toggleWords.textContent = "単語を表示";
     toggleWords.setAttribute("aria-pressed", "false");
     lenRange.value = lenNum.value = 20;
@@ -540,11 +563,14 @@ async function deriveCode(input, length, setKeys) {
     btnGenerate.disabled = false;
     renderOutput();
     setStatus("");
-    ident.focus();
+    identEls[0].focus();
   });
 
   // ブラウザの「戻る」等でフォームの値が復元されないようにする
   window.addEventListener("pageshow", e => { if (e.persisted) btnClear.click(); });
+
+  // 伏せ字表示に対応していないブラウザでは、切替ボタンを出さない（単語は常に表示される）
+  if (!(window.CSS && CSS.supports && CSS.supports("-webkit-text-security", "disc"))) toggleWords.hidden = true;
 
   renderOutput();
 })();
