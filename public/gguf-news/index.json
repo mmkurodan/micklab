@@ -1,0 +1,19 @@
+{
+  "updated": "2026-11-21",
+  "days": [
+    {
+      "date": "2026-11-21",
+      "count": 5,
+      "headlines": [
+        "Inkling 2 Mini（Thinking Machines Lab）の GGUF 版を Unsloth が公開",
+        "bartowski が Nex-N2.6（321B）や ZoomGain 4B/9B の GGUF を更新",
+        "Unsloth Studio v0.1.920-beta：AMD NPU 向け Q4NX 変換に対応"
+      ],
+      "headlines_en": [
+        "Unsloth publishes GGUF quants of Inkling 2 Mini (Thinking Machines Lab)",
+        "bartowski updates GGUFs for Nex-N2.6 (321B) and ZoomGain 4B/9B",
+        "Unsloth v0.1.920-beta adds Q4NX export for AMD NPUs"
+      ]
+    }
+  ]
+}

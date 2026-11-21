@@ -1,0 +1,158 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Latest GGUF Model News — Mick Lab</title>
+  <meta name="description" content="A daily backlog of new and updated GGUF models for generative AI.">
+  <link rel="alternate" hreflang="ja" href="/gguf-news.html">
+  <link rel="alternate" hreflang="en" href="/gguf-news-en.html">
+  <style>
+    :root {
+      --bg: #0b0c0f;
+      --card: #0f1114;
+      --muted: #9aa3b2;
+      --accent: #7c5cff;
+      --glass: rgba(255,255,255,0.03);
+    }
+    *{box-sizing:border-box}
+    body{margin:0;background:linear-gradient(180deg,var(--bg),#070708);color:#e6eef8;font-family:Inter,system-ui,Segoe UI,Roboto,"Helvetica Neue",Arial}
+    header{display:flex;align-items:center;justify-content:space-between;padding:20px 32px;border-bottom:1px solid rgba(255,255,255,0.03);backdrop-filter: blur(6px);position:sticky;top:0;background:rgba(11,12,15,0.72);z-index:10}
+    .brand{display:flex;align-items:center;gap:12px}
+    .header-actions{display:flex;align-items:center;gap:18px;flex-wrap:wrap;justify-content:flex-end}
+    .logo{width:44px;height:44px;border-radius:8px;background:linear-gradient(135deg,var(--accent),#00d4ff);display:flex;align-items:center;justify-content:center;font-weight:700;color:#071020}
+    .title{font-size:18px;font-weight:600}
+    nav{display:flex;align-items:center;flex-wrap:wrap;justify-content:flex-end}
+    nav a{color:var(--muted);text-decoration:none;margin-left:18px;font-weight:500}
+    nav a:hover{color:#fff}
+    .lang-switch{display:flex;align-items:center;gap:10px;color:var(--muted);font-size:14px}
+    .lang-switch a{margin-left:0;text-decoration:none;color:var(--muted)}
+    .lang-switch a[aria-current="page"]{color:#fff;font-weight:700}
+    main{max-width:1100px;margin:48px auto;padding:0 20px}
+    .hero{display:flex;gap:32px;align-items:center}
+    .hero-left{flex:1}
+    h1{font-size:40px;margin:0 0 12px}
+    p.lead{color:var(--muted);margin:0 0 20px;line-height:1.6}
+    .cta{display:inline-block;background:var(--accent);color:#071020;padding:12px 18px;border-radius:8px;text-decoration:none;font-weight:600}
+    /* カテゴリ */
+    .cat{margin-top:44px}
+    .cat-head{display:flex;align-items:baseline;gap:12px;margin:0 0 4px;padding-left:12px;border-left:3px solid var(--accent)}
+    .cat-head h2{font-size:20px;margin:0}
+    .cat-head .count{color:var(--muted);font-size:13px}
+    .cat-sub{color:var(--muted);font-size:13px;margin:0 0 16px;padding-left:12px}
+    .apps{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:18px;margin-top:14px}
+    a.card{display:block;text-decoration:none;color:inherit;transition:border-color .15s ease, transform .15s ease}
+    a.card:hover{border-color:rgba(124,92,255,0.5);transform:translateY(-2px)}
+    .card{background:var(--card);padding:18px;border-radius:12px;border:1px solid rgba(255,255,255,0.05)}
+    .card h3{margin:0 0 10px;font-size:16px}
+    .card p{margin:0;color:var(--muted);font-size:14px;line-height:1.55}
+    .card-icon{width:48px;height:48px;border-radius:10px;object-fit:cover;display:block;margin-bottom:10px}
+    .badge{display:inline-block;font-size:11px;font-weight:700;letter-spacing:.04em;color:#b7a9ff;background:rgba(124,92,255,0.12);border:1px solid rgba(124,92,255,0.25);border-radius:999px;padding:2px 9px;margin-bottom:10px}
+    .notes-list{margin:0;padding-left:20px;color:var(--muted);line-height:1.6}
+    .notes-list li+li{margin-top:8px}
+    .news-list{grid-template-columns:repeat(auto-fill,minmax(320px,1fr))}
+    .news-item .badge{margin-right:4px}
+    .news-src{margin-top:10px!important;font-size:12px!important;word-break:break-all}
+    .news-src a,.news-more a{color:#9fb4ff}
+    footer{max-width:1100px;margin:60px auto 40px;padding:0 20px;color:var(--muted);font-size:13px;text-align:center}
+    @media (max-width:700px){header{padding:16px 18px}.header-actions{justify-content:flex-start}.hero{flex-direction:column;align-items:flex-start}h1{font-size:28px}.hero-right{width:100%!important}}
+  </style>
+  <style>
+    .archive{display:flex;flex-wrap:wrap;gap:8px;margin:14px 0 0;padding:0;list-style:none}
+    .archive a{display:inline-block;padding:6px 12px;border-radius:999px;background:var(--glass);border:1px solid rgba(255,255,255,0.08);color:#e6eef8;text-decoration:none;font-size:13px}
+    .archive a:hover{border-color:rgba(124,92,255,0.5)}
+    .archive .n{color:var(--muted);margin-left:4px}
+  </style>
+</head>
+<body>
+  <header>
+    <div class="brand">
+      <div class="logo">ML</div>
+      <div>
+        <div class="title">Mick Lab</div>
+        <div style="font-size:12px;color:var(--muted)">Research centered on generative AI applications</div>
+      </div>
+    </div>
+    <div class="header-actions">
+      <nav aria-label="Navigation">
+        <a href="/index-en.html">Home</a>
+      </nav>
+      <div class="lang-switch" aria-label="Language switch">
+        <a href="/gguf-news.html">日本語</a>
+        <span>|</span>
+        <a href="/gguf-news-en.html" aria-current="page">English</a>
+      </div>
+    </div>
+  </header>
+  <main>
+    <section>
+      <h1>Latest GGUF Model News</h1>
+      <p class="lead">A daily digest of new and updated models available as GGUF, plus related updates to llama.cpp, Ollama, LM Studio and more. Follow the source links for the primary information. Dates are in JST.</p>
+    </section>
+
+    <section class="cat" id="archive">
+      <div class="cat-head"><h2>Archive</h2><span class="count" id="day-count"></span></div>
+      <ul class="archive" id="archive-list"></ul>
+      <noscript><p class="cat-sub" style="margin-top:10px">JavaScript is disabled, so only the most recent days are shown.</p></noscript>
+    </section>
+
+    <div id="days">
+    <!-- GGUF-NEWS-STATIC:START -->
+    <section class="cat day" id="d-2026-11-21">
+      <div class="cat-head"><h2>2026-11-21</h2><span class="count">5 items</span></div>
+      <div class="apps news-list">
+        <div class="card news-item"><span class="badge">26B MoE (3.4B active)</span> <span class="badge">UD-IQ1_S〜UD-Q8_K_XL</span> <span class="badge">multimodal</span> <span class="badge">Unsloth</span> <h3>Unsloth publishes GGUF quants of Inkling 2 Mini (Thinking Machines Lab)</h3><p>Unsloth released Dynamic-quant GGUFs of Thinking Machines Lab&#x27;s Inkling 2 Mini (release date on the model card: Nov 20, Apache-2.0). It is a 26B-total / 3.4B-active MoE with image input and up to 1M-token context. Quants range from UD-IQ1_S (~7.8 GB) to UD-Q8_K_XL (~22.9 GB); UD-Q4_K_M is ~16.6 GB.</p><p class="news-src"><a href="https://huggingface.co/unsloth/Inkling-2-Mini-GGUF" target="_blank" rel="noopener">Source: https://huggingface.co/unsloth/Inkling-2-Mini-GGUF</a></p></div>
+        <div class="card news-item"><span class="badge">321B</span> <span class="badge">4B / 9B</span> <span class="badge">bartowski</span> <h3>bartowski updates GGUFs for Nex-N2.6 (321B) and ZoomGain 4B/9B</h3><p>In bartowski&#x27;s &quot;Latest from known labs&quot; collection, Nex-N2.6-GGUF (321.3B, 24 quant variants) and ZoomGain-4B / 9B GGUFs were updated within roughly the last day. The page shows only relative times, so exact dates are unconfirmed.</p><p class="news-src"><a href="https://huggingface.co/collections/bartowski/latest-from-known-labs" target="_blank" rel="noopener">Source: https://huggingface.co/collections/bartowski/latest-from-known-labs</a></p></div>
+        <div class="card news-item"><span class="badge">Q4NX</span> <span class="badge">AMD NPU</span> <span class="badge">Unsloth</span> <h3>Unsloth v0.1.920-beta adds Q4NX export for AMD NPUs</h3><p>The Nov 19 release adds Q4NX conversion on the Export page so models can load on AMD NPUs, plus LTX-2.5 / MOSS-Image LoRA training and up to 25% faster QLoRA. This release itself has no GGUF-specific changes.</p><p class="news-src"><a href="https://unsloth.ai/docs/new/changelog" target="_blank" rel="noopener">Source: https://unsloth.ai/docs/new/changelog</a></p></div>
+        <div class="card news-item"><span class="badge">LM Studio</span> <span class="badge">llama.cpp</span> <span class="badge">bug fix</span> <h3>LM Studio Bionic 1.2.1: llama.cpp extension packs and a GGUF GPU-offload fix</h3><p>Bionic 1.2.1 (Nov 16) ships llama.cpp extension packs 2.74.0 / 2.76.0 and fixes wrong GPU-offload settings for GGUF models with large metadata headers. 2.76.0 is LM Studio&#x27;s pack version, not an upstream llama.cpp build number.</p><p class="news-src"><a href="https://lmstudio.ai/changelog/bionic-v1.2.1" target="_blank" rel="noopener">Source: https://lmstudio.ai/changelog/bionic-v1.2.1</a></p></div>
+        <div class="card news-item"><span class="badge">Ollama</span> <span class="badge">llama.cpp b12257</span> <span class="badge">prerelease</span> <h3>Ollama v0.40.17 still in prerelease (rc1); bundled llama.cpp bumped to b12257</h3><p>v0.40.17 remains in prerelease (rc0 on Nov 10, rc1 on Nov 16), with the bundled llama.cpp bumped to b12257, concurrent MLX generation and Vulkan iGPU mmap. The current stable release is v0.40.16, which added Ripple Preview (65B).</p><p class="news-src"><a href="https://releasebot.io/updates/ollama" target="_blank" rel="noopener">Source: https://releasebot.io/updates/ollama</a></p></div>
+      </div>
+    </section>
+    <!-- GGUF-NEWS-STATIC:END -->
+    </div>
+  </main>
+  <footer>© Mick Lab — Research centered on generative AI applications</footer>
+  <script>
+  (function () {
+    var T = {items: ' items', src: 'Source', empty: 'No notable new GGUF releases today.', load: 'Failed to load'};
+    var TK = 'title_en', SK = 'summary_en';
+    function el(tag, cls, text) { var n = document.createElement(tag); if (cls) n.className = cls; if (text != null) n.textContent = text; return n; }
+    function renderDay(d) {
+      var sec = el('section', 'cat day'); sec.id = 'd-' + d.date;
+      var head = el('div', 'cat-head'); head.appendChild(el('h2', null, d.date));
+      head.appendChild(el('span', 'count', d.items.length + T.items)); sec.appendChild(head);
+      var list = el('div', 'apps news-list');
+      if (!d.items.length) { var c0 = el('div', 'card news-item'); c0.appendChild(el('p', null, T.empty)); list.appendChild(c0); }
+      d.items.forEach(function (it) {
+        var c = el('div', 'card news-item');
+        (it.tags || []).forEach(function (t) { c.appendChild(el('span', 'badge', t)); c.appendChild(document.createTextNode(' ')); });
+        c.appendChild(el('h3', null, it[TK] || it.title));
+        c.appendChild(el('p', null, it[SK] || ''));
+        var p = el('p', 'news-src'), a = el('a', null, T.src + ': ' + it.url);
+        if (/^https?:\/\//.test(it.url)) a.href = it.url;
+        a.target = '_blank'; a.rel = 'noopener'; p.appendChild(a); c.appendChild(p);
+        list.appendChild(c);
+      });
+      sec.appendChild(list); return sec;
+    }
+    fetch('/gguf-news/index.json', {cache: 'no-cache'}).then(function (r) { return r.json(); }).then(function (idx) {
+      var ul = document.getElementById('archive-list');
+      document.getElementById('day-count').textContent = idx.days.length + (TK === 'title' ? ' 日分' : ' days');
+      idx.days.forEach(function (d) {
+        var li = el('li'), a = el('a', null, d.date); a.href = '#d-' + d.date;
+        a.appendChild(el('span', 'n', '(' + d.count + ')')); li.appendChild(a); ul.appendChild(li);
+      });
+      return Promise.all(idx.days.map(function (d) {
+        return fetch('/gguf-news/' + d.date + '.json', {cache: 'no-cache'}).then(function (r) { return r.json(); });
+      }));
+    }).then(function (days) {
+      var box = document.getElementById('days'); box.innerHTML = '';
+      days.forEach(function (d) { box.appendChild(renderDay(d)); });
+      if (location.hash) { var t = document.getElementById(location.hash.slice(1)); if (t) t.scrollIntoView(); }
+    }).catch(function () {
+      document.getElementById('day-count').textContent = T.load;
+    });
+  })();
+  </script>
+</body>
+</html>

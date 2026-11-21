@@ -49,6 +49,10 @@
     .badge{display:inline-block;font-size:11px;font-weight:700;letter-spacing:.04em;color:#b7a9ff;background:rgba(124,92,255,0.12);border:1px solid rgba(124,92,255,0.25);border-radius:999px;padding:2px 9px;margin-bottom:10px}
     .notes-list{margin:0;padding-left:20px;color:var(--muted);line-height:1.6}
     .notes-list li+li{margin-top:8px}
+    .news-list{grid-template-columns:repeat(auto-fill,minmax(320px,1fr))}
+    .news-item .badge{margin-right:4px}
+    .news-src{margin-top:10px!important;font-size:12px!important;word-break:break-all}
+    .news-src a,.news-more a{color:#9fb4ff}
     footer{max-width:1100px;margin:60px auto 40px;padding:0 20px;color:var(--muted);font-size:13px;text-align:center}
     @media (max-width:700px){header{padding:16px 18px}.header-actions{justify-content:flex-start}.hero{flex-direction:column;align-items:flex-start}h1{font-size:28px}.hero-right{width:100%!important}}
   </style>
@@ -93,6 +97,22 @@
         </div>
       </div>
     </section>
+
+    <!-- ── GGUF モデル最新情報（毎日自動更新） ── -->
+    <!-- GGUF-NEWS:START -->
+    <section class="cat" id="gguf-news">
+      <div class="cat-head"><h2>GGUF モデル最新情報</h2><span class="count">5 件</span></div>
+      <p class="cat-sub">更新日: 2026-11-21（日本時間）· GGUF 形式で使えるモデルの新着・更新</p>
+      <div class="apps news-list">
+        <div class="card news-item"><span class="badge">26B MoE (3.4B active)</span> <span class="badge">UD-IQ1_S〜UD-Q8_K_XL</span> <span class="badge">multimodal</span> <span class="badge">Unsloth</span> <h3>Inkling 2 Mini（Thinking Machines Lab）の GGUF 版を Unsloth が公開</h3><p>Thinking Machines Lab の Inkling 2 Mini（モデルカード記載のリリース日は 11月20日、Apache-2.0）を Unsloth が Dynamic 量子化の GGUF にしました。総 26B・アクティブ 3.4B の MoE で、画像入力に対応し、コンテキストは最大 1M トークン。UD-IQ1_S（約 7.8GB）から UD-Q8_K_XL（約 22.9GB）まで用意され、UD-Q4_K_M は約 16.6GB です。</p><p class="news-src"><a href="https://huggingface.co/unsloth/Inkling-2-Mini-GGUF" target="_blank" rel="noopener">出典: https://huggingface.co/unsloth/Inkling-2-Mini-GGUF</a></p></div>
+        <div class="card news-item"><span class="badge">321B</span> <span class="badge">4B / 9B</span> <span class="badge">bartowski</span> <h3>bartowski が Nex-N2.6（321B）や ZoomGain 4B/9B の GGUF を更新</h3><p>bartowski の「Latest from known labs」コレクションで、直近1日以内に Nex-N2.6-GGUF（321.3B、24種の量子化）と ZoomGain-4B / 9B の GGUF が更新されています。ページ上は相対時刻表示のみのため、正確な日付は未確認です。</p><p class="news-src"><a href="https://huggingface.co/collections/bartowski/latest-from-known-labs" target="_blank" rel="noopener">出典: https://huggingface.co/collections/bartowski/latest-from-known-labs</a></p></div>
+        <div class="card news-item"><span class="badge">Q4NX</span> <span class="badge">AMD NPU</span> <span class="badge">Unsloth</span> <h3>Unsloth Studio v0.1.920-beta：AMD NPU 向け Q4NX 変換に対応</h3><p>11月19日のリリースで、Export 画面から Q4NX 形式へ変換し AMD NPU で読み込めるようになりました。LTX-2.5 / MOSS-Image の LoRA 学習や QLoRA の最大 25% 高速化も含まれます。今回のリリース自体に GGUF 関連の変更はありません。</p><p class="news-src"><a href="https://unsloth.ai/docs/new/changelog" target="_blank" rel="noopener">出典: https://unsloth.ai/docs/new/changelog</a></p></div>
+        <div class="card news-item"><span class="badge">LM Studio</span> <span class="badge">llama.cpp</span> <span class="badge">bug fix</span> <h3>LM Studio Bionic 1.2.1：llama.cpp 拡張パック更新と大きなメタデータの GGUF の GPU オフロード修正</h3><p>11月16日付の Bionic 1.2.1 で llama.cpp 拡張パック 2.74.0 / 2.76.0 が入り、メタデータヘッダが大きい GGUF で GPU オフロード設定が誤る不具合が直りました。2.76.0 は LM Studio 側のパック番号で、llama.cpp 本体のビルド番号ではありません。</p><p class="news-src"><a href="https://lmstudio.ai/changelog/bionic-v1.2.1" target="_blank" rel="noopener">出典: https://lmstudio.ai/changelog/bionic-v1.2.1</a></p></div>
+        <div class="card news-item"><span class="badge">Ollama</span> <span class="badge">llama.cpp b12257</span> <span class="badge">prerelease</span> <h3>Ollama v0.40.17 はプレリリース継続（rc1）、同梱 llama.cpp を b12257 に更新</h3><p>v0.40.17 は rc0（11月10日）・rc1（11月16日）のプレリリース段階で、同梱 llama.cpp の b12257 への更新、MLX の並列生成、Vulkan iGPU での mmap などが含まれます。現時点の安定版は Ripple Preview（65B）を追加した v0.40.16 です。</p><p class="news-src"><a href="https://releasebot.io/updates/ollama" target="_blank" rel="noopener">出典: https://releasebot.io/updates/ollama</a></p></div>
+      </div>
+      <p class="cat-sub news-more" style="margin-top:14px"><a href="/gguf-news.html">過去の情報を見る →</a></p>
+    </section>
+    <!-- GGUF-NEWS:END -->
 
     <!-- ── カテゴリ: LLM 実行・学習（Android） ── -->
     <section class="cat" id="android-llm">
