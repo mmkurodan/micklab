@@ -1,0 +1,45 @@
+{
+  "date": "2026-11-22",
+  "items": [
+    {
+      "title": "SenseNova が公式に SenseNova-Loop-9B の GGUF を公開",
+      "title_en": "SenseNova publishes official GGUF of SenseNova-Loop-9B",
+      "summary_ja": "SenseTime 系の SenseNova による画像+テキスト入力の 9B モデル（2026-11-17 公開）の公式 GGUF。一部の層を2回実行するループ型デコーダで、最大 512K コンテキスト、Apache 2.0。モデルカードでは OpenSenseNova の llama.cpp フォーク利用が案内されており、本家での対応は明記されていない。",
+      "summary_en": "Official GGUF of SenseNova's 9B image+text model (released 2026-11-17). It is a looped decoder that runs part of its layers twice, supports up to 512K context and is Apache 2.0. The model card points to OpenSenseNova's llama.cpp fork; upstream support is not stated.",
+      "tags": ["9B", "Q4_K_M / Q5_K_M / Q8_0", "vision", "SenseNova"],
+      "url": "https://huggingface.co/sensenova/SenseNova-Loop-9B-GGUF"
+    },
+    {
+      "title": "bartowski が Spark-X2.6-4B の GGUF を公開",
+      "title_en": "bartowski publishes GGUF of Spark-X2.6-4B",
+      "summary_ja": "XHToken の 4B モデルの GGUF。BF16 から IQ2_M まで 22 種類の量子化があり、Q4_K_M は約 2.6GB。思考量を low/high で切り替える設定を持ち、英語・中国語対応、Apache-2.0。1.7B 版の GGUF も同時に公開されている。",
+      "summary_en": "GGUF of XHToken's 4B model with 22 quantizations from BF16 to IQ2_M (Q4_K_M about 2.6 GB). It has a low/high thinking-effort setting, supports English and Chinese, and is Apache-2.0. A 1.7B GGUF is also available.",
+      "tags": ["4B", "Q4_K_M〜IQ2_M", "bartowski"],
+      "url": "https://huggingface.co/bartowski/Spark-X2.6-4B-GGUF"
+    },
+    {
+      "title": "llama.cpp が Zyphra の Zaya1 8B アーキテクチャに対応",
+      "title_en": "llama.cpp adds support for Zyphra's Zaya1 8B architecture",
+      "summary_ja": "PR #32071 が 2026-11-18 にマージ。CCA 層・通常のアテンション層・top-1 ルーティングの MoE FFN を組み合わせたハイブリッド構成（総 8B / アクティブ 1B）を llama.cpp で実行できるようになった。",
+      "summary_en": "PR #32071, merged on 2026-11-18, lets llama.cpp run Zaya1, a hybrid of CCA layers, standard attention layers and a top-1 routed MoE FFN (8B total / 1B active).",
+      "tags": ["llama.cpp", "新アーキテクチャ", "8B (A1B)"],
+      "url": "https://github.com/ggml-org/llama.cpp/pull/32071"
+    },
+    {
+      "title": "llama.cpp b12612：Vulkan の MMVQ を AMD RDNA4 向けに高速化",
+      "title_en": "llama.cpp b12612: faster Vulkan MMVQ on AMD RDNA4",
+      "summary_ja": "Q3_K・Q5_K・IQ4_XS の量子化行列ベクトル積について RDNA4 GPU での性能を改善（AMD 純正ドライバでは従来設定を維持）。シェーダ読み込み処理の整理も含む（PR #31804）。",
+      "summary_en": "Improves Vulkan quantized matrix-vector multiply for Q3_K, Q5_K and IQ4_XS on RDNA4 GPUs, keeping the default on AMD's proprietary driver, and cleans up shader loading (PR #31804).",
+      "tags": ["llama.cpp", "Vulkan", "b12612"],
+      "url": "https://github.com/ggml-org/llama.cpp/releases/tag/b12612"
+    },
+    {
+      "title": "llama.cpp b12611：NVFP4 MoE のスケール欠落を修正",
+      "title_en": "llama.cpp b12611: fix missing scales in NVFP4 MoE experts",
+      "summary_ja": "モデル読み込み時、一部の層の NVFP4 MoE エキスパートが専用スケールの付与前に複製され、スケールなしで動いていた不具合を修正（PR #32704）。",
+      "summary_en": "Fixes NVFP4 MoE experts in some layers being copied before their per-expert scales were attached at load time, so they ran without scales (PR #32704).",
+      "tags": ["llama.cpp", "不具合修正", "NVFP4"],
+      "url": "https://github.com/ggml-org/llama.cpp/releases/tag/b12611"
+    }
+  ]
+}

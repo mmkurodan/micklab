@@ -1,6 +1,20 @@
 {
-  "updated": "2026-11-21",
+  "updated": "2026-11-22",
   "days": [
+    {
+      "date": "2026-11-22",
+      "count": 5,
+      "headlines": [
+        "SenseNova が公式に SenseNova-Loop-9B の GGUF を公開",
+        "bartowski が Spark-X2.6-4B の GGUF を公開",
+        "llama.cpp が Zyphra の Zaya1 8B アーキテクチャに対応"
+      ],
+      "headlines_en": [
+        "SenseNova publishes official GGUF of SenseNova-Loop-9B",
+        "bartowski publishes GGUF of Spark-X2.6-4B",
+        "llama.cpp adds support for Zyphra's Zaya1 8B architecture"
+      ]
+    },
     {
       "date": "2026-11-21",
       "count": 5,

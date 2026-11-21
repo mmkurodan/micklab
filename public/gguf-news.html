@@ -98,6 +98,16 @@
 
     <div id="days">
     <!-- GGUF-NEWS-STATIC:START -->
+    <section class="cat day" id="d-2026-11-22">
+      <div class="cat-head"><h2>2026-11-22</h2><span class="count">5 件</span></div>
+      <div class="apps news-list">
+        <div class="card news-item"><span class="badge">9B</span> <span class="badge">Q4_K_M / Q5_K_M / Q8_0</span> <span class="badge">vision</span> <span class="badge">SenseNova</span> <h3>SenseNova が公式に SenseNova-Loop-9B の GGUF を公開</h3><p>SenseTime 系の SenseNova による画像+テキスト入力の 9B モデル（2026-11-17 公開）の公式 GGUF。一部の層を2回実行するループ型デコーダで、最大 512K コンテキスト、Apache 2.0。モデルカードでは OpenSenseNova の llama.cpp フォーク利用が案内されており、本家での対応は明記されていない。</p><p class="news-src"><a href="https://huggingface.co/sensenova/SenseNova-Loop-9B-GGUF" target="_blank" rel="noopener">出典: https://huggingface.co/sensenova/SenseNova-Loop-9B-GGUF</a></p></div>
+        <div class="card news-item"><span class="badge">4B</span> <span class="badge">Q4_K_M〜IQ2_M</span> <span class="badge">bartowski</span> <h3>bartowski が Spark-X2.6-4B の GGUF を公開</h3><p>XHToken の 4B モデルの GGUF。BF16 から IQ2_M まで 22 種類の量子化があり、Q4_K_M は約 2.6GB。思考量を low/high で切り替える設定を持ち、英語・中国語対応、Apache-2.0。1.7B 版の GGUF も同時に公開されている。</p><p class="news-src"><a href="https://huggingface.co/bartowski/Spark-X2.6-4B-GGUF" target="_blank" rel="noopener">出典: https://huggingface.co/bartowski/Spark-X2.6-4B-GGUF</a></p></div>
+        <div class="card news-item"><span class="badge">llama.cpp</span> <span class="badge">新アーキテクチャ</span> <span class="badge">8B (A1B)</span> <h3>llama.cpp が Zyphra の Zaya1 8B アーキテクチャに対応</h3><p>PR #32071 が 2026-11-18 にマージ。CCA 層・通常のアテンション層・top-1 ルーティングの MoE FFN を組み合わせたハイブリッド構成（総 8B / アクティブ 1B）を llama.cpp で実行できるようになった。</p><p class="news-src"><a href="https://github.com/ggml-org/llama.cpp/pull/32071" target="_blank" rel="noopener">出典: https://github.com/ggml-org/llama.cpp/pull/32071</a></p></div>
+        <div class="card news-item"><span class="badge">llama.cpp</span> <span class="badge">Vulkan</span> <span class="badge">b12612</span> <h3>llama.cpp b12612：Vulkan の MMVQ を AMD RDNA4 向けに高速化</h3><p>Q3_K・Q5_K・IQ4_XS の量子化行列ベクトル積について RDNA4 GPU での性能を改善（AMD 純正ドライバでは従来設定を維持）。シェーダ読み込み処理の整理も含む（PR #31804）。</p><p class="news-src"><a href="https://github.com/ggml-org/llama.cpp/releases/tag/b12612" target="_blank" rel="noopener">出典: https://github.com/ggml-org/llama.cpp/releases/tag/b12612</a></p></div>
+        <div class="card news-item"><span class="badge">llama.cpp</span> <span class="badge">不具合修正</span> <span class="badge">NVFP4</span> <h3>llama.cpp b12611：NVFP4 MoE のスケール欠落を修正</h3><p>モデル読み込み時、一部の層の NVFP4 MoE エキスパートが専用スケールの付与前に複製され、スケールなしで動いていた不具合を修正（PR #32704）。</p><p class="news-src"><a href="https://github.com/ggml-org/llama.cpp/releases/tag/b12611" target="_blank" rel="noopener">出典: https://github.com/ggml-org/llama.cpp/releases/tag/b12611</a></p></div>
+      </div>
+    </section>
     <section class="cat day" id="d-2026-11-21">
       <div class="cat-head"><h2>2026-11-21</h2><span class="count">5 件</span></div>
       <div class="apps news-list">
