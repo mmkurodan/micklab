@@ -3,16 +3,16 @@
   "days": [
     {
       "date": "2026-11-21",
-      "count": 6,
+      "count": 5,
       "headlines": [
-        "Inkling 2 Mini（Thinking Machines Lab）の GGUF 版を Unsloth が公開",
-        "llama.cpp b12464〜b12555（11/17〜11/19）：OpenCL・Vulkan まわりの改善",
-        "bartowski が Nex-N2.6（321B）や ZoomGain 4B/9B の GGUF を更新"
+        "Unsloth が NVIDIA Nemotron 3.5 Bolt E4B の GGUF を公開",
+        "bartowski が MiMo-V2.6-Distill-Qwen-9B の GGUF を公開",
+        "inclusionAI の画像対応モデル ZoomGain 4B / 9B の GGUF"
       ],
       "headlines_en": [
-        "Unsloth publishes GGUF quants of Inkling 2 Mini (Thinking Machines Lab)",
-        "llama.cpp b12464–b12555 (Nov 17–19): OpenCL and Vulkan improvements",
-        "bartowski updates GGUFs for Nex-N2.6 (321B) and ZoomGain 4B/9B"
+        "Unsloth publishes GGUF of NVIDIA Nemotron 3.5 Bolt E4B",
+        "bartowski releases GGUF of MiMo-V2.6-Distill-Qwen-9B",
+        "GGUF builds of inclusionAI's vision models ZoomGain 4B / 9B"
       ]
     }
   ]
