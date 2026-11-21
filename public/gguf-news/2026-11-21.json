@@ -4,17 +4,38 @@
     {
       "title": "Inkling 2 Mini（Thinking Machines Lab）の GGUF 版を Unsloth が公開",
       "title_en": "Unsloth publishes GGUF quants of Inkling 2 Mini (Thinking Machines Lab)",
-      "summary_ja": "Thinking Machines Lab の Inkling 2 Mini（モデルカード記載のリリース日は 11月20日、Apache-2.0）を Unsloth が Dynamic 量子化の GGUF にしました。総 26B・アクティブ 3.4B の MoE で、画像入力に対応し、コンテキストは最大 1M トークン。UD-IQ1_S（約 7.8GB）から UD-Q8_K_XL（約 22.9GB）まで用意され、UD-Q4_K_M は約 16.6GB です。",
-      "summary_en": "Unsloth released Dynamic-quant GGUFs of Thinking Machines Lab's Inkling 2 Mini (release date on the model card: Nov 20, Apache-2.0). It is a 26B-total / 3.4B-active MoE with image input and up to 1M-token context. Quants range from UD-IQ1_S (~7.8 GB) to UD-Q8_K_XL (~22.9 GB); UD-Q4_K_M is ~16.6 GB.",
-      "tags": ["26B MoE (3.4B active)", "UD-IQ1_S〜UD-Q8_K_XL", "multimodal", "Unsloth"],
+      "summary_ja": "Thinking Machines Lab が 11月20日に公開した Inkling 2 Mini（Apache-2.0、公式モデルカードでは総 26.4B・アクティブ 3.4B の MoE）を、Unsloth が Dynamic 量子化の GGUF にしました。画像入力に対応し、コンテキストは最大 1M トークン。UD-IQ1_S（約 7.8GB）から UD-Q8_K_XL（約 22.9GB）まであり、UD-Q4_K_M は約 16.6GB です。",
+      "summary_en": "Unsloth released Dynamic-quant GGUFs of Inkling 2 Mini, which Thinking Machines Lab published on Nov 20 under Apache-2.0 (official card: 26.4B total / 3.4B active MoE). It accepts image input and supports up to 1M-token context. Quants range from UD-IQ1_S (~7.8 GB) to UD-Q8_K_XL (~22.9 GB); UD-Q4_K_M is ~16.6 GB.",
+      "tags": [
+        "26.4B MoE (3.4B active)",
+        "UD-IQ1_S〜UD-Q8_K_XL",
+        "multimodal",
+        "Unsloth"
+      ],
       "url": "https://huggingface.co/unsloth/Inkling-2-Mini-GGUF"
+    },
+    {
+      "title": "llama.cpp b12464〜b12555（11/17〜11/19）：OpenCL・Vulkan まわりの改善",
+      "title_en": "llama.cpp b12464–b12555 (Nov 17–19): OpenCL and Vulkan improvements",
+      "summary_ja": "11月19日の b12555 で、OpenCL の分割 flash attention が int8 量子化の KQ 演算に対応しました。11月18日の b12499 では Qualcomm 向け Vulkan の RMS norm が実行時ループ回数で動くよう変更され、11月17日の b12464 では特定構成向けの OpenCL Q8_0 カーネルが追加されています。この期間に新しいモデルアーキテクチャの対応追加は見当たりません。",
+      "summary_en": "b12555 (Nov 19) lets OpenCL's decomposed flash attention use int8-quantized KQ ops; b12499 (Nov 18) makes Vulkan RMS norm use a runtime loop count on Qualcomm; b12464 (Nov 17) adds an OpenCL Q8_0 kernel for a specific path. No new model architecture support appears in this range.",
+      "tags": [
+        "llama.cpp",
+        "OpenCL",
+        "Vulkan"
+      ],
+      "url": "https://freedom.tech/project/llama-cpp/"
     },
     {
       "title": "bartowski が Nex-N2.6（321B）や ZoomGain 4B/9B の GGUF を更新",
       "title_en": "bartowski updates GGUFs for Nex-N2.6 (321B) and ZoomGain 4B/9B",
       "summary_ja": "bartowski の「Latest from known labs」コレクションで、直近1日以内に Nex-N2.6-GGUF（321.3B、24種の量子化）と ZoomGain-4B / 9B の GGUF が更新されています。ページ上は相対時刻表示のみのため、正確な日付は未確認です。",
       "summary_en": "In bartowski's \"Latest from known labs\" collection, Nex-N2.6-GGUF (321.3B, 24 quant variants) and ZoomGain-4B / 9B GGUFs were updated within roughly the last day. The page shows only relative times, so exact dates are unconfirmed.",
-      "tags": ["321B", "4B / 9B", "bartowski"],
+      "tags": [
+        "321B",
+        "4B / 9B",
+        "bartowski"
+      ],
       "url": "https://huggingface.co/collections/bartowski/latest-from-known-labs"
     },
     {
@@ -22,7 +43,11 @@
       "title_en": "Unsloth v0.1.920-beta adds Q4NX export for AMD NPUs",
       "summary_ja": "11月19日のリリースで、Export 画面から Q4NX 形式へ変換し AMD NPU で読み込めるようになりました。LTX-2.5 / MOSS-Image の LoRA 学習や QLoRA の最大 25% 高速化も含まれます。今回のリリース自体に GGUF 関連の変更はありません。",
       "summary_en": "The Nov 19 release adds Q4NX conversion on the Export page so models can load on AMD NPUs, plus LTX-2.5 / MOSS-Image LoRA training and up to 25% faster QLoRA. This release itself has no GGUF-specific changes.",
-      "tags": ["Q4NX", "AMD NPU", "Unsloth"],
+      "tags": [
+        "Q4NX",
+        "AMD NPU",
+        "Unsloth"
+      ],
       "url": "https://unsloth.ai/docs/new/changelog"
     },
     {
@@ -30,7 +55,11 @@
       "title_en": "LM Studio Bionic 1.2.1: llama.cpp extension packs and a GGUF GPU-offload fix",
       "summary_ja": "11月16日付の Bionic 1.2.1 で llama.cpp 拡張パック 2.74.0 / 2.76.0 が入り、メタデータヘッダが大きい GGUF で GPU オフロード設定が誤る不具合が直りました。2.76.0 は LM Studio 側のパック番号で、llama.cpp 本体のビルド番号ではありません。",
       "summary_en": "Bionic 1.2.1 (Nov 16) ships llama.cpp extension packs 2.74.0 / 2.76.0 and fixes wrong GPU-offload settings for GGUF models with large metadata headers. 2.76.0 is LM Studio's pack version, not an upstream llama.cpp build number.",
-      "tags": ["LM Studio", "llama.cpp", "bug fix"],
+      "tags": [
+        "LM Studio",
+        "llama.cpp",
+        "bug fix"
+      ],
       "url": "https://lmstudio.ai/changelog/bionic-v1.2.1"
     },
     {
@@ -38,7 +67,11 @@
       "title_en": "Ollama v0.40.17 still in prerelease (rc1); bundled llama.cpp bumped to b12257",
       "summary_ja": "v0.40.17 は rc0（11月10日）・rc1（11月16日）のプレリリース段階で、同梱 llama.cpp の b12257 への更新、MLX の並列生成、Vulkan iGPU での mmap などが含まれます。現時点の安定版は Ripple Preview（65B）を追加した v0.40.16 です。",
       "summary_en": "v0.40.17 remains in prerelease (rc0 on Nov 10, rc1 on Nov 16), with the bundled llama.cpp bumped to b12257, concurrent MLX generation and Vulkan iGPU mmap. The current stable release is v0.40.16, which added Ripple Preview (65B).",
-      "tags": ["Ollama", "llama.cpp b12257", "prerelease"],
+      "tags": [
+        "Ollama",
+        "llama.cpp b12257",
+        "prerelease"
+      ],
       "url": "https://releasebot.io/updates/ollama"
     }
   ]
