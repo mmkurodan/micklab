@@ -90,16 +90,18 @@ def build_top(days, lang):
     path = os.path.join(PUB, "index-en.html" if lang == "en" else "index.html")
     d = days[0]
     if lang == "en":
-        head, sub, more, link = "Latest GGUF Model News", f"Updated {d['date']} (JST) · new and updated models you can run as GGUF", "See past news →", "/gguf-news-en.html"
+        head, sub, more, link = "Latest GGUF Model News", f"Updated {d['date']} (JST) · GGUF models up to 12B and llama.cpp updates", "See past news →", "/gguf-news-en.html"
     else:
-        head, sub, more, link = "GGUF モデル最新情報", f"更新日: {d['date']}（日本時間）· GGUF 形式で使えるモデルの新着・更新", "過去の情報を見る →", "/gguf-news.html"
+        head, sub, more, link = "GGUF モデル最新情報", f"更新日: {d['date']}（日本時間）· 12B 以下の GGUF モデルと llama.cpp の更新", "過去の情報を見る →", "/gguf-news.html"
     body = (
         '    <section class="cat" id="gguf-news">\n'
         f'      <div class="cat-head"><h2>{head}</h2><span class="count">{len(d["items"])}{" items" if lang == "en" else " 件"}</span></div>\n'
         f'      <p class="cat-sub">{e(sub)}</p>\n'
+        '      <div class="news-scroll" tabindex="0">\n'
         '      <div class="apps news-list">\n'
         + day_items(d, lang, "        ")
         + '      </div>\n'
+        '      </div>\n'
         f'      <p class="cat-sub news-more" style="margin-top:14px"><a href="{link}">{more}</a></p>\n'
         '    </section>\n'
     )
