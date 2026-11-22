@@ -1,6 +1,18 @@
 {
-  "updated": "2026-11-22",
+  "updated": "2026-11-23",
   "days": [
+    {
+      "date": "2026-11-23",
+      "count": 2,
+      "headlines": [
+        "llama.cpp b12620：CPU の行列積でメモリアクセスパターンを改善",
+        "llama.cpp b12618：SYCL で IQ4_NL / IQ4_XS の重み並べ替えに対応"
+      ],
+      "headlines_en": [
+        "llama.cpp b12620: better memory access pattern in CPU matmul",
+        "llama.cpp b12618: SYCL weight reorder for IQ4_NL and IQ4_XS"
+      ]
+    },
     {
       "date": "2026-11-22",
       "count": 5,
