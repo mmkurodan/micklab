@@ -1,0 +1,21 @@
+{
+  "date": "2026-11-24",
+  "items": [
+    {
+      "title": "llama.cpp b12645：LFM2.5-VL のチャットテンプレート判定を修正",
+      "title_en": "llama.cpp b12645: fixes LFM2.5-VL chat template detection",
+      "summary_ja": "Liquid AI の画像対応モデル LFM2.5-VL で、チャットテンプレートが正しく判別されない問題を直す変更（PR #32843）。11月23日にプレリリースのビルドとして公開。",
+      "summary_en": "Fixes chat template detection for Liquid AI's vision-language LFM2.5-VL models (PR #32843). Published as a pre-release build on Nov 23.",
+      "tags": ["llama.cpp", "chat template", "LFM2.5-VL", "b12645"],
+      "url": "https://github.com/ggml-org/llama.cpp/releases/tag/b12645"
+    },
+    {
+      "title": "llama.cpp b12650：Inkling 系モデルのパーサーと文法を改善",
+      "title_en": "llama.cpp b12650: improved Inkling parser and grammar",
+      "summary_ja": "Thinking Machines の Inkling 系モデル向けに、チャット出力のパーサーと文法（grammar）処理を改善する変更（PR #32833）。11月23日にプレリリースのビルドとして公開。",
+      "summary_en": "Improves the chat output parser and grammar handling for Thinking Machines' Inkling models (PR #32833). Published as a pre-release build on Nov 23.",
+      "tags": ["llama.cpp", "chat parser", "Inkling", "b12650"],
+      "url": "https://github.com/ggml-org/llama.cpp/releases/tag/b12650"
+    }
+  ]
+}

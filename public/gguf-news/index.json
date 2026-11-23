@@ -1,6 +1,18 @@
 {
-  "updated": "2026-11-23",
+  "updated": "2026-11-24",
   "days": [
+    {
+      "date": "2026-11-24",
+      "count": 2,
+      "headlines": [
+        "llama.cpp b12645：LFM2.5-VL のチャットテンプレート判定を修正",
+        "llama.cpp b12650：Inkling 系モデルのパーサーと文法を改善"
+      ],
+      "headlines_en": [
+        "llama.cpp b12645: fixes LFM2.5-VL chat template detection",
+        "llama.cpp b12650: improved Inkling parser and grammar"
+      ]
+    },
     {
       "date": "2026-11-23",
       "count": 2,
