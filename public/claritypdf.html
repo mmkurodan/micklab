@@ -41,7 +41,6 @@
     th,td{padding:8px 12px;border:1px solid var(--line);text-align:left}
     th{background:rgba(255,255,255,0.04)}
     td{color:var(--muted)}
-    video.shot-img{max-width:420px}
     @media (max-width:700px){main{padding:16px}h1{font-size:28px}}
   </style>
 </head>
@@ -98,10 +97,6 @@ GET  http://&lt;端末IP&gt;:8765/health   → {"status":"ok"}</pre>
   "engine": "Tesseract", "languages": ["jpn", "eng"], "dpi": 150, "pageCount": 1
 }</pre>
       <p class="note"><code>box</code> は OCR した画像（<code>width</code> × <code>height</code>、PDF は <code>dpi</code> でレンダリング後のサイズ）上のピクセル座標で、原点は左上です。Tesseract / PaddleOCR は位置を返し、LLM Vision では <code>box</code> を省略します。詳しくは<a href="/claritypdf/manual.html#api">操作マニュアル</a>を参照してください。</p>
-      <figure>
-        <video class="shot-img" src="/claritypdf/APISample.mp4" controls preload="metadata" playsinline></video>
-        <figcaption>OCR API の動作デモ。</figcaption>
-      </figure>
     </section>
 
     <section class="card">
