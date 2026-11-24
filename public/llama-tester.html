@@ -59,6 +59,7 @@
             <li>モデル URL からのダウンロードと、端末内 <code>.gguf</code> ファイルの取り込み、LoRA アダプタ（スケール 0.3〜1.0）の適用に対応します。</li>
             <li>生成パラメータ、Think 設定、カスタム chat template、共有 MCP 設定、Function Definitions JSON を組み合わせて運用できます。</li>
             <li>Ollama/OpenAI/Anthropic/Gemini 互換 API と WebUI を同じポートで起動できます。<code>/swagger</code> の Swagger UI で全エンドポイントを確認でき、CORS のオン/オフを Settings で切り替えられます。</li>
+            <li><strong>NEW</strong>: 推論エンジンを llama.cpp v1.0.0 (b12359) / ggml 1.0.0 に更新（LFM3 テキスト/VL/Audio 対応）。「Open in browser」だけで API/WebUI が自動起動し、モデルのダウンロードはサイズ確認と進捗表示付きになりました。常駐埋め込みモデル（Fast Embed）にも対応しています。</li>
         </ul>
       </div>
     </section>
@@ -104,16 +105,21 @@
         <li><strong>モデル導入の自由度</strong>: HTTP/HTTPS のモデル URL 指定と、ローカル端末からの <code>.gguf</code> 取り込みの両方に対応します。LoRA アダプタ（<code>.gguf</code> 形式）もモデルとは独立して選択でき、スケール（強度 0.3〜1.0）を調整して適用できます。mmproj（マルチモーダルプロジェクタ）の管理も同一画面で行えます。</li>
         <li><strong>プロファイル説明とカードピッカー</strong>: 各プロファイルに説明文を設定でき、メイン画面のプロファイル選択がカード形式ダイアログに変わりました。名前と説明を並べて確認しながら切り替えられます。既存プロファイルにはアップグレード後の初回起動時にバンドルアセットの説明が自動補完されます。</li>
         <li><strong>詳細な推論制御</strong>: <code>n_ctx</code>、<code>n_threads</code>、コンピュートバックエンド（CPU / GPU）、オフロード層数、Top-p、Top-k、Penalty、Mirostat、DRY、Think、custom chat template まで調整できます。</li>
-        <li><strong>ビジョン & コンテキスト自動拡張</strong>: 既定のビジョンモデルは Qwen3-VL。画像や長いプロンプトが <code>n_ctx</code> を超える場合は端末メモリの範囲で <code>n_ctx</code> を自動拡張して読み込み直し、収まらない場合は API に明確なサーバーエラーを返します。GPU 初期化に失敗した場合は自動的に CPU へフォールバックします。</li>
+        <li><strong>ビジョン & コンテキスト自動拡張</strong>: 既定のビジョンモデルは Qwen3-VL。画像や長いプロンプトが <code>n_ctx</code> を超える場合は端末メモリの範囲で <code>n_ctx</code> を自動拡張して読み込み直し、収まらない場合は API に明確なサーバーエラーを返します。GPU 初期化に失敗した場合は自動的に CPU へフォールバックします。画像トークン上限（既定 1024）で大きな画像を自動縮小し、生成量を KV トークン数で管理して小さな <code>n_ctx</code> でも途中で失敗しません。ビジョンエンコーダは既定で CPU 実行（「Vision Encoder on GPU」で切替）とし、GPU メモリ急増による強制終了を防ぎます。</li>
+        <li><strong>出力品質の改善</strong>: UTF-8 連続性ガードで日本語などの多バイト文字の文字化け（「��」）を防止。GPT-OSS（harmony 形式）の思考チャネルを <code>&lt;think&gt;</code> に変換し、思考後に回答が途切れる問題を解消しました。</li>
         <li><strong>モデル検索の強化</strong>: アプリ内の Hugging Face 検索で、モデル名・パラメータ数・量子化をプルダウンで絞り込み（各項目に一言ガイド）、端末に対する適合度レーティングを表示し、mmproj（Projector）ファイルを直接ダウンロードできます。</li>
-        <li><strong>推論エンジン更新</strong>: llama.cpp b10621 (v0.3.0) / ggml 0.22 に更新。新しいモデルへの対応と Adreno OpenCL GPU を利用できます。</li>
+        <li><strong>推論エンジン更新</strong>: llama.cpp v1.0.0 (b12359) / ggml 1.0.0 に更新。LFM3（テキスト / VL / Audio）、DeepSeek V4.1 Flash などの新しいアーキテクチャに対応し、Adreno OpenCL GPU（Adreno 605 を含む）を利用できます。MTP 用のローカルパッチも引き続き適用しています。</li>
+        <li><strong>かんたんスタート</strong>: メイン画面の「Open in browser」をタップするだけで API/WebUI サーバーが自動起動します（通知権限がなくても起動可能）。初回起動時は「Web AI Chat」カードがハイライトされ、そのままブラウザでチャットを始められます。初期プロファイルは軽量な「default Light」です。</li>
+        <li><strong>ダウンロード確認と進捗表示</strong>: アプリ・WebUI どちらからのモデルダウンロードも、ファイルサイズを示した確認ダイアログと進捗ポップアップを表示します（<code>/api/download/check</code>・<code>/api/download/status</code>）。</li>
+        <li><strong>Fast Embed（常駐埋め込みモデル）</strong>: チャット用モデルとは別に埋め込みモデルを常駐させ、<code>/api/embed</code>・<code>/v1/embeddings</code>・Gemini <code>embedContent</code> などを高速に処理します。Settings の「Fast Embed model」で有効化でき、既定は同梱の「default embed」（embeddinggemma-300M Q8_0、未取得なら自動ダウンロード）です。</li>
+        <li><strong>多言語 WebUI</strong>: WebUI はアプリの表示言語（9 言語）に追従し、MCP・開発者向け画面（接続状態・エラー・ツール呼び出し・統計）まで翻訳されています。</li>
         <li><strong>MTP 投機デコード（実験的）</strong>: MTP ヘッドを内蔵するモデル（Qwen3.5-MTP, Gemma 4 など）で MTP（投機デコード, draft-mtp）をモデル別プロファイルで有効化できます。既定 OFF、<code>n_draft</code> 調整可、追加ファイル不要（自ヘッド使用）。対応環境では生成が高速化する場合があります。</li>
         <li><strong>共有 MCP / Function Calling 設定</strong>: モデル別プロファイルとは別に MCP Config JSON と Function Definitions JSON を保存でき、外部利用スイッチを有効にするとメイン画面、<code>/api/chat</code>、<code>/api/generate</code>、<code>/v1/chat/completions</code> でも共通利用されます。</li>
         <li><strong>内蔵 Ollama/OpenAI/Anthropic/Gemini 互換 API と WebUI</strong>: <code>/api/chat</code>、<code>/api/generate</code>、<code>/api/tags</code>、<code>/api/diagnostics</code>、<code>/v1/chat/completions</code>、<code>/v1/completions</code>、<code>/v1/messages</code>、<code>/v1/messages/count_tokens</code>、<code>/v1/responses</code>（OpenAI Responses API）、<code>/v1/models</code>、<code>/props</code>、<code>/slots</code>、<code>/v1beta/models/{model}:generateContent</code>（Gemini 互換）を同じポートで提供します。<code>/swagger</code> の Swagger UI で全エンドポイントを対話的に確認でき、Settings の CORS トグルで外部アクセスを制御できます。同時生成は 1 件、待機キューは最大 10 件・既定最大 600 秒（設定で変更可）です。</li>
         <li><strong>Anthropic Messages API 互換</strong>: <code>/v1/messages</code>（ストリーミングは名前付き SSE イベント）と <code>/v1/messages/count_tokens</code> を提供し、system・マルチターン・thinking ブロック・画像/音声入力・基本的な tool_use / tool_result に対応します。Anthropic 公式 SDK の base URL をこのサーバーに向けて利用できます。</li>
         <li><strong>埋め込み・トークン数・モデル制御</strong>: <code>/api/embed</code>、<code>/api/embeddings</code>、<code>/v1/embeddings</code> で埋め込みベクトルを、<code>/api/tokenize</code>、<code>/v1/responses/input_tokens</code> でトークン数を取得でき、<code>/models/load</code>・<code>/models/unload</code> でモデルの常駐を制御できます。</li>
         <li><strong>構造化出力とトークン統計</strong>: <code>format</code> / <code>grammar</code> / <code>response_format</code>（JSON Schema・GBNF）で出力を制約でき、Ollama 形式の <code>eval_count</code> 系と OpenAI 形式の <code>usage</code> を返すため既存クライアントがそのまま動作します。</li>
-        <li><strong>マルチモーダル API 入力</strong>: <code>/api/chat</code>・<code>/v1/chat/completions</code> の <code>image_url</code> / <code>input_audio</code>、および <code>/v1/messages</code> の <code>image</code> / <code>audio</code> ブロックで画像・音声を扱え、mmproj 対応モデルのロード状況に応じて利用できます。</li>
+        <li><strong>マルチモーダル API 入力</strong>: <code>/api/chat</code>・<code>/v1/chat/completions</code> の <code>image_url</code> / <code>input_audio</code>、および <code>/v1/messages</code> の <code>image</code> / <code>audio</code> ブロック、Ollama 形式の <code>images</code>（<code>/api/chat</code>・<code>/api/generate</code>）、<code>/v1/responses</code> の <code>input_image</code>、Gemini <code>generateContent</code> で画像・音声を扱え、mmproj 対応モデルのロード状況に応じて利用できます。</li>
       </ul>
     </section>
 
@@ -121,7 +127,8 @@
       <h2>運用メモ</h2>
       <ul>
         <li>大きなモデルの取得には数 GB 単位の通信が必要になる場合があります。モデルのダウンロードは Wi-Fi 環境が推奨です。</li>
-        <li>ローカル API サーバーは同一端末またはローカルネットワーク向けの利用を想定しています。Android 13 以降では通知権限が必要になる場合があります。</li>
+        <li>ローカル API サーバーは同一端末またはローカルネットワーク向けの利用を想定しています。Android 13 以降で通知権限を許可しない場合もサーバーは起動しますが、常駐通知は表示されません。</li>
+        <li>プロファイルのバックアップ／復元は進捗ダイアログ付きで実行され、復元時は既に存在するモデルを自動的に除外します。</li>
         <li>MCP サーバーを設定してメイン画面、API、または WebUI から利用する場合、会話内容やツール入力の一部が設定先 MCP サーバーへ送信されることがあります。</li>
       </ul>
     </section>

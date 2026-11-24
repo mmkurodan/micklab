@@ -119,8 +119,8 @@
       <div class="cat-head"><h2>LLM 実行・学習（Android）</h2><span class="count">2 アプリ</span></div>
       <p class="cat-sub">端末内での GGUF 推論サーバと、学習データ生成〜オンデバイス学習ツール。</p>
       <div class="apps">
-        <a class="card" href="/llama-tester.html"><img src="/llama-tester/ic_launcher.png" alt="LLM AI Server with llama.cpp アイコン" class="card-icon"><h3>LLM AI Server with llama.cpp</h3><p>GGUF ローカル推論・ビジョン(Qwen3-VL)・GPU バックエンド対応・ローカル API / WebUI・MCP 連携をまとめた検証ツール</p></a>
-        <a class="card" href="/gguf.html"><img src="/gguf/ic_launcher.png" alt="GGUF Generator アイコン" class="card-icon"><h3>GGUF Generator</h3><p>Q/A 学習データ生成から、小型 GGUF の新規作成・追加学習・LoRA までを端末内で行うオンデバイス学習ツール</p></a>
+        <a class="card" href="/llama-tester.html"><img src="/llama-tester/ic_launcher.png" alt="LLM AI Server with llama.cpp アイコン" class="card-icon"><h3>LLM AI Server with llama.cpp</h3><p>GGUF ローカル推論（llama.cpp v1.0.0）・ビジョン(Qwen3-VL)・GPU バックエンド・Ollama/OpenAI/Anthropic/Gemini 互換 API と WebUI・常駐埋め込み・MCP 連携をまとめたローカル AI サーバ</p></a>
+        <a class="card" href="/gguf.html"><img src="/gguf/ic_launcher.png" alt="GGUF Generator アイコン" class="card-icon"><h3>GGUF Generator</h3><p>チャット対話でのリアルタイム学習から、Q/A ペア生成（URL・Wikipedia・ローカルテキスト・クリップボード）・新規 GGUF 作成・LoRA・量子化までを端末内で行うオンデバイス学習ツール</p></a>
       </div>
     </section>
 
@@ -131,7 +131,7 @@
       <div class="apps">
         <a class="card" href="/llama-chat.html"><img src="/llama-chat/icon.png" alt="Dual AI Chat アイコン" class="card-icon"><h3>Dual AI Chat</h3><p>Ollama互換APIを使用したチャットアプリ。2つのAIによる対話を楽しめます。</p></a>
         <a class="card" href="/reversy.html"><img src="/reversy/reversylogo.png" alt="Dual AI Reversy アイコン" class="card-icon"><h3>Dual AI Reversy</h3><p>黒白を個別に Human / CPU / AI へ切り替えられるリバーシアプリ</p></a>
-        <a class="card" href="/claritypdf.html"><img src="/claritypdf/ic_launcher.png" alt="ClarityPDF アイコン" class="card-icon"><h3>ClarityPDF</h3><p>端末内で完結する PDF 作成・編集・変換と OCR / AI-OCR（要約・任意プロンプト）アプリ</p></a>
+        <a class="card" href="/claritypdf.html"><img src="/claritypdf/ic_launcher.png" alt="OCR APIサーバー アイコン" class="card-icon"><h3>OCR APIサーバー</h3><p>PDF・画像を受け取り文字情報を JSON で返す常時稼働の OCR API（端末内 Tesseract / PaddleOCR / LLM Vision）。PDF 編集・変換・AI 要約も搭載（旧 ClarityPDF）</p></a>
       </div>
     </section>
 
@@ -160,6 +160,9 @@
       <p class="cat-sub">直近の更新・実験の記録。</p>
       <div class="card">
         <ul class="notes-list">
+          <li>2026-11：LLM AI Server with llama.cpp：推論エンジンを llama.cpp v1.0.0 (b12359) に更新（LFM3 対応）。「Open in browser」で API/WebUI を自動起動、モデルダウンロードの確認・進捗表示、常駐埋め込みモデル（Fast Embed）、Ollama <code>images</code>／<code>/v1/responses</code> の画像入力、ビジョンの画像トークン上限と CPU エンコーダ既定化、UTF-8 文字化け対策、GPT-OSS 対応、WebUI の多言語化を製品ページに反映</li>
+          <li>2026-11：ClarityPDF を「OCR APIサーバー」に改称。常時稼働の OCR API（他アプリからの Intent 起動、行ごとの位置 <code>blocks</code>/<code>box</code>、<code>dpi</code> 指定、縦書き日本語）を中心に製品ページ・操作マニュアル・プライバシーポリシーを全面改訂し、新アイコンに差し替え</li>
+          <li>2026-11：GGUF Generator：ペア編集・生成の入力ソースに「ローカルテキスト」「クリップボード」を追加、実験メニュー「GGUF トレーニングラボ（エコー変換実験）」、ライト／ダーク対応の新 UI を製品ページに反映</li>
           <li>GGUF Generator：製品ページ、操作マニュアル、日英併記の Privacy Policy を追加（学習データ生成・新規GGUF作成/追加学習・LFM2 LoRA・キーワード評価を反映）</li>
           <li>LLM AI Server with llama.cpp：ビジョン既定を Qwen3-VL に刷新し、大きな画像・長文でコンテキストを自動拡張（GPU→CPU フォールバック）。モデル検索を強化（モデル/サイズ/量子化プルダウン＋端末適合度＋mmproj 直接ダウンロード）。llama.cpp を b10621 (v0.3.0) に更新、<code>/api/diagnostics</code> を追加し、上限超過入力はサーバーエラーで返却</li>
           <li>ClarityPDF：製品ページ、操作マニュアル、日英併記の Privacy Policy を追加（PDF 作成・編集、変換・構成、OCR / AI-OCR、要約・AI プロンプトを反映）</li>

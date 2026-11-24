@@ -57,7 +57,8 @@
       <div class="highlight">
         <ul>
           <li><strong>Interactive mode</strong> (New GGUF / LoRA) — teach the model in real time through a chat interface.</li>
-          <li><strong>Pair editing &amp; generation</strong> — add, edit, and derive Q/A pairs by prompt instruction (input source: a URL or one Wikipedia result). Saved pairs feed straight into interactive learning.</li>
+          <li><strong>Pair editing &amp; generation</strong> — add, edit, and derive Q/A pairs by prompt instruction (input source: a URL, one Wikipedia result, a local text file, or the clipboard). Saved pairs feed straight into interactive learning.</li>
+          <li><strong>NEW</strong>: <strong>GGUF Training Lab</strong> (echo transform experiment) for observing training behavior, plus a refreshed UI with Light / Dark themes.</li>
           <li><strong>Quantize</strong> — convert any GGUF to a different quantization type (F32 / F16 / Q8_0 / Q6_K / Q5_K_M / Q4_K_M / Q2_K, etc.). Strip retraining metadata to produce a clean, distribution-ready GGUF.</li>
           <li>All exported GGUFs are <strong>Retrainable</strong> — reload and keep training at any time.</li>
         </ul>
@@ -97,9 +98,11 @@
         <li><strong>Interactive LoRA</strong>: Fine-tune a LoRA on an existing GGUF (llama / gemma3 / qwen3 / LFM2) through conversation. EXPORT ADAPTER writes a llama.cpp-compatible adapter GGUF that embeds the training state (pairs + optimizer); resume via Load model then Load adapter. Temperature, max new tokens, and context length are configurable, and Think (reasoning output) can be disabled for Qwen3 during evaluation.</li>
         <li><strong>Register Profile</strong>: During interactive training, the "Register Profile" dialog lets you save the loaded GGUF with a name and base profile. Manage multiple training sessions by name and resume with the same settings.</li>
         <li><strong>Quantize</strong>: Convert any GGUF to F32 / F16 / Q8_0 / Q6_K / Q5_K_M / Q5_1 / Q5_0 / Q4_K_M / Q4_1 / Q4_0 / Q2_K and more. 1-D tensors (norm gains) stay F32 for accuracy; matrices whose row length is not block-aligned fall back to F16 automatically. Enable "Strip retraining metadata" to remove pair history and Adam state, producing an inference-only GGUF suitable for distribution.</li>
-        <li><strong>Pair editing &amp; generation</strong>: Work on the displayed pair list and, by prompt instruction to the LLM, "add new pairs", "edit selected pairs", or "derive" new pairs from a selection. Attach a URL or one Wikipedia result as source material; multi-select via checkboxes, clear and save are supported, and saved pairs feed interactive continuous learning with no file picker. (RAG evaluation and Brave search are currently disabled.)</li>
+        <li><strong>Pair editing &amp; generation</strong>: Work on the displayed pair list and, by prompt instruction to the LLM, "add new pairs", "edit selected pairs", or "derive" new pairs from a selection. Choose the source material from "a URL", "one Wikipedia result", "local text" (an on-device text file, UTF-8 / Shift_JIS, up to 6,000 characters) or "clipboard" (the clipboard contents at run time); multi-select via checkboxes, clear and save are supported, and saved pairs feed interactive continuous learning with no file picker. The old pair-generation pipeline (RAG evaluation, Brave search, DeepCrawl) has been consolidated into the Pair Edit screen.</li>
         <li><strong>Keyword evaluation &amp; early stopping</strong>: Stop training early via manual keywords or automatic top-surprisal token extraction once the pass rate hits the threshold. Shared across all training modes.</li>
         <li><strong>Ollama-compatible server integration</strong>: Connects to the LLM server URL in settings (default <code>http://127.0.0.1:11434</code>). Also serves a built-in Web AI Chat for browser-based chat with any loaded model.</li>
+        <li><strong>GGUF Training Lab (experimental)</strong>: A menu of experiments for observing how training behaves. The "Echo transform experiment" generates many pairs whose input is a random string of the selected character classes (upper/lower-case letters, digits, symbols, hiragana, etc.) and whose output is that string after a transform rule, then trains in generalize mode (memorize OFF). Afterwards, type any string to check whether the echo/transform generalizes (✓ match / ✗ mismatch); saved GGUFs can be reloaded to continue training.</li>
+        <li><strong>New UI and dark mode</strong>: Refreshed icons and cards, with Auto / Light / Dark selectable in Common Settings. Output files are written to a location you choose (SAF), and the UI is available in 9 languages.</li>
         <li><strong>Retrainable GGUF</strong>: Every GGUF the app exports can be reloaded and trained further. <a href="/gguf/retrainable-en.html">Learn more</a> about the format and how to use it.</li>
         <li><strong>Fully on-device</strong>: All outputs (JSONL / GGUF) are saved to the device's Downloads / Documents / app storage. No tracking or analytics collected.</li>
       </ul>
@@ -108,7 +111,7 @@
     <section class="card">
       <h2>Operational Notes</h2>
       <ul>
-        <li>Pair generation and editing involve communication with the user-configured LLM server (on-device by default), Wikipedia, or a specified URL. Content sent and destinations depend on your input and actions.</li>
+        <li>Pair generation and editing involve communication with the user-configured LLM server (on-device by default), Wikipedia, or a specified URL. Content sent and destinations depend on your input and actions. When local text or the clipboard is used as source material, that text is also sent to the configured LLM server.</li>
         <li>On-device training is CPU- and memory-intensive. For long runs, granting notification permission and battery-optimization exemption is recommended.</li>
         <li>Quantization has dimension constraints (Q8_0 requires multiples of 32). Model dimensions for new creation may be automatically rounded or reduced.</li>
       </ul>

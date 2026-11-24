@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>User Manual — ClarityPDF — Mick Lab</title>
+  <title>User Manual — OCR API Server — Mick Lab</title>
   <link rel="alternate" hreflang="ja" href="/claritypdf/manual.html">
   <link rel="alternate" hreflang="en" href="/claritypdf/manual-en.html">
   <style>
@@ -41,7 +41,7 @@
   <header>
     <div class="nav-links">
       <a class="back" href="/index-en.html">← Back to home</a>
-      <a class="back" href="/claritypdf-en.html">← ClarityPDF</a>
+      <a class="back" href="/claritypdf-en.html">← OCR API Server</a>
     </div>
     <nav class="lang-switch" aria-label="Language switch">
       <a href="/claritypdf/manual.html">日本語</a>
@@ -52,116 +52,69 @@
   <main>
     <section class="card callout">
       <h1>User Manual</h1>
-      <p class="lead">This page is an operation guide for ClarityPDF based on the current Android implementation. It is adapted from the in-app documentation for the public site.</p>
-      <p class="note">Related document: <a href="/claritypdf/privacy.html#en">Privacy policy</a></p>
+      <p class="lead">This page is a guide to OCR API Server (formerly ClarityPDF), based on the current Android implementation. It is adapted from the in-app documentation for the public site.</p>
+      <p class="note">Related: <a href="/claritypdf/privacy.html#en">Privacy policy</a></p>
     </section>
 
     <section class="card">
-      <h2>1. Common</h2>
+      <h2>1. General</h2>
       <ul>
-        <li>The home screen has 4 categories: "Create &amp; edit PDF / Convert &amp; compose PDF / OCR &amp; AI-OCR / Settings". Tap a category to see its tools.</li>
+        <li>From top to bottom the home screen shows: ① OCR API Server (status, start/stop, port, endpoints), ② OCR / AI-OCR, ③ Convert &amp; compose PDF, ④ Create &amp; edit PDF, ⑤ Settings, ⑥ Status / log. Sections ②–⑥ open and close when you tap their heading.</li>
         <li>Input files are read-only; the original is never modified. Results are always saved as new files.</li>
-        <li>Choose the output location in each screen's "Output folder". If unset, files are saved to "Download/PDFToolkit" on the device.</li>
+        <li>Choose the output location with "Output" on each screen. If none is set, files go to "Download/PDFToolkit" on the device.</li>
       </ul>
     </section>
 
-    <section class="card">
-      <h2>2. Edit PDF (add text/images, edit existing text)</h2>
-      <ol>
-        <li>Open a PDF with "Choose PDF", or make an empty A4 with "Start from blank". When creating a new document, you can choose the page size and background color.</li>
-        <li>The preview stays fixed as a canvas; use the toolbox at the bottom to move between pages and pick each action.</li>
-        <li><strong>Add text</strong>: pick "Text" from the toolbox, type into the floating window (line breaks allowed), set size / color / font / bold / italic / underline / rotation / URL, then "Add". It is placed on the preview; drag to move it.</li>
-        <li><strong>Add an image</strong>: choose one under "Image" and it is placed on the preview. Drag to move it; you can also scale and rotate it.</li>
-        <li><strong>Edit existing text</strong>: tap text on the preview, or select it from the "Layers" list. Enter "Replacement text", or choose "Delete the original text". You can also change size / color / styling.
-          <ul>
-            <li>If the font and character set match, it is replaced in place.</li>
-            <li>For characters that can't be shown, moves, or size/color/style/font changes, the whole run is redrawn, keeping the original size and color (using the chosen font).</li>
-          </ul>
-        </li>
-        <li><strong>Add shapes</strong>: use the "Shape" tool to place a rectangle or oval — configure stroke color, fill color, and line width, then drag on the canvas to position it.</li>
-        <li><strong>Draw</strong>: use the "Draw" tool with the brush or eraser to draw freehand on the canvas. Tap "Apply" to commit to the PDF.</li>
-        <li><strong>Background color</strong>: use the "BG" tool to set a background color for the current page (existing content is preserved).</li>
-        <li><strong>Layers</strong>: added/edited items and recognized objects on the page are listed under "Layers". Tap a row to select it, or × to remove it.</li>
-        <li>Tapping "Apply" in each menu, or in the Layers list, bakes the current edits into a temporary PDF and refreshes the preview with the real appearance.</li>
-        <li>"Apply and save" outputs the final PDF. "Undo" reverts the most recent committed operation.</li>
-      </ol>
-      <p class="note">* Adding/editing text needs an embedded font. Choose from Noto Sans JP / Noto Serif JP / M PLUS Rounded 1c / Zen Kaku Gothic New / Klee One (all SIL OFL), per text run. Each font downloads once, then works offline; get missing ones from the editor or Settings.</p>
-    </section>
+    <section class="card expert" id="api">
+      <h2>2. OCR API Server</h2>
+      <p>Tap "Start API" at the top of the home screen and the device becomes an OCR API server. Send a PDF or image and it returns the recognized text as JSON. Other apps on the device and PCs or devices on the same LAN can use it.</p>
+      <p class="note">⚠️ There is no authentication. Use it only on trusted local networks and never expose it to external networks.</p>
 
-    <section class="card">
-      <h2>3. Convert &amp; compose PDF</h2>
+      <h3>Always on</h3>
       <ul>
-        <li><strong>Split (extract pages)</strong>: open a PDF, select the pages to extract, then choose "combine into one" or "one per page" and export.</li>
-        <li><strong>Merge</strong>: choose several PDFs, arrange the order, and combine into one.</li>
-        <li><strong>Reorder</strong>: drag thumbnails to change the page order and save as a new PDF.</li>
-        <li><strong>PDF to images</strong>: convert each page to PNG / JPEG. You can set the DPI (resolution).</li>
-        <li><strong>Images to PDF</strong>: choose several images, set the order, and combine into one PDF.</li>
+        <li>Once started, it keeps running as a background service with a notification even after the app is closed, and restarts automatically after the process ends or the device reboots. It stops only when you tap "Stop API", "Exit" or "Stop" in the notification, or when another app sends a stop request.</li>
+        <li>Allowing "Exclude from battery optimization" on the home screen makes responses during sleep and automatic recovery more reliable (on Android 12+ it is required for watchdog recovery).</li>
+        <li>A WakeLock and Wi-Fi lock are held during OCR so processing continues with the screen off.</li>
+        <li>The port can be changed while stopped. Tap an endpoint URL to copy it.</li>
+        <li>Recovery may not be possible after a force-stop by an OEM power-saving feature.</li>
       </ul>
-    </section>
-
-    <section class="card">
-      <h2>4. OCR / AI-OCR</h2>
-      <ul>
-        <li><strong>OCR / text extraction</strong>: extract text from PDFs/images. Embedded text (already in the file) and OCR (image recognition) are distinguished, and can also be exported as JSON. Engines: Tesseract / PaddleOCR / local LLM Vision, with Japanese, English, Simplified Chinese, and Korean recognition. Large documents can run in the background.</li>
-        <li><strong>PDF summary</strong>: summarize the whole file or per page with an LLM. Choose "OCR→LLM" or "Vision (page images sent directly to the LLM)".</li>
-        <li><strong>AI Prompt</strong>: enter an arbitrary instruction (prompt) and run it over the whole PDF or per page. Choose "OCR→LLM" or "Vision".</li>
-      </ul>
-    </section>
-
-    <section class="card">
-      <h2>5. Settings</h2>
-      <ul>
-        <li><strong>OCR settings and models</strong>: download Tesseract / PaddleOCR language models (Japanese, English, Chinese, Korean) and the editing fonts, and set the LLM (Ollama / OpenAI-compatible) connection URL, model, and connection test. Order is Tesseract → PaddleOCR → LLM.</li>
-        <li><strong>Launch LLM API</strong>: the "Launch LLM API" button starts the companion app (LLM Tester) API server, and a green/amber status tile shows the <code>/api/tags</code> reachability.</li>
-        <li><strong>Language</strong>: switch the app display language. Supported languages: 日本語 / English / Français / Deutsch / Español / Italiano / Português / 中文（简体）/ 한국어.</li>
-        <li><strong>User manual / Privacy policy / Licenses</strong>: these documents (you can copy the body on each screen).</li>
-      </ul>
-    </section>
-
-    <section class="card">
-      <h2>6. About offline use</h2>
-      <ul>
-        <li>PDF and image processing run entirely on the device. The only network use is "the first download of OCR models / fonts" and "sending to the configured server when using an LLM" (the default LLM endpoint is <code>127.0.0.1</code> on the device).</li>
-        <li>If you configure an external LLM server, page images and extracted text are sent there. The destination depends on your own settings.</li>
-      </ul>
-    </section>
-
-    <section class="card expert">
-      <h2>7. Expert Mode — Local OCR API</h2>
-      <p>Enable "Expert Mode" at the bottom of Settings → OCR Settings &amp; Models to turn this device into an OCR API server. Other devices on the same LAN can then send OCR requests to it over HTTP.</p>
-      <p class="note">⚠️ There is no authentication. Use only on trusted local networks.</p>
 
       <h3>Endpoints</h3>
       <table>
         <tr><th>Purpose</th><th>URL</th></tr>
-        <tr><td>OCR request</td><td><code>POST http://&lt;device-IP&gt;:8765/ocr</code></td></tr>
-        <tr><td>From same device</td><td><code>POST http://127.0.0.1:8765/ocr</code></td></tr>
-        <tr><td>Health check</td><td><code>GET http://&lt;device-IP&gt;:8765/health</code></td></tr>
+        <tr><td>OCR request</td><td><code>POST http://&lt;device-ip&gt;:&lt;port&gt;/ocr</code></td></tr>
+        <tr><td>From the same device</td><td><code>POST http://127.0.0.1:&lt;port&gt;/ocr</code></td></tr>
+        <tr><td>Health check</td><td><code>GET http://&lt;device-ip&gt;:&lt;port&gt;/health</code> → <code>{"status":"ok"}</code></td></tr>
       </table>
+      <p class="note">The default port is <code>8765</code>.</p>
 
       <h3>Request (multipart/form-data)</h3>
       <table>
         <tr><th>Field</th><th>Required</th><th>Description</th></tr>
-        <tr><td><code>file</code></td><td>Yes</td><td>Image (PNG/JPEG/WebP/BMP) or PDF — sent as raw binary</td></tr>
-        <tr><td><code>engine</code></td><td>No</td><td><code>tesseract</code> (default) | <code>paddleocr</code> | <code>llm</code></td></tr>
-        <tr><td><code>lang</code></td><td>No</td><td>Language code(s), comma-separated (default: <code>eng</code>). e.g. <code>jpn</code> / <code>jpn,eng</code> / <code>chi_sim</code> / <code>kor</code></td></tr>
+        <tr><td><code>file</code></td><td>Yes</td><td>Image (PNG/JPEG/WebP/BMP) or PDF</td></tr>
+        <tr><td><code>engine</code></td><td></td><td><code>tesseract</code> (default) | <code>paddleocr</code> | <code>llm</code></td></tr>
+        <tr><td><code>lang</code></td><td></td><td>Comma-separated language codes (default: <code>eng</code>), e.g. <code>jpn</code> / <code>jpn,eng</code> / <code>jpn_vert</code> (vertical) / <code>chi_sim</code> / <code>kor</code></td></tr>
+        <tr><td><code>dpi</code></td><td></td><td>PDF rendering resolution 36–600 (default 150); echoed in the response</td></tr>
       </table>
 
       <h3>Response (HTTP 200)</h3>
       <pre>{
-  "pages": [
-    { "page": 1, "text": "Recognized text here", "confidence": 0.95, "source": "OCR" }
-  ],
-  "engine": "Tesseract",
-  "languages": ["eng"],
-  "pageCount": 1
+  "pages": [ {
+    "page": 1, "text": "Recognized text", "confidence": 0.92, "source": "OCR",
+    "width": 1080, "height": 2400,
+    "blocks": [ { "text": "…", "confidence": 0.95,
+                  "box": { "left": 40, "top": 120, "right": 620, "bottom": 168 } } ]
+  } ],
+  "engine": "Tesseract", "languages": ["jpn", "eng"], "dpi": 150, "pageCount": 1
 }</pre>
+      <p class="note"><code>blocks</code> holds the text and position of each recognized line. <code>box</code> is in pixel coordinates of the OCR'd image (<code>width</code> × <code>height</code>; for PDFs, the size after rendering at <code>dpi</code>) with the origin at the top left. Tesseract and PaddleOCR return <code>box</code>; LLM Vision has no positions and omits it.</p>
 
       <h3>Errors</h3>
       <table>
-        <tr><th>HTTP</th><th>Body</th></tr>
+        <tr><th>HTTP</th><th>Meaning</th></tr>
         <tr><td>400</td><td><code>{"error":"Missing 'file' field"}</code> — no file field</td></tr>
-        <tr><td>400</td><td><code>{"error":"Could not decode image"}</code> — invalid image data</td></tr>
+        <tr><td>400</td><td><code>{"error":"Could not decode image"}</code> — image decode failed</td></tr>
+        <tr><td>400</td><td><code>{"error":"Unknown engine: xxx"}</code> — invalid engine name</td></tr>
         <tr><td>500</td><td><code>{"error":"..."}</code> — OCR processing error</td></tr>
       </table>
 
@@ -170,9 +123,13 @@
 curl -X POST http://192.168.1.10:8765/ocr \
      -F "file=@document.jpg" -F "engine=tesseract" -F "lang=eng"
 
-# OCR a PDF with Japanese+English (multi-page)
+# OCR a PDF in Japanese + English (multi-page, 300 dpi)
 curl -X POST http://192.168.1.10:8765/ocr \
-     -F "file=@scan.pdf;type=application/pdf" -F "lang=jpn,eng"
+     -F "file=@scan.pdf;type=application/pdf" -F "lang=jpn,eng" -F "dpi=300"
+
+# Vertical Japanese with PaddleOCR
+curl -X POST http://192.168.1.10:8765/ocr \
+     -F "file=@tategaki.png" -F "engine=paddleocr" -F "lang=jpn_vert"
 
 # Health check
 curl http://192.168.1.10:8765/health</pre>
@@ -184,20 +141,94 @@ with open("document.pdf", "rb") as f:
     resp = requests.post(
         "http://192.168.1.10:8765/ocr",
         files={"file": ("document.pdf", f, "application/pdf")},
-        data={"engine": "tesseract", "lang": "eng"},
+        data={"engine": "tesseract", "lang": "jpn,eng"},
     )
 result = resp.json()
 for page in result["pages"]:
-    print(f"Page {page['page']}: {page['text'][:80]}...")</pre>
+    print(f"Page {page['page']}: {page['text'][:80]}...")
+    for b in page.get("blocks", []):
+        print("  ", b["text"], b.get("box"))</pre>
 
-      <h3>Notes</h3>
+      <h3>Starting from other apps (Intent)</h3>
+      <p>The service is <code>exported</code>. Send an explicit Intent with <code>startForegroundService()</code> to start or stop the API without opening this app. The calling app must be in the foreground.</p>
+      <table>
+        <tr><th>Item</th><th>Value</th></tr>
+        <tr><td>component</td><td><code>com.micklab.pdf</code> / <code>com.micklab.pdf.api.OcrApiService</code></td></tr>
+        <tr><td>Start action</td><td><code>com.micklab.pdf.START_SERVICE</code> (optional int extra <code>port</code>, 1024–65535; defaults to the saved port)</td></tr>
+        <tr><td>Stop action</td><td><code>com.micklab.pdf.STOP_SERVICE</code></td></tr>
+      </table>
+      <pre>// Caller's AndroidManifest.xml (Android 11+):
+// &lt;queries&gt;&lt;package android:name="com.micklab.pdf" /&gt;&lt;/queries&gt;
+val intent = Intent()
+    .setClassName("com.micklab.pdf", "com.micklab.pdf.api.OcrApiService")
+    .setAction("com.micklab.pdf.START_SERVICE")
+    .putExtra("port", 8765)
+ContextCompat.startForegroundService(context, intent)
+// Verify: GET http://127.0.0.1:8765/health</pre>
+      <pre>adb shell am start-foreground-service -n com.micklab.pdf/.api.OcrApiService \
+  -a com.micklab.pdf.START_SERVICE --ei port 8765</pre>
       <ul>
-        <li>No authentication — use only on trusted local networks.</li>
-        <li>Large PDFs may take several seconds to minutes per page.</li>
-        <li>Notification permission is required to keep the service alive after a process kill. You can stop the server from the notification.</li>
-        <li>Processing may be interrupted if the device goes to sleep.</li>
-        <li><code>engine=tesseract</code> with <code>lang=jpn</code> requires the Tesseract Japanese model. PaddleOCR and LLM also require their respective models/settings.</li>
-        <li>Files are sent as raw binary in multipart/form-data — no Base64 encoding needed.</li>
+        <li>For devices whose OEM auto-start controls (such as ZTE/Nubia AutoLaunch) reject <code>startForegroundService</code> from other apps, a transparent launcher Activity is also provided (same action <code>com.micklab.pdf.START_SERVICE</code>, optional int extra <code>port</code>). This app comes to the front and starts the service itself.</li>
+        <li>On Android 13+ the service works without notification permission, but no notification is shown (open the app once and tap "Start API" to be asked for the permission).</li>
+        <li>Large PDFs take time (several to tens of seconds per page). <code>engine=tesseract</code> with <code>lang=jpn</code> needs the Tesseract Japanese model; PaddleOCR / LLM likewise need their models and settings.</li>
+      </ul>
+    </section>
+
+    <section class="card">
+      <h2>3. OCR / AI-OCR (on-screen)</h2>
+      <ul>
+        <li><strong>OCR / text extraction</strong>: Extract text from PDFs and images, distinguishing embedded text (already in the file) from OCR (image recognition), with JSON output. Choose Tesseract (light) or PaddleOCR (high quality). Tesseract supports Japanese (horizontal and vertical), English, Chinese (Simplified/Traditional), Korean, Greek, Russian (Cyrillic), Arabic, Hebrew and math (equ); PaddleOCR supports Japanese (horizontal and vertical), English, Chinese (Simplified/Traditional), Korean, Arabic and Cyrillic (each language model is downloaded once). Large documents can run in the background.</li>
+        <li><strong>PDF summary</strong>: Summarize the whole file and each page with an LLM, via "OCR→LLM" or "Vision" (page images sent directly to the LLM).</li>
+        <li><strong>AI Prompt</strong>: Run any instruction over the whole PDF or page by page, via "OCR→LLM" or "Vision". While running, the button becomes "Cancel".</li>
+        <li>The first time a model is used, a confirmation explains that loading may take a while. A warning appears if the Vision model is still the placeholder.</li>
+      </ul>
+    </section>
+
+    <section class="card">
+      <h2>4. Convert &amp; compose PDF</h2>
+      <ul>
+        <li><strong>Split (extract pages)</strong>: Open a PDF, select pages, then output them as one PDF or one file per page.</li>
+        <li><strong>Merge</strong>: Select several PDFs, set the order, and combine them into one.</li>
+        <li><strong>Reorder</strong>: Drag thumbnails to change the page order and save as a new PDF.</li>
+        <li><strong>PDF to images</strong>: Convert each page to PNG / JPEG at a chosen DPI.</li>
+        <li><strong>Images to PDF</strong>: Select several images, set the order, and combine them into one PDF.</li>
+      </ul>
+    </section>
+
+    <section class="card">
+      <h2>5. Create &amp; edit PDF</h2>
+      <ol>
+        <li>Open a PDF with "Select PDF", or use "Create blank" to make empty pages with a chosen paper size and background color. A notice explains that adding, changing or moving text may alter fonts or formatting.</li>
+        <li>Move between pages with "◀ Prev / Next ▶". Use the page-actions menu to insert a blank page (before / after the current page or at the end) and the delete button to remove the current page (disabled when there is only one page).</li>
+        <li><strong>Add text</strong>: Type text (line breaks allowed), choose size, color, style and font, then "Add". Drag it into place on the preview.</li>
+        <li><strong>Add image</strong>: Pick an image with "Image"; drag to move, scale and rotate.</li>
+        <li><strong>Add shape</strong>: Choose rectangle / ellipse, stroke color, fill and stroke width, then drag on the canvas.</li>
+        <li><strong>Draw</strong>: Choose brush color and width and draw freehand (undo supported).</li>
+        <li><strong>Background</strong>: Choose a color under "Background" and "Apply" to fill the whole page.</li>
+        <li><strong>Edit existing text</strong>: Tap text on the preview to select it, then enter replacement text or choose "Delete original". The original font, size, color and style are kept unless you change them.</li>
+        <li><strong>Layers</strong>: Added and edited items appear under "Layers". Tap to select, ▲▼ to reorder, × to delete.</li>
+        <li>"Apply" bakes the current edits into a temporary PDF and refreshes the preview. Shapes and drawings stay as layers after Apply.</li>
+        <li>"Apply and save" writes the final PDF. Leaving without saving asks for confirmation.</li>
+      </ol>
+      <p class="note">Adding or editing text needs an embedded font. Choose from Noto Sans JP / Noto Serif JP / M PLUS Rounded 1c / Zen Kaku Gothic New / Klee One / Noto Sans / Noto Sans SC / TC / KR / Noto Sans Arabic / Hebrew / Noto Sans Math / Symbols 2 (all SIL OFL); each is downloaded on demand when first selected. Noto families are labeled by the script they cover (e.g. Chinese (Simplified)). Arabic and Hebrew (right-to-left) are shaped and bidi-reordered automatically.</p>
+    </section>
+
+    <section class="card">
+      <h2>6. Settings</h2>
+      <ul>
+        <li><strong>OCR settings &amp; model management</strong>: Download Tesseract / PaddleOCR language models; set the LLM (Ollama / OpenAI-compatible) URL, model and connection check. Order: Tesseract → PaddleOCR → LLM.</li>
+        <li><strong>LLM defaults and auto-start</strong>: The Vision (OCR) model defaults to "default Vision" and the text model to "default Chat" (bundled configs of the companion app LLM AI Server with llama.cpp). If the LLM server is not running, the app tries to start it when a summary or OCR job begins.</li>
+        <li><strong>Language</strong>: 日本語 / English / Français / Deutsch / Español / Italiano / Português / 中文（简体）/ 한국어.</li>
+        <li><strong>User manual / Privacy policy / Licenses</strong>: These documents (the text can be copied on each screen).</li>
+      </ul>
+    </section>
+
+    <section class="card">
+      <h2>7. Status / log and offline use</h2>
+      <ul>
+        <li>"Status / log" on the home screen shows the history of API start, stop, requests and errors.</li>
+        <li>PDF and image processing completes on the device. Network access is limited to the first download of OCR models and fonts, requests to your configured LLM server, and ads (the default LLM endpoint is on-device <code>127.0.0.1</code>).</li>
+        <li>If you specify an external LLM server, page images and extracted text are sent there. The destination depends on your settings.</li>
       </ul>
     </section>
   </main>

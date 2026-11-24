@@ -68,7 +68,7 @@
     <section class="card">
       <h2>2. Recommended Setup</h2>
       <ol>
-        <li>If the API/WebUI enablement popup appears at launch, enable it when needed or check "Don't show next time" to skip it on future launches.</li>
+        <li>To start chatting right away, tap "Open in browser" on the "Web AI Chat" card on the main screen. The API/WebUI server starts automatically and the WebUI opens in your browser (on first launch this card is spotlighted). The initial profile is "default Light". If the model is not downloaded yet, a confirmation dialog shows the file size, then the download runs with a progress display.</li>
         <li>On first launch, if you check "Don't show next time" in Quick Start, it will not be shown on subsequent launches.</li>
         <li>Open "Settings" from the main screen.<br><span class="note">* During inference (Busy), the Settings button is disabled and is re-enabled automatically when processing completes.</span></li>
         <li>Enter the model URL or import a .gguf file from the local device, then tap "Load Model".<br><span class="note">* The local import picker opens in Downloads by default, and you can navigate elsewhere on the device as needed. Reachable HTTP/HTTPS URLs can be used. HTTPS uses normal SSL/TLS certificate verification. Imported local files are saved as filenames only in Settings.</span></li>
@@ -86,7 +86,8 @@
       </ul>
       <h3>Main Action Buttons</h3>
       <ul>
-        <li><strong>Start API/WebUI / Stop API/WebUI:</strong> Toggle the API server and WebUI together.</li>
+        <li><strong>Start API/WebUI / Stop API/WebUI:</strong> Toggle the API server and WebUI together. Works even without notification permission.</li>
+        <li><strong>Web AI Chat (Open in browser):</strong> Starts the server automatically if needed, then opens the WebUI in the browser.</li>
         <li><strong>Reset:</strong> Available even while work is running. Stops the active generation and immediately reinitializes the current profile. If it fails, check the log or load the model again from Settings.</li>
         <li><strong>Settings:</strong> Automatically disabled while inference is busy, and re-enabled when processing completes.</li>
       </ul>
@@ -102,7 +103,7 @@
         <li><strong>Send:</strong> Start generation. If the selected profile's model is not loaded, it will be loaded automatically first.</li>
         <li><strong>Model Output:</strong> Shows model responses. Long-press to select and copy text.</li>
       </ul>
-      <h3>Processing Status/Logs Section (tap to collapse; expanded by default)</h3>
+      <h3>Processing Status/Logs Section (tap to expand; collapsed by default)</h3>
       <ul>
         <li><strong>View Log / Show Status:</strong> Show the latest 100 lines from the log file in the status area. Tap again to return to the live processing status view.</li>
         <li><strong>Update:</strong> Reload the latest 100 log lines while View Log is active.</li>
@@ -119,6 +120,8 @@
         <li><strong>Configuration Management:</strong> Save/delete/load configurations. The Display Language switch is also in this section.</li>
         <li><strong>Model Selection:</strong> Load models from a URL or import <code>.gguf</code> files from the local device. The picker opens in Downloads by default, and you can navigate elsewhere on the device as needed. Imported files are copied into the app model storage directory and only the filename is shown in Settings. Reachable HTTP/HTTPS URLs can be used, and HTTPS uses normal SSL/TLS certificate verification.</li>
         <li><strong>Multimodal Projector (mmproj):</strong> Select or clear an mmproj (multimodal projector) file when using a multimodal model. Used based on the loaded model's vision/audio support.</li>
+        <li><strong>Fast Embed model:</strong> A collapsible item in the Model Loading section. When enabled, an embedding model stays resident alongside the chat model so <code>/api/embed</code>, <code>/v1/embeddings</code>, Gemini <code>embedContent</code> and similar requests are served quickly. The default is the bundled "default embed" (embeddinggemma-300M Q8_0), downloaded automatically if missing.</li>
+        <li><strong>Vision settings:</strong> "Vision Encoder on GPU" (default OFF = CPU) selects where the image encoder runs. Images larger than the image-token cap (default 1024; 0 = projector default) are downscaled automatically. Changing either reloads the model.</li>
         <li><strong>Model Maintenance (MAINTAIN MODEL):</strong> Lists model files stored in the app, with options to switch to a different stored model or delete a selected file.</li>
         <li><strong>Search GGUF on Hugging Face:</strong> Opens the Hugging Face GGUF model search page in the browser.</li>
         <li><strong>Compute Backend:</strong> Toggle GPU (OpenCL/Adreno) on or off. When it is off the model runs on CPU.</li>
@@ -127,7 +130,7 @@
         <li><strong>MTP (speculative decoding, experimental):</strong> Enable via the "MTP speculative decoding" toggle (off by default). When on, set <code>n_draft</code> (draft tokens per step, default 2) and the draft source ("Use this model's own MTP head (recommended)" or a separate GGUF). MTP settings are stored per-model profile and take effect after saving the config and reloading the model. For models that embed an MTP head (Qwen3.5-MTP, Gemma&nbsp;4) just pick "own head" — no extra file and no double memory use, and generation can be faster (the gain depends on device, model and <code>n_draft</code>; behaviour is identical to before when off; controls are disabled while inference is running).</li>
         <li><strong>Output Settings:</strong> Toggle streaming output on/off. Enable Show Performance Metrics to append token counts, processing time, and speed to the output area after generation completes.</li>
         <li><strong>Prompt Template:</strong> Set System Prompt, Think on/off (chat-template-kwargs.enable_thinking), and custom chat template. When no custom template is set, the app first uses GGUF chat_template metadata and otherwise auto-selects by model family. A Bonsai fallback template is included.</li>
-        <li><strong>Llama API Server:</strong> Set the server port. The Local URL is shown as <code>http://localhost:&lt;port&gt;</code>, and while connected to Wi-Fi the LAN URL is also shown and can be tapped to copy. Enabling it from the startup popup or the main screen makes both the API and WebUI available on that port.</li>
+        <li><strong>Llama API Server:</strong> Set the server port. The Local URL is shown as <code>http://localhost:&lt;port&gt;</code>, and while connected to Wi-Fi the LAN URL is also shown and can be tapped to copy. Starting it with "Start API/WebUI" or "Open in browser" on the main screen makes both the API and WebUI available on that port.</li>
         <li><strong>MCP Settings:</strong> Save MCP config JSON and Function Definitions JSON as app-wide shared settings separate from model profiles. When the switches are off, they are available only in the WebUI and are treated as absent everywhere else. When enabled, they are also used as shared MCP and function-calling settings for the main prompt input, <code>/api/chat</code>, <code>/api/generate</code>, and <code>/v1/chat/completions</code>.</li>
         <li><strong>Log Settings:</strong> Select log level (default on first launch: INFO).</li>
         <li><strong>Show License:</strong> Display license text.</li>
@@ -218,7 +221,7 @@
     <section class="card">
       <h2>8. API/WebUI Server (Optional)</h2>
       <ul>
-        <li>On app launch, a popup asks whether to enable the local API/WebUI server, and you can check "Don't show next time" to skip it on future launches.</li>
+        <li>Start the server with "Start API/WebUI" or "Open in browser" on the "Web AI Chat" card (the launch-time enable popup has been removed).</li>
         <li>When enabled, the server provides:
           <ul>
             <li><code>/api/chat</code>, <code>/api/generate</code>, <code>/api/tags</code></li>
@@ -236,7 +239,8 @@
         <li>When MCP outside WebUI is enabled, shared MCP settings are also used by the main prompt input, <code>/api/chat</code>, <code>/api/generate</code>, and <code>/v1/chat/completions</code> for internal tool execution. When disabled, they remain WebUI-only.</li>
         <li>When Function Calling outside WebUI is enabled, Function Definitions JSON is automatically added as shared function-calling definitions for the main prompt input, <code>/api/chat</code>, <code>/api/generate</code>, and <code>/v1/chat/completions</code>. When disabled, it remains WebUI-only.</li>
         <li>Only one generation runs at a time. When busy, requests are queued (up to 10) and wait up to 600 seconds by default (configurable via the "busy timeout" setting; 0 = unlimited); queue overflow or timeout returns 503.</li>
-        <li>Android 13+ may require notification permission.</li>
+        <li>On Android 13+ the server starts even without notification permission; the persistent notification is simply not shown.</li>
+        <li>Download pre-checks and progress are available at <code>GET /api/download/check</code> and <code>GET /api/download/status</code>, and the WebUI display language at <code>/api/ui/language</code> (used internally by the WebUI).</li>
         <li>For per-endpoint request/response specs and usage examples, see the <a href="/llama-tester/api-reference-en.html">API Reference</a>.</li>
       </ul>
     </section>

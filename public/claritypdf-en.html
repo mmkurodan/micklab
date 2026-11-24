@@ -3,9 +3,10 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>ClarityPDF — Mick Lab</title>
+  <title>OCR API Server (formerly ClarityPDF) — Mick Lab</title>
   <link rel="alternate" hreflang="ja" href="/claritypdf.html">
   <link rel="alternate" hreflang="en" href="/claritypdf-en.html">
+  <link rel="icon" href="/claritypdf/ic_launcher.png" type="image/png">
   <style>
     :root{--bg:#08080a;--card:#0f1114;--muted:#9aa3b2;--accent:#7c5cff;--line:rgba(255,255,255,0.08)}
     *{box-sizing:border-box}
@@ -35,6 +36,12 @@
     .nav-links{display:flex;align-items:center;gap:14px;flex-wrap:wrap}
     .back{font-size:14px}
     code{background:rgba(255,255,255,0.05);padding:2px 6px;border-radius:4px}
+    pre{background:rgba(255,255,255,0.04);border:1px solid var(--line);border-radius:8px;padding:14px;overflow-x:auto;font-size:13px;line-height:1.6;margin:0 0 12px}
+    table{width:100%;border-collapse:collapse;font-size:14px;margin:0 0 12px;display:block;overflow-x:auto}
+    th,td{padding:8px 12px;border:1px solid var(--line);text-align:left}
+    th{background:rgba(255,255,255,0.04)}
+    td{color:var(--muted)}
+    video.shot-img{max-width:420px}
     @media (max-width:700px){main{padding:16px}h1{font-size:28px}}
   </style>
 </head>
@@ -51,72 +58,112 @@
   </header>
   <main>
     <section class="card">
-      <p class="eyebrow">Android / PDF・Image・OCR / Offline-first</p>
+      <p class="eyebrow">Android / OCR API / PDF tools</p>
       <div class="title-row">
-        <img class="app-icon" src="/claritypdf/ic_launcher.png" alt="ClarityPDF icon">
-        <h1>ClarityPDF</h1>
+        <img class="app-icon" src="/claritypdf/ic_launcher.png" alt="OCR API Server icon">
+        <h1>OCR API Server</h1>
       </div>
-      <p class="lead">ClarityPDF is an Android app that brings PDF creation and editing, conversion and composition, and OCR / AI-OCR together in one place. Processing completes on the device as a rule; input files are read-only and results are always saved as new files.</p>
+      <p class="note">Formerly: ClarityPDF</p>
+      <p class="lead">OCR API Server turns an Android device into an always-on <strong>OCR API</strong> that accepts PDFs or images and returns the recognized text as JSON. OCR runs on the device (Tesseract / PaddleOCR / local LLM Vision) and can be used by other apps on the same device or by PCs on the same LAN. On-screen OCR, summaries and AI prompts, plus PDF split / merge / reorder / rasterize / edit tools, remain available in the same app.</p>
       <p class="doc-links">Documents: <a href="/claritypdf/manual-en.html">User manual</a> | <a href="/claritypdf/privacy.html#en">Privacy policy</a></p>
       <div class="highlight">
         <ul>
-          <li>Input is read-only and non-destructive. Every edit or conversion is written out as a new file.</li>
-          <li>OCR distinguishes "embedded text" (already in the file) from "OCR" (image recognition), and can export JSON.</li>
-          <li>The LLM connection defaults to on-device <code>127.0.0.1</code>. Settings include a "Launch LLM API" button and a status tile.</li>
+          <li>Tap "Start API" at the top of the home screen and the device becomes an OCR API server (default port <code>8765</code>).</li>
+          <li>An <strong>always-on</strong> service: once started, it comes back after the app is closed, the process is killed, or the device reboots.</li>
+          <li>Other apps can start / stop the API with an Intent. Responses include per-line text, confidence and position (<code>blocks</code> / <code>box</code>).</li>
         </ul>
       </div>
+    </section>
+
+    <section class="card">
+      <h2>OCR API</h2>
+      <pre>POST http://&lt;device-ip&gt;:8765/ocr      multipart/form-data
+GET  http://&lt;device-ip&gt;:8765/health   → {"status":"ok"}</pre>
+      <table>
+        <tr><th>Field</th><th>Required</th><th>Description</th></tr>
+        <tr><td><code>file</code></td><td>Yes</td><td>PDF or image (PNG / JPEG / WebP / BMP)</td></tr>
+        <tr><td><code>engine</code></td><td></td><td><code>tesseract</code> (default) / <code>paddleocr</code> / <code>llm</code></td></tr>
+        <tr><td><code>lang</code></td><td></td><td>Language code. <code>eng</code> (default); multiple like <code>jpn,eng</code>. Vertical Japanese: <code>jpn_vert</code></td></tr>
+        <tr><td><code>dpi</code></td><td></td><td>PDF rendering resolution 36–600 (default 150)</td></tr>
+      </table>
+      <pre>curl -X POST http://192.168.1.10:8765/ocr \
+  -F "file=@doc.pdf" -F "engine=tesseract" -F "lang=jpn,eng"</pre>
+      <pre>{
+  "pages": [ {
+    "page": 1, "text": "…", "confidence": 0.92, "source": "OCR",
+    "width": 1080, "height": 2400,
+    "blocks": [ { "text": "…", "confidence": 0.95,
+                  "box": { "left": 40, "top": 120, "right": 620, "bottom": 168 } } ]
+  } ],
+  "engine": "Tesseract", "languages": ["jpn", "eng"], "dpi": 150, "pageCount": 1
+}</pre>
+      <p class="note"><code>box</code> is in pixel coordinates of the OCR'd image (<code>width</code> × <code>height</code>; for PDFs, the size after rendering at <code>dpi</code>) with the origin at the top left. Tesseract / PaddleOCR return positions; LLM Vision omits <code>box</code>. See the <a href="/claritypdf/manual-en.html#api">user manual</a> for details.</p>
+      <figure>
+        <video class="shot-img" src="/claritypdf/APISample.mp4" controls preload="metadata" playsinline></video>
+        <figcaption>OCR API demo.</figcaption>
+      </figure>
+    </section>
+
+    <section class="card">
+      <h2>Always-on service and external start</h2>
+      <ul>
+        <li><strong>Always on</strong>: Runs as a foreground service and recovers from process kills (automatic restart), swiping the task away, device reboots (restarts on boot), and via a watchdog that checks about every 60 seconds. It stops only when you tap "Stop API", "Exit", "Stop" in the notification, or another app sends a stop request.</li>
+        <li><strong>Kept awake while working</strong>: A WakeLock and Wi-Fi lock are held during OCR so processing continues with the screen off. "Exclude from battery optimization" on the home screen makes responses during sleep and automatic recovery more reliable.</li>
+        <li><strong>Start from other apps</strong>: Send an explicit Intent (<code>com.micklab.pdf.START_SERVICE</code> / <code>STOP_SERVICE</code>, optional int extra <code>port</code>) with <code>startForegroundService()</code> to start / stop the API without opening the app. A transparent launcher Activity is also provided for devices whose OEM auto-start controls block that.</li>
+        <li><strong>Endpoints at a glance</strong>: The home screen lists the endpoint URL for each network interface (tap to copy), and the status / log section shows start, stop, request and error history.</li>
+      </ul>
     </section>
 
     <section class="card">
       <h2>Screenshots</h2>
       <div class="grid">
         <figure>
-          <img class="shot-img" src="/claritypdf/sm401.jpg" alt="Home screen: the ClarityPDF title and four categories — Create &amp; edit PDF, Convert &amp; compose PDF, OCR / AI-OCR, and Settings.">
-          <figcaption>Home screen. Four categories — Create &amp; edit PDF, Convert &amp; compose PDF, OCR / AI-OCR, and Settings — lead to each tool.</figcaption>
+          <img class="shot-img" src="/claritypdf/sm404.jpg" alt="Home screen: OCR API Server listening on port 8765, with a Stop API button, port number, tap-to-copy endpoint, Settings / Exit buttons, and the OCR / AI-OCR section below.">
+          <figcaption>The new home screen. The OCR API Server card at the top shows the status (listening on port 8765), start / stop, port and endpoints (tap to copy); tools such as OCR / AI-OCR follow in collapsible sections.</figcaption>
         </figure>
         <figure>
           <img class="shot-img" src="/claritypdf/sm402.jpg" alt="Edit PDF screen: a fixed canvas with an added image and styled text, and a bottom toolbox with Text / Image / Layers / Font / Save.">
-          <figcaption>Edit PDF screen. The canvas stays fixed while you add and edit from the bottom toolbox (Text / Image / Layers / Font / Save) and floating windows. Shown with an image and underlined text placed.</figcaption>
+          <figcaption>Edit PDF screen. The canvas stays fixed while you add and edit from the bottom toolbox and floating windows.</figcaption>
         </figure>
         <figure>
-          <img class="shot-img" src="/claritypdf/sm403_1.jpg" alt="AI Prompt screen: instruction field, Processing unit (Whole PDF / Per page), method (OCR→LLM / Vision), and OCR engine selection.">
-          <figcaption>AI Prompt. Enter an instruction and choose the processing unit (Whole PDF / Per page), the method (OCR→LLM / Vision), and the OCR engine.</figcaption>
+          <img class="shot-img" src="/claritypdf/sm403_1.jpg" alt="AI Prompt screen: instruction field, scope (Whole PDF / Per page), method (OCR→LLM / Vision), and OCR engine selection.">
+          <figcaption>AI Prompt. Enter any instruction and choose the scope (whole PDF / per page), method (OCR→LLM / Vision) and OCR engine.</figcaption>
         </figure>
         <figure>
-          <img class="shot-img" src="/claritypdf/sm403_2.jpg" alt="AI Prompt screen (continued): LLM connection info (127.0.0.1:11434 / Qwen), the Run AI button, and the whole-document result.">
-          <figcaption>The lower part of the same screen. Confirm the LLM endpoint (on-device 127.0.0.1 by default) and run to see the result for the whole PDF.</figcaption>
+          <img class="shot-img" src="/claritypdf/sm403_2.jpg" alt="AI Prompt screen (continued): LLM connection, Run AI button, and the whole-document result.">
+          <figcaption>Lower part of the same screen. Check the LLM endpoint (on-device 127.0.0.1 by default) and run to see the result for the whole PDF.</figcaption>
         </figure>
       </div>
+      <p class="note">Screenshots other than the home screen were taken under the former name (ClarityPDF).</p>
     </section>
 
     <section class="card">
-      <h2>Key features</h2>
+      <h2>OCR / AI-OCR (on-screen)</h2>
       <ul>
-        <li><strong>Edit PDF</strong>: add text/images and replace or delete existing text. The canvas stays fixed while you add and edit from floating windows and a toolbox. Bold / italic / underline, rotation, scaling, links (URLs), and font selection (several OFL fonts, per text run) are supported.</li>
-        <li><strong>Split (extract pages)</strong>: combine selected pages into one PDF, or split into one page each.</li>
-        <li><strong>Merge</strong>: combine several PDFs into one in a chosen order.</li>
-        <li><strong>Reorder</strong>: drag thumbnails to change the page order.</li>
-        <li><strong>PDF to images</strong>: convert each page to PNG / JPEG (DPI configurable).</li>
-        <li><strong>Images to PDF</strong>: combine several images into one PDF in a chosen order.</li>
+        <li><strong>OCR / text extraction</strong>: Extract text from PDFs and images, distinguishing embedded text from OCR, with JSON output. Tesseract (light) supports Japanese (horizontal and vertical), English, Chinese (Simplified/Traditional), Korean, Greek, Russian, Arabic, Hebrew and math; PaddleOCR (high quality) supports Japanese (horizontal and vertical), English, Chinese (Simplified/Traditional), Korean, Arabic and Cyrillic.</li>
+        <li><strong>PDF summary</strong>: Summarize the whole file and each page with an LLM, via "OCR→LLM" or "Vision" (page images sent directly to the LLM).</li>
+        <li><strong>AI Prompt</strong>: Run any instruction over the whole PDF or page by page. A "Cancel" button stops a running job.</li>
+        <li><strong>LLM integration</strong>: Works with Ollama / OpenAI-compatible servers. By default it uses "default Vision" / "default Chat" from the companion app <a href="/llama-tester-en.html">LLM AI Server with llama.cpp</a>, which is started automatically when a job begins if it is not running.</li>
       </ul>
     </section>
 
     <section class="card">
-      <h2>OCR / AI-OCR</h2>
+      <h2>PDF tools</h2>
       <ul>
-        <li><strong>OCR / text extraction</strong>: extract text from PDFs/images. Embedded text and OCR are distinguished and can be exported as JSON. Engines: Tesseract / PaddleOCR / local LLM Vision, with Japanese, English, Simplified Chinese, and Korean recognition.</li>
-        <li><strong>PDF summary</strong>: summarize the whole file or per page with an LLM. Choose "OCR→LLM" or "Vision (page images sent directly to the LLM)".</li>
-        <li><strong>AI Prompt</strong>: enter an arbitrary instruction (prompt) and run it over the whole PDF or per page (OCR→LLM / Vision).</li>
-        <li><strong>LLM connection</strong>: works with Ollama / OpenAI-compatible servers. Fetch the model list via <code>/api/tags</code>, test the connection, launch the API, and see its status.</li>
+        <li><strong>PDF editing</strong>: Add text, images, shapes and drawings; replace or delete existing text. Bold / italic / underline, rotation, scaling, links (URL), layer reordering and undo. Insert pages (before / after / at the end) or delete pages (the last page cannot be deleted).</li>
+        <li><strong>Multilingual fonts</strong>: Noto Sans JP / SC / TC / KR / Arabic / Hebrew / Math and more (all SIL OFL), downloaded on demand when selected. Arabic and Hebrew get automatic right-to-left shaping and bidi reordering.</li>
+        <li><strong>Split, merge, reorder</strong>: Extract pages, combine multiple PDFs, reorder by dragging thumbnails.</li>
+        <li><strong>PDF to images / images to PDF</strong>: Convert pages to PNG / JPEG (DPI selectable), or combine images into one PDF.</li>
       </ul>
     </section>
 
     <section class="card">
       <h2>Notes</h2>
       <ul>
-        <li>Adding/editing text needs an embedded font. Choose from Noto Sans JP / Noto Serif JP / M PLUS Rounded 1c / Zen Kaku Gothic New / Klee One (all SIL OFL), per text run — each downloads once, then used offline.</li>
-        <li>The only network use is "the first download of OCR models / fonts" and "sending to the configured server when using an LLM". The default LLM endpoint is on-device <code>127.0.0.1</code>.</li>
-        <li>If you configure an external LLM server, page images and extracted text are sent there and handled under that server's policies.</li>
+        <li>The OCR API has no authentication. Enable it only on trusted local networks and never expose it to external networks.</li>
+        <li>Received files are processed on the device, the result is returned, and the file is discarded afterwards. Nothing is sent to our servers.</li>
+        <li>Network access is limited to the first download of OCR models and fonts, requests to your configured LLM server, and ads. The default LLM endpoint is on-device <code>127.0.0.1</code>.</li>
+        <li>Recovery may not be possible after a force-stop by an OEM power-saving feature.</li>
       </ul>
     </section>
   </main>

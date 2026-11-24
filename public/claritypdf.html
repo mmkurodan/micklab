@@ -3,9 +3,10 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>ClarityPDF — Mick Lab</title>
+  <title>OCR APIサーバー（旧 ClarityPDF） — Mick Lab</title>
   <link rel="alternate" hreflang="ja" href="/claritypdf.html">
   <link rel="alternate" hreflang="en" href="/claritypdf-en.html">
+  <link rel="icon" href="/claritypdf/ic_launcher.png" type="image/png">
   <style>
     :root{--bg:#08080a;--card:#0f1114;--muted:#9aa3b2;--accent:#7c5cff;--line:rgba(255,255,255,0.08)}
     *{box-sizing:border-box}
@@ -35,6 +36,12 @@
     .nav-links{display:flex;align-items:center;gap:14px;flex-wrap:wrap}
     .back{font-size:14px}
     code{background:rgba(255,255,255,0.05);padding:2px 6px;border-radius:4px}
+    pre{background:rgba(255,255,255,0.04);border:1px solid var(--line);border-radius:8px;padding:14px;overflow-x:auto;font-size:13px;line-height:1.6;margin:0 0 12px}
+    table{width:100%;border-collapse:collapse;font-size:14px;margin:0 0 12px;display:block;overflow-x:auto}
+    th,td{padding:8px 12px;border:1px solid var(--line);text-align:left}
+    th{background:rgba(255,255,255,0.04)}
+    td{color:var(--muted)}
+    video.shot-img{max-width:420px}
     @media (max-width:700px){main{padding:16px}h1{font-size:28px}}
   </style>
 </head>
@@ -51,72 +58,112 @@
   </header>
   <main>
     <section class="card">
-      <p class="eyebrow">Android / PDF・画像・OCR / オフライン中心</p>
+      <p class="eyebrow">Android / OCR API / PDF ツール</p>
       <div class="title-row">
-        <img class="app-icon" src="/claritypdf/ic_launcher.png" alt="ClarityPDF アイコン">
-        <h1>ClarityPDF</h1>
+        <img class="app-icon" src="/claritypdf/ic_launcher.png" alt="OCR APIサーバー アイコン">
+        <h1>OCR APIサーバー</h1>
       </div>
-      <p class="lead">ClarityPDF は、PDF の作成・編集、変換・構成、OCR / AI-OCR を 1 つにまとめた Android アプリです。処理は原則として端末内で完結し、入力ファイルは読み取りのみ・結果は常に新しいファイルとして保存します。</p>
+      <p class="note">旧名称: ClarityPDF</p>
+      <p class="lead">OCR APIサーバーは、PDF や画像を受け取り、文字情報を JSON で返す <strong>OCR API</strong> を Android 端末上で常時提供するアプリです。OCR は端末内（Tesseract / PaddleOCR / ローカル LLM Vision）で実行し、同じ端末の他アプリや同一 LAN の PC から利用できます。画面からの OCR・要約・AI プロンプト、PDF の分解・統合・並べ替え・画像化・編集も引き続き同じアプリで使えます。</p>
       <p class="doc-links">文書: <a href="/claritypdf/manual.html">操作マニュアル</a> | <a href="/claritypdf/privacy.html#ja">プライバシーポリシー</a></p>
       <div class="highlight">
         <ul>
-          <li>入力は読み取り専用・非破壊。編集や変換の結果は必ず新規ファイルとして書き出します。</li>
-          <li>OCR は「埋め込みテキスト（元からある文字）」と「OCR（画像認識）」を区別し、JSON でも出力できます。</li>
-          <li>LLM 接続は既定で端末内 <code>127.0.0.1</code>。設定画面から「LLM API を起動」ボタンとステータス表示も利用できます。</li>
+          <li>ホーム最上部の「API を開始」だけで、この端末が OCR API サーバー（既定ポート <code>8765</code>）になります。</li>
+          <li>一度開始すると、アプリを閉じても・プロセスが終了しても・端末を再起動しても自動で再開する<strong>常時稼働</strong>サービス。</li>
+          <li>他アプリから Intent で API を開始／停止可能。応答には行ごとのテキスト・信頼度・位置（<code>blocks</code> / <code>box</code>）を含みます。</li>
         </ul>
       </div>
+    </section>
+
+    <section class="card">
+      <h2>OCR API</h2>
+      <pre>POST http://&lt;端末IP&gt;:8765/ocr      multipart/form-data
+GET  http://&lt;端末IP&gt;:8765/health   → {"status":"ok"}</pre>
+      <table>
+        <tr><th>フィールド</th><th>必須</th><th>説明</th></tr>
+        <tr><td><code>file</code></td><td>○</td><td>PDF または画像（PNG / JPEG / WebP / BMP）</td></tr>
+        <tr><td><code>engine</code></td><td></td><td><code>tesseract</code>（既定） / <code>paddleocr</code> / <code>llm</code></td></tr>
+        <tr><td><code>lang</code></td><td></td><td>言語コード。<code>eng</code>（既定）、<code>jpn,eng</code> のように複数指定可。縦書き日本語は <code>jpn_vert</code></td></tr>
+        <tr><td><code>dpi</code></td><td></td><td>PDF のレンダリング解像度 36〜600（既定 150）</td></tr>
+      </table>
+      <pre>curl -X POST http://192.168.1.10:8765/ocr \
+  -F "file=@doc.pdf" -F "engine=tesseract" -F "lang=jpn,eng"</pre>
+      <pre>{
+  "pages": [ {
+    "page": 1, "text": "…", "confidence": 0.92, "source": "OCR",
+    "width": 1080, "height": 2400,
+    "blocks": [ { "text": "…", "confidence": 0.95,
+                  "box": { "left": 40, "top": 120, "right": 620, "bottom": 168 } } ]
+  } ],
+  "engine": "Tesseract", "languages": ["jpn", "eng"], "dpi": 150, "pageCount": 1
+}</pre>
+      <p class="note"><code>box</code> は OCR した画像（<code>width</code> × <code>height</code>、PDF は <code>dpi</code> でレンダリング後のサイズ）上のピクセル座標で、原点は左上です。Tesseract / PaddleOCR は位置を返し、LLM Vision では <code>box</code> を省略します。詳しくは<a href="/claritypdf/manual.html#api">操作マニュアル</a>を参照してください。</p>
+      <figure>
+        <video class="shot-img" src="/claritypdf/APISample.mp4" controls preload="metadata" playsinline></video>
+        <figcaption>OCR API の動作デモ。</figcaption>
+      </figure>
+    </section>
+
+    <section class="card">
+      <h2>常時稼働と他アプリからの起動</h2>
+      <ul>
+        <li><strong>常時稼働</strong>: フォアグラウンドサービスとして動作し、プロセス Kill（自動再起動）、タスクのスワイプ終了、端末再起動（起動時に自動再開）、約 60 秒間隔のウォッチドッグで復帰します。停止するのは「API を停止」「終了」、通知の「停止」、他アプリからの停止要求のときだけです。</li>
+        <li><strong>処理中の保持</strong>: OCR 処理中は WakeLock と Wi-Fi ロックを保持し、画面オフでも処理を継続します。ホームの「バッテリー最適化から除外する」でスリープ中の応答と自動復帰が安定します。</li>
+        <li><strong>他アプリから有効化</strong>: 明示的 Intent（<code>com.micklab.pdf.START_SERVICE</code> / <code>STOP_SERVICE</code>、任意の int extra <code>port</code>）を <code>startForegroundService()</code> で送ると、画面を開かずに API を開始／停止できます。メーカーの自動起動制御で拒否される端末向けに、透明な起動用 Activity も用意しています。</li>
+        <li><strong>接続先の表示</strong>: ホームに端末の各ネットワークのエンドポイント URL を表示し、タップでコピーできます。処理状況 / ログで開始・停止・リクエスト・エラーの履歴を確認できます。</li>
+      </ul>
     </section>
 
     <section class="card">
       <h2>スクリーンショット</h2>
       <div class="grid">
         <figure>
-          <img class="shot-img" src="/claritypdf/sm401.jpg" alt="ホーム画面：ClarityPDF のタイトルと『Create &amp; edit PDF / Convert &amp; compose PDF / OCR / AI-OCR / Settings』の 4 カテゴリ。">
-          <figcaption>ホーム画面。「PDF 作成と編集」「PDF 変換と構成」「OCR・AI-OCR」「環境設定」の 4 カテゴリから各機能へ進みます。</figcaption>
+          <img class="shot-img" src="/claritypdf/sm404.jpg" alt="ホーム画面：OCR API Server がポート 8765 で待ち受け中。Stop API ボタン、ポート番号、タップでコピーできるエンドポイント、Settings / Exit ボタン、その下に OCR / AI-OCR セクション。">
+          <figcaption>新しいホーム画面。最上部の OCR API サーバーカードで状態（ポート 8765 で待ち受け中）、開始／停止、ポート、エンドポイント（タップでコピー）を確認でき、その下に OCR / AI-OCR などのツールが開閉式で並びます。</figcaption>
         </figure>
         <figure>
           <img class="shot-img" src="/claritypdf/sm402.jpg" alt="PDF 編集画面：固定キャンバスに追加した画像と装飾テキスト、下部に Text / Image / Layers / Font / Save のツールボックス。">
-          <figcaption>PDF 編集画面。キャンバスは固定表示のまま、下部のツールボックス（テキスト / 画像 / レイヤー / フォント / 保存）とフロートウィンドウで追加・編集します。画像と下線付きテキストを配置した例。</figcaption>
+          <figcaption>PDF 編集画面。キャンバスは固定表示のまま、下部のツールボックスとフロートウィンドウで追加・編集します。</figcaption>
         </figure>
         <figure>
           <img class="shot-img" src="/claritypdf/sm403_1.jpg" alt="AI プロンプト画面：指示入力欄、処理単位（Whole PDF / Per page）、方式（OCR→LLM / Vision）と OCR エンジン選択。">
           <figcaption>AI プロンプト。任意の指示を入力し、処理単位（PDF 全体／ページごと）、方式（OCR→LLM / Vision）、OCR エンジンを選べます。</figcaption>
         </figure>
         <figure>
-          <img class="shot-img" src="/claritypdf/sm403_2.jpg" alt="AI プロンプト画面（続き）：LLM 接続情報（127.0.0.1:11434 / Qwen）、Run AI ボタン、全体の処理結果。">
+          <img class="shot-img" src="/claritypdf/sm403_2.jpg" alt="AI プロンプト画面（続き）：LLM 接続情報、Run AI ボタン、全体の処理結果。">
           <figcaption>同画面の下部。LLM 接続先（既定は端末内 127.0.0.1）を確認して実行すると、PDF 全体への処理結果が表示されます。</figcaption>
         </figure>
       </div>
+      <p class="note">※ ホーム画面以外のスクリーンショットは旧名称（ClarityPDF）時点のものです。</p>
     </section>
 
     <section class="card">
-      <h2>主な機能</h2>
+      <h2>OCR / AI-OCR（画面からの直接実行）</h2>
       <ul>
-        <li><strong>PDF 編集</strong>: テキスト・画像の追加、既存文字の置換／削除。キャンバスは固定表示のまま、フロートウィンドウとツールボックスから追加・編集を行います。太字／斜体／下線、回転、拡大縮小、リンク（URL）、フォント選択（複数の OFL 書体・テキストごと）に対応。</li>
-        <li><strong>分解（ページ抽出）</strong>: 選択ページを 1 つの PDF にまとめる／1 ページずつに分ける。</li>
-        <li><strong>統合（結合）</strong>: 複数の PDF を順序指定で 1 つに結合。</li>
-        <li><strong>並べ替え</strong>: サムネイルをドラッグしてページ順を入れ替え。</li>
-        <li><strong>PDF 画像化</strong>: 各ページを PNG / JPEG に変換（DPI 指定可）。</li>
-        <li><strong>画像 → PDF 化</strong>: 複数の画像を順序指定で 1 つの PDF に。</li>
+        <li><strong>OCR / テキスト抽出</strong>: PDF・画像から文字を抽出。埋め込みテキストと OCR を区別し、JSON 出力にも対応します。Tesseract（軽量）は日本語（横書き・縦書き）・英語・中国語(簡体/繁体)・韓国語・ギリシャ語・ロシア語・アラビア語・ヘブライ語・数式に、PaddleOCR（高品質）は日本語（横書き・縦書き）・英語・中国語(簡体/繁体)・韓国語・アラビア語・キリル文字に対応します。</li>
+        <li><strong>PDF サマリ（要約）</strong>: ファイル全体・ページごとを LLM で要約。「OCR→LLM」または「Vision（ページ画像を直接 LLM へ）」を選べます。</li>
+        <li><strong>AI プロンプト</strong>: 任意の指示を入力し、PDF 全体または各ページごとに AI 処理を実行できます。実行中は「中止」で止められます。</li>
+        <li><strong>LLM 連携</strong>: Ollama / OpenAI 互換サーバに対応。既定はコンパニオンアプリ <a href="/llama-tester.html">LLM AI Server with llama.cpp</a> の「default Vision」「default Chat」で、サーバが停止中なら処理の開始時に自動で起動します。</li>
       </ul>
     </section>
 
     <section class="card">
-      <h2>OCR / AI-OCR</h2>
+      <h2>PDF ツール</h2>
       <ul>
-        <li><strong>OCR / テキスト抽出</strong>: PDF・画像から文字を抽出。埋め込みテキストと OCR を区別し、JSON 出力にも対応。エンジンは Tesseract / PaddleOCR / ローカル LLM Vision から選択でき、日本語・英語・中国語(簡体)・韓国語の認識に対応します。</li>
-        <li><strong>PDF サマリ（要約）</strong>: ファイル全体・ページごとを LLM で要約。「OCR→LLM」または「Vision（ページ画像を直接 LLM へ）」を選べます。</li>
-        <li><strong>AI プロンプト</strong>: 任意の指示（プロンプト）を入力し、PDF 全体または各ページごとに AI 処理を実行できます（OCR→LLM / Vision）。</li>
-        <li><strong>LLM 接続</strong>: Ollama / OpenAI 互換サーバに対応。<code>/api/tags</code> でモデル一覧を取得し、接続確認と API 起動、ステータス表示を行えます。</li>
+        <li><strong>PDF 編集</strong>: テキスト・画像・図形・描画の追加、既存文字の置換／削除。太字／斜体／下線、回転、拡大縮小、リンク（URL）、レイヤーの並べ替え、元に戻すに対応。ページの挿入（前／後／末尾）・削除もできます（最後の 1 ページは削除不可）。</li>
+        <li><strong>多言語フォント</strong>: Noto Sans JP / SC / TC / KR / Arabic / Hebrew / Math など（すべて SIL OFL）を、フォント選択時にその場でダウンロード。アラビア語・ヘブライ語は右→左の連結整形・双方向並べ替えを自動で行います。</li>
+        <li><strong>分解・統合・並べ替え</strong>: ページ抽出、複数 PDF の結合、サムネイルのドラッグによる並べ替え。</li>
+        <li><strong>PDF 画像化 / 画像 → PDF 化</strong>: 各ページを PNG / JPEG に（DPI 指定可）、複数画像を 1 つの PDF に。</li>
       </ul>
     </section>
 
     <section class="card">
       <h2>利用メモ</h2>
       <ul>
-        <li>テキストの追加・編集には埋め込みフォントの取得が必要です。Noto Sans JP / Noto Serif JP / M PLUS Rounded 1c / Zen Kaku Gothic New / Klee One（すべて SIL OFL）から選べ、テキストごとに指定できます（各書体は初回のみ通信、以後オフライン）。</li>
-        <li>通信を行うのは「OCR モデル・フォントの初回ダウンロード」と「LLM を利用する場合の設定サーバへの送信」だけです。既定の LLM 接続先は端末内 <code>127.0.0.1</code> です。</li>
-        <li>外部 LLM サーバを指定した場合、ページ画像や抽出テキストはその接続先へ送信され、取り扱いはその運用ポリシーに従います。</li>
+        <li>OCR API に認証はありません。信頼できるローカルネットワーク内でのみ有効にし、外部ネットワークには公開しないでください。</li>
+        <li>受け取ったファイルは端末内で処理して結果を返し、処理後に破棄します。当方のサーバへ送信することはありません。</li>
+        <li>通信を行うのは「OCR モデル・フォントの初回ダウンロード」「LLM を利用する場合の設定サーバへの送信」「広告の表示」だけです。既定の LLM 接続先は端末内 <code>127.0.0.1</code> です。</li>
+        <li>メーカー独自の省電力機能による強制停止からは自動復帰できない場合があります。</li>
       </ul>
     </section>
   </main>
