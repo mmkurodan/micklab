@@ -98,6 +98,13 @@
 
     <div id="days">
     <!-- GGUF-NEWS-STATIC:START -->
+    <section class="cat day" id="d-2026-11-25">
+      <div class="cat-head"><h2>2026-11-25</h2><span class="count">2 件</span></div>
+      <div class="apps news-list">
+        <div class="card news-item"><span class="badge">llama.cpp</span> <span class="badge">llama-quantize</span> <span class="badge">mixed precision</span> <span class="badge">b12669</span> <h3>llama.cpp b12669：目標サイズに合わせて量子化タイプを自動選択する llama-quantize の新オプション</h3><p>llama-quantize に --target-size オプションが追加され、指定したファイルサイズまたは bpw（1重みあたりのビット数）に収まるよう、誤差が最小になる量子化タイプの組み合わせを自動で選べるようになった（PR #15550）。スマホなどメモリ容量が限られた端末向けに、容量ぴったりのGGUFを作りやすくなる。BUILD_SHARED_LIBS=OFF でのリンク不具合の修正も含む。</p><p class="news-src"><a href="https://github.com/ggml-org/llama.cpp/releases/tag/b12669" target="_blank" rel="noopener">出典: https://github.com/ggml-org/llama.cpp/releases/tag/b12669</a></p></div>
+        <div class="card news-item"><span class="badge">llama.cpp</span> <span class="badge">Metal</span> <span class="badge">BF16</span> <span class="badge">b12668</span> <h3>llama.cpp b12668：Metal の MUL_MAT / MUL_MAT_ID が BF16・F32 入力に対応</h3><p>Apple GPU 向け Metal バックエンドで、行列積（MUL_MAT と MoE 用の MUL_MAT_ID）の入力側（src1）に BF16 と F32 精度を使えるようにする変更（PR #32677）。テンソルAPIが無い環境での BF16 対応や、MoE の精度ポリシー整理も含む。</p><p class="news-src"><a href="https://github.com/ggml-org/llama.cpp/releases/tag/b12668" target="_blank" rel="noopener">出典: https://github.com/ggml-org/llama.cpp/releases/tag/b12668</a></p></div>
+      </div>
+    </section>
     <section class="cat day" id="d-2026-11-24">
       <div class="cat-head"><h2>2026-11-24</h2><span class="count">2 件</span></div>
       <div class="apps news-list">

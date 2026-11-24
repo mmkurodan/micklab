@@ -1,6 +1,18 @@
 {
-  "updated": "2026-11-24",
+  "updated": "2026-11-25",
   "days": [
+    {
+      "date": "2026-11-25",
+      "count": 2,
+      "headlines": [
+        "llama.cpp b12669：目標サイズに合わせて量子化タイプを自動選択する llama-quantize の新オプション",
+        "llama.cpp b12668：Metal の MUL_MAT / MUL_MAT_ID が BF16・F32 入力に対応"
+      ],
+      "headlines_en": [
+        "llama.cpp b12669: llama-quantize can now pick quant types automatically to hit a target size",
+        "llama.cpp b12668: Metal MUL_MAT / MUL_MAT_ID support BF16 and F32 src1"
+      ]
+    },
     {
       "date": "2026-11-24",
       "count": 2,

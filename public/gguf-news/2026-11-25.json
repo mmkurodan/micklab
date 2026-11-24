@@ -1,0 +1,21 @@
+{
+  "date": "2026-11-25",
+  "items": [
+    {
+      "title": "llama.cpp b12669：目標サイズに合わせて量子化タイプを自動選択する llama-quantize の新オプション",
+      "title_en": "llama.cpp b12669: llama-quantize can now pick quant types automatically to hit a target size",
+      "summary_ja": "llama-quantize に --target-size オプションが追加され、指定したファイルサイズまたは bpw（1重みあたりのビット数）に収まるよう、誤差が最小になる量子化タイプの組み合わせを自動で選べるようになった（PR #15550）。スマホなどメモリ容量が限られた端末向けに、容量ぴったりのGGUFを作りやすくなる。BUILD_SHARED_LIBS=OFF でのリンク不具合の修正も含む。",
+      "summary_en": "llama-quantize gains a --target-size option that automatically chooses the mix of quant types with the lowest error for a given file size or bits-per-weight target (PR #15550). This makes it easier to produce GGUFs that fit a device's memory budget. The build also fixes a linking bug with BUILD_SHARED_LIBS=OFF.",
+      "tags": ["llama.cpp", "llama-quantize", "mixed precision", "b12669"],
+      "url": "https://github.com/ggml-org/llama.cpp/releases/tag/b12669"
+    },
+    {
+      "title": "llama.cpp b12668：Metal の MUL_MAT / MUL_MAT_ID が BF16・F32 入力に対応",
+      "title_en": "llama.cpp b12668: Metal MUL_MAT / MUL_MAT_ID support BF16 and F32 src1",
+      "summary_ja": "Apple GPU 向け Metal バックエンドで、行列積（MUL_MAT と MoE 用の MUL_MAT_ID）の入力側（src1）に BF16 と F32 精度を使えるようにする変更（PR #32677）。テンソルAPIが無い環境での BF16 対応や、MoE の精度ポリシー整理も含む。",
+      "summary_en": "The Metal backend now accepts BF16 and F32-precision src1 for MUL_MAT and the MoE MUL_MAT_ID op (PR #32677), including BF16 support without the tensor API and a cleanup of the MoE precision policy.",
+      "tags": ["llama.cpp", "Metal", "BF16", "b12668"],
+      "url": "https://github.com/ggml-org/llama.cpp/releases/tag/b12668"
+    }
+  ]
+}
