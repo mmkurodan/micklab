@@ -1,0 +1,29 @@
+{
+  "date": "2026-11-26",
+  "items": [
+    {
+      "title": "llama.cpp が Inkling 2 の DSpark 投機的デコードに対応（#32218）",
+      "title_en": "llama.cpp adds Inkling 2 DSpark speculative decoding support (#32218)",
+      "summary_ja": "公式リポジトリに Inkling 2 向け DSpark（ドラフト生成による投機的デコード）対応がマージされた。変換スクリプトと C++ 側の実装が追加され、temperature > 0 時の処理やドラフト状態幅・再シード順の修正、他の DSpark 実装とドラフトトークン数の扱いを揃える変更が含まれる。",
+      "summary_en": "The official repo merged DSpark (draft-based speculative decoding) support for Inkling 2, adding conversion and C++ implementation, handling for temperature > 0, fixes to draft state width and reseeding order, and aligning draft token limits with the other DSpark implementations.",
+      "tags": ["llama.cpp", "Inkling 2", "speculative decoding"],
+      "url": "https://github.com/ggml-org/llama.cpp/commit/33aeb17f85869279e3821f746bc645357139bc2c"
+    },
+    {
+      "title": "llama.cpp：dotprod 非対応の ARMv8.0 向けに Q4_0 / Q8_0 のリパックカーネルを追加（#32142）",
+      "title_en": "llama.cpp: Q4_0 / Q8_0 repack kernels for ARMv8.0 targets without dotprod (#32142)",
+      "summary_ja": "ggml-cpu に、dotprod 命令を持たない 64bit ARMv8.0 CPU 向けの最適化リパックカーネル（Q4_0 / Q8_0）が追加された。Apple 向けアーキテクチャは対象外。古い・廉価な Android 端末での CPU 推論に関係する変更。",
+      "summary_en": "ggml-cpu gained optimized repack kernels for Q4_0 / Q8_0 on 64-bit ARMv8.0 CPUs without the dotprod extension (Apple targets excluded), relevant to CPU inference on older or low-end Android devices.",
+      "tags": ["llama.cpp", "ARM", "Android", "Q4_0", "Q8_0"],
+      "url": "https://github.com/ggml-org/llama.cpp/commit/f20c5907c00c1a7edc32209aa97df992152b10b8"
+    },
+    {
+      "title": "llama.cpp：OpenCL に MoE 向け coopmat カーネルを追加（#32971）",
+      "title_en": "llama.cpp: OpenCL coopmat MoE kernel added (#32971)",
+      "summary_ja": "OpenCL バックエンドに、cooperative matrix を使う MoE 用カーネルが追加された。対応量子化は q4_0 / q4_1 / q4_k / q5_0 / q5_1 / q5_k / q6_k / mxfp4。同時期に OpenCL の GDN の QK オフセット修正（#32747）も入っている。",
+      "summary_en": "The OpenCL backend added a cooperative-matrix MoE kernel covering q4_0 / q4_1 / q4_k / q5_0 / q5_1 / q5_k / q6_k / mxfp4. A fix for GDN QK offsets in OpenCL (#32747) also landed around the same time.",
+      "tags": ["llama.cpp", "OpenCL", "MoE", "mxfp4"],
+      "url": "https://github.com/ggml-org/llama.cpp/commit/e6443bd7eb970d940b0669cd9ea0d82d91d620a1"
+    }
+  ]
+}

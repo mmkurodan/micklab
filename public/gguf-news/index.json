@@ -1,6 +1,20 @@
 {
-  "updated": "2026-11-25",
+  "updated": "2026-11-26",
   "days": [
+    {
+      "date": "2026-11-26",
+      "count": 3,
+      "headlines": [
+        "llama.cpp が Inkling 2 の DSpark 投機的デコードに対応（#32218）",
+        "llama.cpp：dotprod 非対応の ARMv8.0 向けに Q4_0 / Q8_0 のリパックカーネルを追加（#32142）",
+        "llama.cpp：OpenCL に MoE 向け coopmat カーネルを追加（#32971）"
+      ],
+      "headlines_en": [
+        "llama.cpp adds Inkling 2 DSpark speculative decoding support (#32218)",
+        "llama.cpp: Q4_0 / Q8_0 repack kernels for ARMv8.0 targets without dotprod (#32142)",
+        "llama.cpp: OpenCL coopmat MoE kernel added (#32971)"
+      ]
+    },
     {
       "date": "2026-11-25",
       "count": 2,
