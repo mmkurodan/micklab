@@ -1,6 +1,20 @@
 {
-  "updated": "2026-11-26",
+  "updated": "2026-11-27",
   "days": [
+    {
+      "date": "2026-11-27",
+      "count": 4,
+      "headlines": [
+        "JetBrains のコーディング向け MoE「Mellum2.1 Instruct」12B の GGUF を bartowski が公開",
+        "llama.cpp v1.1.0 を正式リリース",
+        "llama.cpp：ggml-hexagon 2.0 で INT-HMX（W8A8）行列積や F16 自動変換に対応（#32582）"
+      ],
+      "headlines_en": [
+        "bartowski publishes GGUF of JetBrains' 12B coding MoE Mellum2.1 Instruct",
+        "llama.cpp v1.1.0 released",
+        "llama.cpp: ggml-hexagon 2.0 adds INT-HMX (W8A8) matmul and automatic F16 lowering (#32582)"
+      ]
+    },
     {
       "date": "2026-11-26",
       "count": 3,
