@@ -98,6 +98,12 @@
 
     <div id="days">
     <!-- GGUF-NEWS-STATIC:START -->
+    <section class="cat day" id="d-2026-11-28">
+      <div class="cat-head"><h2>2026-11-28</h2><span class="count">1 items</span></div>
+      <div class="apps news-list">
+        <div class="card news-item"><span class="badge">llama.cpp</span> <span class="badge">bugfix</span> <span class="badge">b12779</span> <h3>llama.cpp b12779: Hadamard-folded models now fail cleanly instead of crashing with -sm tensor (#33080)</h3><p>Prism Bonsai models using prism.hadamard used to abort with a GGML_ASSERT in the meta backend when loaded with -sm tensor. With this fix, loading such models in tensor split mode is refused with a clear error message instead.</p><p class="news-src"><a href="https://github.com/ggml-org/llama.cpp/releases/tag/b12779" target="_blank" rel="noopener">Source: https://github.com/ggml-org/llama.cpp/releases/tag/b12779</a></p></div>
+      </div>
+    </section>
     <section class="cat day" id="d-2026-11-27">
       <div class="cat-head"><h2>2026-11-27</h2><span class="count">4 items</span></div>
       <div class="apps news-list">
@@ -127,13 +133,6 @@
       <div class="apps news-list">
         <div class="card news-item"><span class="badge">llama.cpp</span> <span class="badge">chat template</span> <span class="badge">LFM2.5-VL</span> <span class="badge">b12645</span> <h3>llama.cpp b12645: fixes LFM2.5-VL chat template detection</h3><p>Fixes chat template detection for Liquid AI&#x27;s vision-language LFM2.5-VL models (PR #32843). Published as a pre-release build on Nov 23.</p><p class="news-src"><a href="https://github.com/ggml-org/llama.cpp/releases/tag/b12645" target="_blank" rel="noopener">Source: https://github.com/ggml-org/llama.cpp/releases/tag/b12645</a></p></div>
         <div class="card news-item"><span class="badge">llama.cpp</span> <span class="badge">chat parser</span> <span class="badge">Inkling</span> <span class="badge">b12650</span> <h3>llama.cpp b12650: improved Inkling parser and grammar</h3><p>Improves the chat output parser and grammar handling for Thinking Machines&#x27; Inkling models (PR #32833). Published as a pre-release build on Nov 23.</p><p class="news-src"><a href="https://github.com/ggml-org/llama.cpp/releases/tag/b12650" target="_blank" rel="noopener">Source: https://github.com/ggml-org/llama.cpp/releases/tag/b12650</a></p></div>
-      </div>
-    </section>
-    <section class="cat day" id="d-2026-11-23">
-      <div class="cat-head"><h2>2026-11-23</h2><span class="count">2 items</span></div>
-      <div class="apps news-list">
-        <div class="card news-item"><span class="badge">llama.cpp</span> <span class="badge">CPU</span> <span class="badge">b12620</span> <h3>llama.cpp b12620: better memory access pattern in CPU matmul</h3><p>Reworks how the ggml CPU backend accesses memory in the mat-mul chunk routine (ggml_compute_forward_mul_mat_one_chunk), PR #30846. Published as a pre-release build.</p><p class="news-src"><a href="https://github.com/ggml-org/llama.cpp/releases/tag/b12620" target="_blank" rel="noopener">Source: https://github.com/ggml-org/llama.cpp/releases/tag/b12620</a></p></div>
-        <div class="card news-item"><span class="badge">llama.cpp</span> <span class="badge">SYCL</span> <span class="badge">IQ4_XS</span> <span class="badge">b12618</span> <h3>llama.cpp b12618: SYCL weight reorder for IQ4_NL and IQ4_XS</h3><p>Adds weight reordering for IQ4_NL and IQ4_XS quantizations to the SYCL backend (PR #31998). Published as a pre-release build.</p><p class="news-src"><a href="https://github.com/ggml-org/llama.cpp/releases/tag/b12618" target="_blank" rel="noopener">Source: https://github.com/ggml-org/llama.cpp/releases/tag/b12618</a></p></div>
       </div>
     </section>
     <!-- GGUF-NEWS-STATIC:END -->

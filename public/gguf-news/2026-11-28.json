@@ -1,0 +1,13 @@
+{
+  "date": "2026-11-28",
+  "items": [
+    {
+      "title": "llama.cpp b12779：Hadamard 折り込み済みモデルを -sm tensor で読み込んだ際のクラッシュを明確なエラーに変更（#33080）",
+      "title_en": "llama.cpp b12779: Hadamard-folded models now fail cleanly instead of crashing with -sm tensor (#33080)",
+      "summary_ja": "prism.hadamard を使う Prism Bonsai 系モデルを分割モード tensor（-sm tensor）で読み込むと、meta バックエンドで GGML_ASSERT により異常終了していた。この修正で、該当モデルではこの分割モードを受け付けず、理由を示すメッセージを出して読み込みを中止するようになった。",
+      "summary_en": "Prism Bonsai models using prism.hadamard used to abort with a GGML_ASSERT in the meta backend when loaded with -sm tensor. With this fix, loading such models in tensor split mode is refused with a clear error message instead.",
+      "tags": ["llama.cpp", "bugfix", "b12779"],
+      "url": "https://github.com/ggml-org/llama.cpp/releases/tag/b12779"
+    }
+  ]
+}

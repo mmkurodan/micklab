@@ -1,6 +1,16 @@
 {
-  "updated": "2026-11-27",
+  "updated": "2026-11-28",
   "days": [
+    {
+      "date": "2026-11-28",
+      "count": 1,
+      "headlines": [
+        "llama.cpp b12779：Hadamard 折り込み済みモデルを -sm tensor で読み込んだ際のクラッシュを明確なエラーに変更（#33080）"
+      ],
+      "headlines_en": [
+        "llama.cpp b12779: Hadamard-folded models now fail cleanly instead of crashing with -sm tensor (#33080)"
+      ]
+    },
     {
       "date": "2026-11-27",
       "count": 4,
